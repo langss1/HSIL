@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../../core/constants/spacing_constants.dart';
@@ -17,20 +15,28 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(28),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            color: AppColors.bgCard.withValues(alpha: .78),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: AppColors.white.withValues(alpha: .08)),
-          ),
-          child: child,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.bgCard : AppColors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color:
+              isDark
+                  ? AppColors.white.withValues(alpha: .08)
+                  : const Color(0xFFE7ECF3),
         ),
+        boxShadow: [
+          if (!isDark)
+            BoxShadow(
+              color: AppColors.deepNavy.withValues(alpha: .05),
+              blurRadius: 28,
+              offset: const Offset(0, 18),
+            ),
+        ],
       ),
+      child: child,
     );
   }
 }

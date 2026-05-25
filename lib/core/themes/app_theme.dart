@@ -116,13 +116,33 @@ class AppTheme {
           backgroundColor: AppColors.safetyOrange,
           foregroundColor: AppColors.white,
           minimumSize: const Size.fromHeight(54),
+          elevation: 0,
+          textStyle: GoogleFonts.spaceGrotesk(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            letterSpacing: .1,
+          ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.deepNavy,
+          side: const BorderSide(color: Color(0xFFD9E1EC)),
+          minimumSize: const Size.fromHeight(54),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: GoogleFonts.spaceGrotesk(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ),
       inputDecorationTheme: _inputDecorationTheme(
-        fillColor: AppColors.white,
+        fillColor: const Color(0xFFF8FAFD),
         textColor: AppColors.textHint,
       ),
     );
@@ -131,18 +151,18 @@ class AppTheme {
   static TextTheme _textTheme(TextTheme base, Color primaryColor) {
     return base.copyWith(
       displayLarge: base.displayLarge?.copyWith(
-        fontSize: 36,
+        fontSize: 32,
         fontWeight: FontWeight.w800,
         color: primaryColor,
-        height: 1.05,
+        height: 1.08,
       ),
       headlineMedium: base.headlineMedium?.copyWith(
-        fontSize: 26,
+        fontSize: 24,
         fontWeight: FontWeight.w800,
         color: primaryColor,
       ),
       titleLarge: base.titleLarge?.copyWith(
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: FontWeight.w700,
         color: primaryColor,
       ),
@@ -174,14 +194,14 @@ class AppTheme {
     required Color textColor,
   }) {
     final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: AppColors.bgCardLight),
+      borderRadius: BorderRadius.circular(14),
+      borderSide: const BorderSide(color: Color(0xFFDDE5EF)),
     );
 
     return InputDecorationTheme(
       filled: true,
       fillColor: fillColor,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: border,
       enabledBorder: border,
       focusedBorder: border.copyWith(

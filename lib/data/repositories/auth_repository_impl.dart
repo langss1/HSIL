@@ -6,6 +6,7 @@ import '../../core/network/connectivity_service.dart';
 import '../../core/network/retry_policy.dart';
 import '../../core/utils/app_result.dart';
 import '../../domain/entities/app_user.dart';
+import '../../domain/entities/registration_request.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/firebase_auth_data_source.dart';
 import '../datasources/firestore_user_data_source.dart';
@@ -116,6 +117,92 @@ class AuthRepositoryImpl implements AuthRepository {
       final profile = await _loadUserProfile(firebaseUser.uid);
       await _localSessionDataSource.saveRememberMe(
         rememberMe: rememberMe,
+        nik: normalizedNik,
+      );
+      return AppSuccess(profile);
+    } catch (error) {
+      return AppFailure(_mapFailure(error));
+    }
+  }
+
+  @override
+  Future<AppResult<AppUser>> registerEmployee(
+    RegistrationRequest request,
+  ) async {
+    final normalizedNik = request.nik.trim();
+    final normalizedName = request.name.trim();
+    final normalizedDepartment = request.department.trim();
+    final normalizedPosition = request.position.trim();
+
+    if (!_isValidNik(normalizedNik)) {
+      return const AppFailure(
+        AuthFailure('NIK harus berisi 10 digit angka.', code: 'invalid-nik'),
+      );
+    }
+    if (normalizedName.length < 3) {
+      return const AppFailure(
+        AuthFailure('Nama minimal 3 karakter.', code: 'invalid-name'),
+      );
+    }
+    if (request.password.length < 6) {
+      return const AppFailure(
+        AuthFailure('Password minimal 6 karakter.', code: 'weak-password'),
+      );
+    }
+    if (normalizedDepartment.isEmpty || normalizedPosition.isEmpty) {
+      return const AppFailure(
+        AuthFailure('Departemen dan jabatan wajib diisi.'),
+      );
+    }
+    if (_authDataSource == null || _userDataSource == null) {
+      return const AppFailure(
+        NetworkFailure(
+          'Firebase belum terkonfigurasi. Masukkan config project sebelum register.',
+          code: 'firebase-unavailable',
+        ),
+      );
+    }
+
+    try {
+      final online = await _connectivityService.isOnline;
+      if (!online) {
+        return const AppFailure(
+          NetworkFailure(
+            'Register membutuhkan koneksi internet.',
+            code: 'offline-register-blocked',
+          ),
+        );
+      }
+
+      final normalizedRequest = RegistrationRequest(
+        nik: normalizedNik,
+        name: normalizedName,
+        password: request.password,
+        department: normalizedDepartment,
+        position: normalizedPosition,
+        phone:
+            request.phone == null || request.phone!.trim().isEmpty
+                ? null
+                : request.phone!.trim(),
+      );
+      final credential = await _authDataSource.registerWithNik(
+        nik: normalizedNik,
+        password: request.password,
+      );
+      final firebaseUser = credential.user ?? _authDataSource.currentUser;
+      if (firebaseUser == null) {
+        return const AppFailure(
+          AuthFailure('Firebase tidak mengembalikan sesi pengguna.'),
+        );
+      }
+
+      final profile = await _userDataSource.createEmployeeProfile(
+        userId: firebaseUser.uid,
+        request: normalizedRequest,
+      );
+      await _localSessionDataSource.cacheUser(profile);
+      await _localSessionDataSource.saveRememberMe(
+        rememberMe: true,
         nik: normalizedNik,
       );
       return AppSuccess(profile);

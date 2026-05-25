@@ -19,11 +19,11 @@ class StatusPill extends StatelessWidget {
     return Semantics(
       label: label,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: .14),
+          color: color.withValues(alpha: .10),
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: color.withValues(alpha: .34)),
+          border: Border.all(color: color.withValues(alpha: .20)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

@@ -157,16 +157,25 @@ class _TodayActionCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          colors: [AppColors.safetyOrange, Color(0xFFFF8E63)],
+        color: const Color(0xFFFFF3ED),
+        border: Border.all(
+          color: AppColors.safetyOrange.withValues(alpha: .18),
         ),
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.fingerprint_rounded,
-            color: AppColors.white,
-            size: 42,
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.safetyOrange.withValues(alpha: .12),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.fingerprint_rounded,
+              color: AppColors.safetyOrange,
+              size: 28,
+            ),
           ),
           const SizedBox(width: Spacing.md),
           Expanded(
@@ -175,16 +184,12 @@ class _TodayActionCard extends StatelessWidget {
               children: [
                 Text(
                   'Clock-in flow siap disambungkan',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(color: AppColors.white),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: Spacing.xs),
                 Text(
                   'Tahap berikutnya: GPS radius + face capture.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.white.withValues(alpha: .82),
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
             ),

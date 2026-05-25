@@ -109,13 +109,10 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Masuk ke shift hari ini',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
+              Text('Masuk', style: Theme.of(context).textTheme.headlineMedium),
               const SizedBox(height: Spacing.sm),
               Text(
-                'Gunakan NIK perusahaan dan password Firebase Auth.',
+                'Gunakan NIK dan password untuk membuka dashboard.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: Spacing.lg),
@@ -202,22 +199,34 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: Spacing.md),
               AppButton(
-                label: 'Login aman',
+                label: 'Login',
                 icon: Icons.login_rounded,
                 isLoading: auth.isBusy,
                 onPressed: _submit,
               ),
-              const SizedBox(height: Spacing.md),
-              Align(
-                child: TextButton(
-                  onPressed:
-                      auth.isBusy
-                          ? null
-                          : () => Navigator.of(
-                            context,
-                          ).pushNamed(RouteConstants.forgotPassword),
-                  child: const Text('Lupa password?'),
-                ),
+              const SizedBox(height: Spacing.sm),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed:
+                        auth.isBusy
+                            ? null
+                            : () => Navigator.of(
+                              context,
+                            ).pushNamed(RouteConstants.register),
+                    child: const Text('Buat akun'),
+                  ),
+                  TextButton(
+                    onPressed:
+                        auth.isBusy
+                            ? null
+                            : () => Navigator.of(
+                              context,
+                            ).pushNamed(RouteConstants.forgotPassword),
+                    child: const Text('Lupa password?'),
+                  ),
+                ],
               ),
             ],
           ),
@@ -248,7 +257,7 @@ class _HeroPanel extends StatelessWidget {
           ),
           const SizedBox(height: Spacing.md),
           Text(
-            'Auth flow siap untuk employee dan admin, dengan session cache aman, Firestore role profile, serta Firebase services foundation.',
+            'Absensi pabrik yang jelas, cepat, dan rapi untuk employee maupun admin.',
             textAlign: compact ? TextAlign.center : TextAlign.start,
             style: Theme.of(
               context,
@@ -261,17 +270,17 @@ class _HeroPanel extends StatelessWidget {
               runSpacing: Spacing.sm,
               children: [
                 StatusPill(
-                  label: 'Role-based',
+                  label: 'Role access',
                   icon: Icons.admin_panel_settings_rounded,
                   color: AppColors.safetyOrange,
                 ),
                 StatusPill(
-                  label: 'Offline cache',
+                  label: 'Session cache',
                   icon: Icons.sync_rounded,
                   color: AppColors.info,
                 ),
                 StatusPill(
-                  label: 'Crashlytics',
+                  label: 'Firebase ready',
                   icon: Icons.shield_rounded,
                   color: AppColors.success,
                 ),
@@ -313,9 +322,9 @@ class _InlineAlert extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.white),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textPrimaryDark,
+              ),
             ),
           ),
         ],

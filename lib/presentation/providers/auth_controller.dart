@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../core/di/app_dependencies.dart';
 import '../../domain/entities/app_user.dart';
+import '../../domain/entities/registration_request.dart';
 
 enum AuthStatus {
   bootstrapping,
@@ -88,6 +89,29 @@ class AuthController extends ChangeNotifier {
         _user = user;
         _rememberedNik = _rememberMe ? nik : null;
         _status = AuthStatus.authenticated;
+      },
+      failure: (failure) {
+        _status = AuthStatus.unauthenticated;
+        _errorMessage = failure.message;
+      },
+    );
+    notifyListeners();
+  }
+
+  Future<void> registerEmployee(RegistrationRequest request) async {
+    _status = AuthStatus.authenticating;
+    _errorMessage = null;
+    _infoMessage = null;
+    notifyListeners();
+
+    final result = await _dependencies.registerEmployee(request);
+    result.when(
+      success: (user) {
+        _user = user;
+        _rememberMe = true;
+        _rememberedNik = user.nik;
+        _status = AuthStatus.authenticated;
+        _infoMessage = 'Akun berhasil dibuat.';
       },
       failure: (failure) {
         _status = AuthStatus.unauthenticated;

@@ -11,6 +11,7 @@ import '../../data/datasources/local_session_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/observe_auth_state_usecase.dart';
+import '../../domain/usecases/register_employee_usecase.dart';
 import '../../domain/usecases/send_password_reset_usecase.dart';
 import '../../domain/usecases/sign_in_with_nik_usecase.dart';
 import '../../domain/usecases/sign_out_usecase.dart';
@@ -25,6 +26,7 @@ class AppDependencies {
     required this.authRepository,
     required this.observeAuthState,
     required this.signInWithNik,
+    required this.registerEmployee,
     required this.sendPasswordReset,
     required this.signOut,
     required this.notificationService,
@@ -34,6 +36,7 @@ class AppDependencies {
   final AuthRepository authRepository;
   final ObserveAuthStateUseCase observeAuthState;
   final SignInWithNikUseCase signInWithNik;
+  final RegisterEmployeeUseCase registerEmployee;
   final SendPasswordResetUseCase sendPasswordReset;
   final SignOutUseCase signOut;
   final NotificationService notificationService;
@@ -69,6 +72,7 @@ class AppDependencies {
       authRepository: authRepository,
       observeAuthState: ObserveAuthStateUseCase(authRepository),
       signInWithNik: SignInWithNikUseCase(authRepository),
+      registerEmployee: RegisterEmployeeUseCase(authRepository),
       sendPasswordReset: SendPasswordResetUseCase(authRepository),
       signOut: SignOutUseCase(authRepository),
       notificationService: notificationService,

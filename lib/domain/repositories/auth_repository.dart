@@ -1,5 +1,6 @@
 import '../../core/utils/app_result.dart';
 import '../entities/app_user.dart';
+import '../entities/registration_request.dart';
 
 abstract interface class AuthRepository {
   Stream<AppUser?> authStateChanges();
@@ -15,6 +16,8 @@ abstract interface class AuthRepository {
     required String password,
     required bool rememberMe,
   });
+
+  Future<AppResult<AppUser>> registerEmployee(RegistrationRequest request);
 
   Future<AppResult<void>> sendPasswordReset(String nikOrEmail);
 

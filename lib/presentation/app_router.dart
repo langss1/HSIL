@@ -4,6 +4,7 @@ import '../core/constants/route_constants.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
 import 'screens/splash_screen.dart';
 
 class AppRouter {
@@ -13,6 +14,7 @@ class AppRouter {
     final page = switch (settings.name) {
       RouteConstants.splash => const SplashScreen(),
       RouteConstants.login => const LoginScreen(),
+      RouteConstants.register => const RegisterScreen(),
       RouteConstants.forgotPassword => const ForgotPasswordScreen(),
       RouteConstants.dashboard => const DashboardScreen(),
       _ => const LoginScreen(),

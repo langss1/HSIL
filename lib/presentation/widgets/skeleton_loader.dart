@@ -51,9 +51,9 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
               begin: Alignment(-1 + _controller.value * 2, 0),
               end: Alignment(1 + _controller.value * 2, 0),
               colors: [
-                AppColors.bgCardLight.withValues(alpha: .35),
-                AppColors.white.withValues(alpha: .08),
-                AppColors.bgCardLight.withValues(alpha: .35),
+                const Color(0xFFE9EEF6),
+                AppColors.white.withValues(alpha: .90),
+                const Color(0xFFE9EEF6),
               ],
             ),
           ),

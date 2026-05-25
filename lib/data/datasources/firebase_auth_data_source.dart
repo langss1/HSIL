@@ -26,6 +26,20 @@ class FirebaseAuthDataSource {
     }
   }
 
+  Future<UserCredential> registerWithNik({
+    required String nik,
+    required String password,
+  }) async {
+    try {
+      return await _auth.createUserWithEmailAndPassword(
+        email: nikToEmail(nik),
+        password: password,
+      );
+    } on FirebaseAuthException catch (error) {
+      throw AuthException(_mapAuthMessage(error), code: error.code);
+    }
+  }
+
   Future<void> sendPasswordReset(String nikOrEmail) async {
     final email =
         nikOrEmail.contains('@') ? nikOrEmail : nikToEmail(nikOrEmail);
@@ -45,7 +59,9 @@ class FirebaseAuthDataSource {
   String _mapAuthMessage(FirebaseAuthException error) {
     return switch (error.code) {
       'invalid-email' => 'Format NIK tidak valid.',
+      'email-already-in-use' => 'NIK sudah terdaftar.',
       'user-not-found' => 'NIK tidak ditemukan.',
+      'weak-password' => 'Password terlalu lemah.',
       'wrong-password' || 'invalid-credential' => 'Password salah.',
       'user-disabled' => 'Akun dinonaktifkan oleh admin.',
       'network-request-failed' => 'Koneksi bermasalah. Coba lagi sebentar.',
