@@ -65,12 +65,11 @@ class _DotLoaderState extends State<DotLoader> with TickerProviderStateMixin {
                   height: widget.size,
                   decoration: BoxDecoration(
                     color: widget.color.withValues(alpha: 0.85 + (i * 0.05)),
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(3),
                     boxShadow: [
                       BoxShadow(
-                        color: widget.color.withValues(alpha: 0.40),
-                        blurRadius: 6,
-                        spreadRadius: 1,
+                        color: widget.color.withValues(alpha: 0.15),
+                        blurRadius: 4,
                       ),
                     ],
                   ),

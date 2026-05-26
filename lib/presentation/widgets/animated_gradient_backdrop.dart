@@ -47,9 +47,9 @@ class _AnimatedGradientBackdropState extends State<AnimatedGradientBackdrop>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: const [
-                      Color(0xFF0A1628),
+                      Color(0xFF071224),
                       Color(0xFF0B1D3A),
-                      Color(0xFF0D2645),
+                      Color(0xFF0E2445),
                     ],
                     stops: const [0.0, 0.5, 1.0],
                   )
@@ -57,9 +57,9 @@ class _AnimatedGradientBackdropState extends State<AnimatedGradientBackdrop>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: const [
-                      Color(0xFFF0F4FF),
-                      Color(0xFFF7F9FC),
-                      Color(0xFFEDF2FB),
+                      Color(0xFFFAFBFC),
+                      Color(0xFFFFFFFF),
+                      Color(0xFFF1F3F7),
                     ],
                   ),
           ),
@@ -72,18 +72,18 @@ class _AnimatedGradientBackdropState extends State<AnimatedGradientBackdrop>
                 child: _GlowOrb(
                   size: 280,
                   color: AppColors.safetyOrange.withValues(
-                    alpha: isDark ? 0.10 : 0.06,
+                    alpha: isDark ? 0.06 : 0.025,
                   ),
                 ),
               ),
-              // Glow orb 2 — bottom left (blue accent)
+              // Glow orb 2 — bottom left (deep navy accent)
               Positioned(
                 bottom: -100 + (math.cos(t * math.pi * 2) * 25),
                 left: -80 + (math.sin(t * math.pi * 2) * 20),
                 child: _GlowOrb(
                   size: 320,
-                  color: AppColors.info.withValues(
-                    alpha: isDark ? 0.07 : 0.04,
+                  color: AppColors.deepNavy.withValues(
+                    alpha: isDark ? 0.05 : 0.015,
                   ),
                 ),
               ),
@@ -95,7 +95,7 @@ class _AnimatedGradientBackdropState extends State<AnimatedGradientBackdrop>
                 child: _GlowOrb(
                   size: 180,
                   color: AppColors.safetyOrange.withValues(
-                    alpha: isDark ? 0.05 : 0.03,
+                    alpha: isDark ? 0.04 : 0.015,
                   ),
                 ),
               ),

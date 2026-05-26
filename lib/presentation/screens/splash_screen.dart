@@ -64,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 width: 116,
                                 height: 116,
                                 decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
+                                  borderRadius: BorderRadius.circular(24),
                                   gradient: RadialGradient(
                                     colors: [
                                       AppColors.safetyOrange.withValues(
@@ -91,40 +91,33 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                   const SizedBox(height: Spacing.xxl),
 
-                  // App name with gradient text
+                  // App name with solid high-contrast text
                   FadeSlide(
                     delay: const Duration(milliseconds: 120),
-                    child: ShaderMask(
-                      shaderCallback: (bounds) =>
-                          const LinearGradient(
-                            colors: [
-                              AppColors.safetyOrange,
-                              Color(0xFFFFAA6B),
-                            ],
-                          ).createShader(bounds),
-                      child: Text(
-                        AppConstants.appName,
-                        textAlign: TextAlign.center,
-                        style:
-                            Theme.of(context).textTheme.displayMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.5,
-                                  color: Colors.white,
-                                ),
-                      ),
+                    child: Text(
+                      AppConstants.appName,
+                      textAlign: TextAlign.center,
+                      style:
+                          Theme.of(context).textTheme.displayMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.5,
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? AppColors.white
+                                    : AppColors.deepNavy,
+                              ),
                     ),
                   ),
                   const SizedBox(height: Spacing.sm),
 
-                  // Tagline
+                  // Tagline in crisp safety orange
                   FadeSlide(
                     delay: const Duration(milliseconds: 240),
                     child: Text(
                       AppConstants.appTagline,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
+                            color: AppColors.safetyOrange,
+                            fontWeight: FontWeight.w600,
                             letterSpacing: 0.3,
                           ),
                     ),

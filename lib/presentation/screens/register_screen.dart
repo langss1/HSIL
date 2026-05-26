@@ -7,7 +7,6 @@ import '../../domain/entities/registration_request.dart';
 import '../providers/auth_controller.dart';
 import '../widgets/animated_gradient_backdrop.dart';
 import '../widgets/app_button.dart';
-import '../widgets/app_logo_mark.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/fade_slide.dart';
 import '../widgets/glass_card.dart';
@@ -69,16 +68,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.10),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.15),
-              ),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E293B)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                if (Theme.of(context).brightness != Brightness.dark)
+                  BoxShadow(
+                    color: AppColors.deepNavy.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+              ],
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios_new_rounded,
               size: 16,
-              color: Colors.white,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : AppColors.deepNavy,
             ),
           ),
           onPressed: () => Navigator.of(context).pop(),
@@ -96,14 +104,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Header
-                      const Center(child: AppLogoMark(size: 64)),
-                      const SizedBox(height: Spacing.md),
                       Text(
                         'Buat Akun Baru',
                         textAlign: TextAlign.center,
                         style:
                             Theme.of(context).textTheme.headlineMedium?.copyWith(
                                   fontWeight: FontWeight.w800,
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? AppColors.white
+                                      : AppColors.deepNavy,
                                 ),
                       ),
                       const SizedBox(height: Spacing.xs),
@@ -129,10 +138,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 const SizedBox(height: Spacing.md),
                               ],
 
-                              // ─── Section: Data Diri ───────────
+                               // ─── Section: Data Diri ───────────
                               _SectionLabel(
                                 label: 'Data Karyawan',
-                                icon: Icons.person_outline_rounded,
+                                icon: Icons.person_rounded,
                               ),
                               const SizedBox(height: Spacing.sm),
 
@@ -140,7 +149,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 controller: _nikController,
                                 label: 'NIK',
                                 hint: '10 digit',
-                                icon: Icons.badge_outlined,
+                                icon: Icons.badge_rounded,
                                 keyboardType: TextInputType.number,
                                 textInputAction: TextInputAction.next,
                                 validator: _validateNik,
@@ -150,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 controller: _nameController,
                                 label: 'Nama Lengkap',
                                 hint: 'Nama karyawan',
-                                icon: Icons.person_outline_rounded,
+                                icon: Icons.person_rounded,
                                 textInputAction: TextInputAction.next,
                                 validator: (value) {
                                   if ((value?.trim() ?? '').length < 3) {
@@ -167,7 +176,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       controller: _departmentController,
                                       label: 'Departemen',
                                       hint: 'Produksi',
-                                      icon: Icons.factory_outlined,
+                                      icon: Icons.business_rounded,
                                       textInputAction: TextInputAction.next,
                                       validator: _required,
                                     ),
@@ -178,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       controller: _positionController,
                                       label: 'Jabatan',
                                       hint: 'Operator',
-                                      icon: Icons.work_outline_rounded,
+                                      icon: Icons.work_rounded,
                                       textInputAction: TextInputAction.next,
                                       validator: _required,
                                     ),
@@ -190,45 +199,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 controller: _phoneController,
                                 label: 'No. HP (Opsional)',
                                 hint: '08xxxxxxxxxx',
-                                icon: Icons.phone_outlined,
+                                icon: Icons.phone_rounded,
                                 keyboardType: TextInputType.phone,
                                 textInputAction: TextInputAction.next,
                               ),
 
                               const SizedBox(height: Spacing.lg),
 
-                              // Divider
-                              Row(
-                                children: [
-                                  const Expanded(
-                                    child: Divider(
-                                        color: AppColors.bgCardLight,
-                                        thickness: 1),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12),
-                                    child: Text(
-                                      'Keamanan',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelSmall,
-                                    ),
-                                  ),
-                                  const Expanded(
-                                    child: Divider(
-                                        color: AppColors.bgCardLight,
-                                        thickness: 1),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: Spacing.md),
-
                               // ─── Section: Password ──────────
                               _SectionLabel(
                                 label: 'Buat Password',
-                                icon: Icons.lock_outline_rounded,
+                                icon: Icons.lock_rounded,
                               ),
                               const SizedBox(height: Spacing.sm),
 
@@ -236,7 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 controller: _passwordController,
                                 label: 'Password',
                                 hint: 'Minimal 6 karakter',
-                                icon: Icons.lock_outline_rounded,
+                                icon: Icons.lock_rounded,
                                 obscureText: true,
                                 textInputAction: TextInputAction.next,
                                 validator: _validatePassword,

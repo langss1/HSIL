@@ -45,17 +45,11 @@ class GlassCard extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withValues(alpha: 0.92),
-                      Colors.white.withValues(alpha: 0.96),
+                      Colors.white,
+                      Colors.white.withValues(alpha: 0.98),
                     ],
                   ),
             borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.10)
-                  : Colors.white.withValues(alpha: 0.80),
-              width: 1.2,
-            ),
             boxShadow: [
               if (isDark)
                 BoxShadow(
@@ -65,9 +59,9 @@ class GlassCard extends StatelessWidget {
                 ),
               if (!isDark)
                 BoxShadow(
-                  color: AppColors.deepNavy.withValues(alpha: 0.08),
-                  blurRadius: 20,
-                  offset: const Offset(0, 6),
+                  color: AppColors.deepNavy.withValues(alpha: 0.04),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
               if (glowColor != null)
                 BoxShadow(

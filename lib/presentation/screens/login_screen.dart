@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/constants/app_constants.dart';
 import '../../core/constants/route_constants.dart';
 import '../../core/constants/spacing_constants.dart';
 import '../../core/themes/color_palette.dart';
 import '../providers/auth_controller.dart';
 import '../widgets/animated_gradient_backdrop.dart';
 import '../widgets/app_button.dart';
-import '../widgets/app_logo_mark.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/fade_slide.dart';
 import '../widgets/glass_card.dart';
@@ -120,28 +118,48 @@ class _MobileHeader extends StatelessWidget {
     return FadeSlide(
       child: Column(
         children: [
-          const AppLogoMark(size: 72),
-          const SizedBox(height: Spacing.md),
-          ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [AppColors.safetyOrange, Color(0xFFFFAA6B)],
-            ).createShader(bounds),
-            child: Text(
-              AppConstants.appName,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    letterSpacing: -0.3,
-                  ),
+          SizedBox(
+            width: 220,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Image.asset(
+                  'assets/login.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: AppColors.safetyOrange.withValues(alpha: 0.1),
+                      child: const Icon(
+                        Icons.image_outlined,
+                        color: AppColors.safetyOrange,
+                        size: 64,
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
+          ),
+          const SizedBox(height: Spacing.md),
+          Text(
+            'Absen!',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.white
+                      : AppColors.deepNavy,
+                  letterSpacing: -0.3,
+                ),
           ),
           const SizedBox(height: Spacing.xs),
           Text(
             'Sistem Absensi Terintegrasi',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: AppColors.safetyOrange,
+                  fontWeight: FontWeight.w600,
                 ),
           ),
         ],
@@ -159,22 +177,39 @@ class _DesktopHeroPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const AppLogoMark(size: 88),
-          const SizedBox(height: Spacing.xl),
-          ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.safetyOrange, Color(0xFFFFAA6B)],
-            ).createShader(bounds),
-            child: Text(
-              AppConstants.appName,
-              style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    letterSpacing: -0.5,
-                  ),
+          SizedBox(
+            width: 240,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Image.asset(
+                  'assets/login.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: AppColors.safetyOrange.withValues(alpha: 0.1),
+                      child: const Icon(
+                        Icons.image_outlined,
+                        color: AppColors.safetyOrange,
+                        size: 64,
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
+          ),
+          const SizedBox(height: Spacing.xl),
+          Text(
+            'Absen!',
+            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.white
+                      : AppColors.deepNavy,
+                  letterSpacing: -0.5,
+                ),
           ),
           const SizedBox(height: Spacing.md),
           Text(
@@ -274,6 +309,9 @@ class _LoginFormCard extends StatelessWidget {
                         style:
                             Theme.of(context).textTheme.headlineMedium?.copyWith(
                                   fontWeight: FontWeight.w800,
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? AppColors.white
+                                      : AppColors.deepNavy,
                                 ),
                       ),
                       const SizedBox(height: 2),
@@ -282,49 +320,6 @@ class _LoginFormCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
-                  ),
-                  const Spacer(),
-                  // Firebase status indicator
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: auth.isFirebaseReady
-                          ? AppColors.success.withValues(alpha: 0.12)
-                          : AppColors.warning.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                        color: auth.isFirebaseReady
-                            ? AppColors.success.withValues(alpha: 0.25)
-                            : AppColors.warning.withValues(alpha: 0.25),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: auth.isFirebaseReady
-                                ? AppColors.success
-                                : AppColors.warning,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          auth.isFirebaseReady ? 'Live' : 'Demo',
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: auth.isFirebaseReady
-                                        ? AppColors.success
-                                        : AppColors.warning,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               ),
@@ -343,7 +338,7 @@ class _LoginFormCard extends StatelessWidget {
                 controller: nikController,
                 label: 'NIK Karyawan',
                 hint: '10 digit nomor induk',
-                icon: Icons.badge_outlined,
+                icon: Icons.badge_rounded,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
                 validator: (value) {
@@ -360,7 +355,7 @@ class _LoginFormCard extends StatelessWidget {
                 controller: passwordController,
                 label: 'Password',
                 hint: 'Min. 6 karakter',
-                icon: Icons.lock_outline_rounded,
+                icon: Icons.lock_rounded,
                 obscureText: true,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => onSubmit(),

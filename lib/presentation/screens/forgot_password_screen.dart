@@ -67,16 +67,25 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.10),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.15),
-              ),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E293B)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                if (Theme.of(context).brightness != Brightness.dark)
+                  BoxShadow(
+                    color: AppColors.deepNavy.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+              ],
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios_new_rounded,
               size: 16,
-              color: Colors.white,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : AppColors.deepNavy,
             ),
           ),
           onPressed: () => Navigator.of(context).pop(),
@@ -105,17 +114,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                           width: 88,
                           height: 88,
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: RadialGradient(
-                              colors: [
-                                AppColors.safetyOrange.withValues(alpha: 0.20),
-                                AppColors.safetyOrange.withValues(alpha: 0.05),
-                              ],
-                            ),
-                            border: Border.all(
-                              color: AppColors.safetyOrange.withValues(alpha: 0.30),
-                              width: 2,
-                            ),
+                            borderRadius: BorderRadius.circular(22),
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? AppColors.safetyOrange.withValues(alpha: 0.15)
+                                : AppColors.safetyOrange.withValues(alpha: 0.10),
+                            boxShadow: [
+                              if (Theme.of(context).brightness != Brightness.dark)
+                                BoxShadow(
+                                  color: AppColors.safetyOrange.withValues(alpha: 0.08),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
+                                ),
+                            ],
                           ),
                           child: const Icon(
                             Icons.lock_reset_rounded,
@@ -135,6 +145,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                         style:
                             Theme.of(context).textTheme.headlineMedium?.copyWith(
                                   fontWeight: FontWeight.w800,
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? AppColors.white
+                                      : AppColors.deepNavy,
                                 ),
                         textAlign: TextAlign.center,
                       ),
@@ -167,12 +180,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                               Container(
                                 height: 4,
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      AppColors.safetyOrange,
-                                      Color(0xFFFFAA6B),
-                                    ],
-                                  ),
+                                  color: AppColors.safetyOrange,
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                               ),
@@ -219,7 +227,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                                 controller: _identityController,
                                 label: 'NIK atau Email',
                                 hint: '0000000000 atau user@domain.com',
-                                icon: Icons.alternate_email_rounded,
+                                icon: Icons.email_rounded,
                                 textInputAction: TextInputAction.done,
                                 onSubmitted: (_) => _submit(),
                                 validator: (value) {
