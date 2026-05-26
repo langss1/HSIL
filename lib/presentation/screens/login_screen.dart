@@ -12,7 +12,6 @@ import '../widgets/app_logo_mark.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/fade_slide.dart';
 import '../widgets/glass_card.dart';
-import '../widgets/status_pill.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,9 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_didHydrateRememberedNik) {
-      return;
-    }
+    if (_didHydrateRememberedNik) return;
     final rememberedNik = context.read<AuthController>().rememberedNik;
     if (rememberedNik != null) {
       _nikController.text = rememberedNik;
@@ -48,20 +45,18 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
     await context.read<AuthController>().signIn(
-      nik: _nikController.text,
-      password: _passwordController.text,
-    );
+          nik: _nikController.text,
+          password: _passwordController.text,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthController>();
-    final width = MediaQuery.sizeOf(context).width;
-    final isWide = width >= 760;
+    final size = MediaQuery.sizeOf(context);
+    final isWide = size.width >= 900;
 
     return Scaffold(
       body: AnimatedGradientBackdrop(
@@ -69,28 +64,46 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Center(
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(
-                horizontal: isWide ? 48 : Spacing.md,
-                vertical: Spacing.xl,
+                horizontal: isWide ? 64 : Spacing.md,
+                vertical: Spacing.md,
               ),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1080),
-                child:
-                    isWide
-                        ? Row(
-                          children: [
-                            const Expanded(child: _HeroPanel()),
-                            const SizedBox(width: Spacing.xl),
-                            Expanded(child: _loginCard(auth: auth)),
-                          ],
-                        )
-                        : Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            const _HeroPanel(compact: true),
-                            const SizedBox(height: Spacing.lg),
-                            _loginCard(auth: auth),
-                          ],
-                        ),
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: isWide
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 45,
+                            child: _DesktopHeroPanel(),
+                          ),
+                          const SizedBox(width: 60),
+                          Expanded(
+                            flex: 55,
+                            child: _LoginFormCard(
+                              formKey: _formKey,
+                              nikController: _nikController,
+                              passwordController: _passwordController,
+                              auth: auth,
+                              onSubmit: _submit,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _MobileHeader(),
+                          const SizedBox(height: Spacing.xl),
+                          _LoginFormCard(
+                            formKey: _formKey,
+                            nikController: _nikController,
+                            passwordController: _passwordController,
+                            auth: auth,
+                            onSubmit: _submit,
+                          ),
+                        ],
+                      ),
               ),
             ),
           ),
@@ -98,133 +111,356 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
 
-  Widget _loginCard({required AuthController auth}) {
+// ─────────────────────── Mobile Header ───────────────────────
+class _MobileHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     return FadeSlide(
-      delay: const Duration(milliseconds: 120),
+      child: Column(
+        children: [
+          const AppLogoMark(size: 72),
+          const SizedBox(height: Spacing.md),
+          ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              colors: [AppColors.safetyOrange, Color(0xFFFFAA6B)],
+            ).createShader(bounds),
+            child: Text(
+              AppConstants.appName,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: -0.3,
+                  ),
+            ),
+          ),
+          const SizedBox(height: Spacing.xs),
+          Text(
+            'Sistem Absensi Terintegrasi',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────── Desktop Hero ───────────────────────
+class _DesktopHeroPanel extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FadeSlide(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const AppLogoMark(size: 88),
+          const SizedBox(height: Spacing.xl),
+          ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.safetyOrange, Color(0xFFFFAA6B)],
+            ).createShader(bounds),
+            child: Text(
+              AppConstants.appName,
+              style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
+            ),
+          ),
+          const SizedBox(height: Spacing.md),
+          Text(
+            'Platform HRIS modern untuk\nmanajemen absensi pabrik.',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.7,
+                ),
+          ),
+          const SizedBox(height: Spacing.xl),
+          _FeatureChips(),
+        ],
+      ),
+    );
+  }
+}
+
+class _FeatureChips extends StatelessWidget {
+  final _features = const [
+    (Icons.gps_fixed_rounded, 'GPS Validation'),
+    (Icons.face_rounded, 'Face ID'),
+    (Icons.shield_rounded, 'Secure Auth'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: Spacing.sm,
+      runSpacing: Spacing.sm,
+      children: _features.map((f) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            color: AppColors.safetyOrange.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: AppColors.safetyOrange.withValues(alpha: 0.20),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(f.$1, size: 14, color: AppColors.safetyOrange),
+              const SizedBox(width: 6),
+              Text(
+                f.$2,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.safetyOrange,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+// ─────────────────────── Login Form Card ───────────────────────
+class _LoginFormCard extends StatelessWidget {
+  const _LoginFormCard({
+    required this.formKey,
+    required this.nikController,
+    required this.passwordController,
+    required this.auth,
+    required this.onSubmit,
+  });
+
+  final GlobalKey<FormState> formKey;
+  final TextEditingController nikController;
+  final TextEditingController passwordController;
+  final AuthController auth;
+  final VoidCallback onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeSlide(
+      delay: const Duration(milliseconds: 100),
       child: GlassCard(
-        padding: const EdgeInsets.all(22),
+        padding: const EdgeInsets.all(28),
+        borderRadius: 24,
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Masuk', style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: Spacing.sm),
-              Text(
-                'Gunakan NIK dan password untuk membuka dashboard.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: Spacing.lg),
-              if (auth.firebaseMessage != null) ...[
-                StatusPill(
-                  label:
-                      auth.isFirebaseReady
-                          ? 'Firebase ready'
-                          : 'Firebase offline fallback',
-                  icon:
-                      auth.isFirebaseReady
-                          ? Icons.cloud_done_rounded
-                          : Icons.cloud_off_rounded,
-                  color:
-                      auth.isFirebaseReady
-                          ? AppColors.success
-                          : AppColors.warning,
-                ),
-                const SizedBox(height: Spacing.md),
-              ],
-              if (auth.errorMessage != null) ...[
-                _InlineAlert(
-                  message: auth.errorMessage!,
-                  color: AppColors.error,
-                  icon: Icons.error_outline_rounded,
-                ),
-                const SizedBox(height: Spacing.md),
-              ],
-              if (auth.infoMessage != null) ...[
-                _InlineAlert(
-                  message: auth.infoMessage!,
-                  color: AppColors.info,
-                  icon: Icons.info_outline_rounded,
-                ),
-                const SizedBox(height: Spacing.md),
-              ],
-              AppTextField(
-                controller: _nikController,
-                label: 'NIK',
-                hint: '10 digit NIK',
-                icon: Icons.badge_outlined,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.next,
-                validator: (value) {
-                  final nik = value?.trim() ?? '';
-                  if (!RegExp(r'^\d{10}$').hasMatch(nik)) {
-                    return 'NIK harus 10 digit angka';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: Spacing.md),
-              AppTextField(
-                controller: _passwordController,
-                label: 'Password',
-                hint: 'Minimal 6 karakter',
-                icon: Icons.lock_outline_rounded,
-                obscureText: true,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _submit(),
-                validator: (value) {
-                  if ((value ?? '').length < 6) {
-                    return 'Password minimal 6 karakter';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: Spacing.sm),
+              // Header
               Row(
                 children: [
-                  Checkbox(
-                    value: auth.rememberMe,
-                    onChanged:
-                        (value) =>
-                            auth.setRememberMe(value ?? !auth.rememberMe),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Selamat Datang',
+                        style:
+                            Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Masuk ke akun karyawan Anda',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: Text(
-                      'Remember Me (simpan NIK, bukan password)',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                  const Spacer(),
+                  // Firebase status indicator
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: auth.isFirebaseReady
+                          ? AppColors.success.withValues(alpha: 0.12)
+                          : AppColors.warning.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: auth.isFirebaseReady
+                            ? AppColors.success.withValues(alpha: 0.25)
+                            : AppColors.warning.withValues(alpha: 0.25),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: auth.isFirebaseReady
+                                ? AppColors.success
+                                : AppColors.warning,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          auth.isFirebaseReady ? 'Live' : 'Demo',
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: auth.isFirebaseReady
+                                        ? AppColors.success
+                                        : AppColors.warning,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
+
+              const SizedBox(height: Spacing.lg),
+
+              // Error message
+              if (auth.errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: Spacing.md),
+                  child: _ErrorBanner(message: auth.errorMessage!),
+                ),
+
+              // NIK field
+              AppTextField(
+                controller: nikController,
+                label: 'NIK Karyawan',
+                hint: '10 digit nomor induk',
+                icon: Icons.badge_outlined,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+                validator: (value) {
+                  if (!RegExp(r'^\d{10}$').hasMatch(value?.trim() ?? '')) {
+                    return 'NIK harus 10 digit';
+                  }
+                  return null;
+                },
+              ),
               const SizedBox(height: Spacing.md),
+
+              // Password field
+              AppTextField(
+                controller: passwordController,
+                label: 'Password',
+                hint: 'Min. 6 karakter',
+                icon: Icons.lock_outline_rounded,
+                obscureText: true,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => onSubmit(),
+                validator: (value) {
+                  if ((value ?? '').length < 6) {
+                    return 'Password min. 6 karakter';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: Spacing.md),
+
+              // Remember me (modern toggle style)
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => auth.setRememberMe(!auth.rememberMe),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      width: 42,
+                      height: 24,
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: auth.rememberMe
+                            ? AppColors.safetyOrange
+                            : AppColors.bgCardLight,
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: auth.rememberMe
+                              ? AppColors.safetyOrange
+                              : AppColors.textSecondary
+                                  .withValues(alpha: 0.30),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: AnimatedAlign(
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOut,
+                        alignment: auth.rememberMe
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: Spacing.sm),
+                  Text(
+                    'Ingat NIK saya',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: Spacing.lg),
+
+              // Login button
               AppButton(
-                label: 'Login',
+                label: 'Masuk Sekarang',
                 icon: Icons.login_rounded,
                 isLoading: auth.isBusy,
-                onPressed: _submit,
+                onPressed: auth.isBusy ? null : onSubmit,
               ),
-              const SizedBox(height: Spacing.sm),
+              const SizedBox(height: Spacing.md),
+
+              // Links
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton(
-                    onPressed:
-                        auth.isBusy
-                            ? null
-                            : () => Navigator.of(
-                              context,
-                            ).pushNamed(RouteConstants.register),
-                    child: const Text('Buat akun'),
+                  TextButton.icon(
+                    onPressed: auth.isBusy
+                        ? null
+                        : () => Navigator.of(context)
+                            .pushNamed(RouteConstants.register),
+                    icon: const Icon(Icons.person_add_outlined, size: 15),
+                    label: const Text('Buat akun'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.safetyOrange,
+                      padding: EdgeInsets.zero,
+                    ),
                   ),
-                  TextButton(
-                    onPressed:
-                        auth.isBusy
-                            ? null
-                            : () => Navigator.of(
-                              context,
-                            ).pushNamed(RouteConstants.forgotPassword),
-                    child: const Text('Lupa password?'),
+                  TextButton.icon(
+                    onPressed: auth.isBusy
+                        ? null
+                        : () => Navigator.of(context)
+                            .pushNamed(RouteConstants.forgotPassword),
+                    icon: const Icon(Icons.help_outline_rounded, size: 15),
+                    label: const Text('Lupa password?'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.textSecondary,
+                      padding: EdgeInsets.zero,
+                    ),
                   ),
                 ],
               ),
@@ -236,95 +472,31 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-class _HeroPanel extends StatelessWidget {
-  const _HeroPanel({this.compact = false});
-
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeSlide(
-      child: Column(
-        crossAxisAlignment:
-            compact ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-        children: [
-          const AppLogoMark(),
-          const SizedBox(height: Spacing.lg),
-          Text(
-            AppConstants.appName,
-            textAlign: compact ? TextAlign.center : TextAlign.start,
-            style: Theme.of(context).textTheme.displayLarge,
-          ),
-          const SizedBox(height: Spacing.md),
-          Text(
-            'Absensi pabrik yang jelas, cepat, dan rapi untuk employee maupun admin.',
-            textAlign: compact ? TextAlign.center : TextAlign.start,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
-          ),
-          if (!compact) ...[
-            const SizedBox(height: Spacing.lg),
-            const Wrap(
-              spacing: Spacing.sm,
-              runSpacing: Spacing.sm,
-              children: [
-                StatusPill(
-                  label: 'Role access',
-                  icon: Icons.admin_panel_settings_rounded,
-                  color: AppColors.safetyOrange,
-                ),
-                StatusPill(
-                  label: 'Session cache',
-                  icon: Icons.sync_rounded,
-                  color: AppColors.info,
-                ),
-                StatusPill(
-                  label: 'Firebase ready',
-                  icon: Icons.shield_rounded,
-                  color: AppColors.success,
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _InlineAlert extends StatelessWidget {
-  const _InlineAlert({
-    required this.message,
-    required this.color,
-    required this.icon,
-  });
-
+class _ErrorBanner extends StatelessWidget {
+  const _ErrorBanner({required this.message});
   final String message;
-  final Color color;
-  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: .13),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withValues(alpha: .35)),
+        color: AppColors.error.withValues(alpha: 0.08),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.25)),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 10),
+          const Icon(Icons.error_outline_rounded,
+              color: AppColors.error, size: 18),
+          const SizedBox(width: Spacing.sm),
           Expanded(
             child: Text(
               message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textPrimaryDark,
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: AppColors.error),
             ),
           ),
         ],

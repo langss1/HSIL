@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../core/themes/color_palette.dart';
 
+/// App logo — uses Absen.png asset with glow ring & gradient container
 class AppLogoMark extends StatelessWidget {
   const AppLogoMark({super.key, this.size = 68});
 
@@ -12,16 +12,41 @@ class AppLogoMark extends StatelessWidget {
     return Semantics(
       label: 'HSIL Attendance logo',
       child: Container(
-        width: size,
-        height: size,
+        width: size + 8,
+        height: size + 8,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(size * .24),
-          color: AppColors.deepNavy,
+          shape: BoxShape.circle,
+          gradient: const RadialGradient(
+            colors: [
+              Color(0xFF253D5C),
+              Color(0xFF0B1D3A),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.safetyOrange.withValues(alpha: 0.35),
+              blurRadius: size * 0.55,
+              spreadRadius: size * 0.04,
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.30),
+              blurRadius: size * 0.30,
+              offset: Offset(0, size * 0.12),
+            ),
+          ],
+          border: Border.all(
+            color: AppColors.safetyOrange.withValues(alpha: 0.30),
+            width: 2,
+          ),
         ),
-        child: const Icon(
-          Icons.verified_user_rounded,
-          color: AppColors.safetyOrange,
-          size: 34,
+        child: ClipOval(
+          child: Padding(
+            padding: EdgeInsets.all(size * 0.08),
+            child: Image.asset(
+              'assets/Absen.png',
+              fit: BoxFit.contain,
+            ),
+          ),
         ),
       ),
     );

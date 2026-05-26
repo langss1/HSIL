@@ -42,20 +42,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
+    if (!_formKey.currentState!.validate()) return;
     await context.read<AuthController>().registerEmployee(
-      RegistrationRequest(
-        nik: _nikController.text,
-        name: _nameController.text,
-        department: _departmentController.text,
-        position: _positionController.text,
-        phone: _phoneController.text,
-        password: _passwordController.text,
-      ),
-    );
+          RegistrationRequest(
+            nik: _nikController.text,
+            name: _nameController.text,
+            department: _departmentController.text,
+            position: _positionController.text,
+            phone: _phoneController.text,
+            password: _passwordController.text,
+          ),
+        );
   }
 
   @override
@@ -63,6 +60,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final auth = context.watch<AuthController>();
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.10),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.15),
+              ),
+            ),
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 16,
+              color: Colors.white,
+            ),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: AnimatedGradientBackdrop(
         child: SafeArea(
           child: Center(
@@ -74,30 +95,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Center(child: AppLogoMark(size: 56)),
-                      const SizedBox(height: Spacing.lg),
+                      // Header
+                      const Center(child: AppLogoMark(size: 64)),
+                      const SizedBox(height: Spacing.md),
                       Text(
-                        'Buat akun',
+                        'Buat Akun Baru',
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headlineMedium,
+                        style:
+                            Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                ),
                       ),
                       const SizedBox(height: Spacing.xs),
                       Text(
-                        'Akun baru otomatis dibuat sebagai employee.',
+                        'Akun baru otomatis dibuat sebagai Karyawan.',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: Spacing.lg),
+
+                      // Form card
                       GlassCard(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(24),
+                        borderRadius: 24,
                         child: Form(
                           key: _formKey,
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Error
                               if (auth.errorMessage != null) ...[
                                 _RegisterAlert(message: auth.errorMessage!),
                                 const SizedBox(height: Spacing.md),
                               ],
+
+                              // ─── Section: Data Diri ───────────
+                              _SectionLabel(
+                                label: 'Data Karyawan',
+                                icon: Icons.person_outline_rounded,
+                              ),
+                              const SizedBox(height: Spacing.sm),
+
                               AppTextField(
                                 controller: _nikController,
                                 label: 'NIK',
@@ -110,7 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               const SizedBox(height: Spacing.md),
                               AppTextField(
                                 controller: _nameController,
-                                label: 'Nama lengkap',
+                                label: 'Nama Lengkap',
                                 hint: 'Nama karyawan',
                                 icon: Icons.person_outline_rounded,
                                 textInputAction: TextInputAction.next,
@@ -150,13 +188,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               const SizedBox(height: Spacing.md),
                               AppTextField(
                                 controller: _phoneController,
-                                label: 'No. HP (opsional)',
+                                label: 'No. HP (Opsional)',
                                 hint: '08xxxxxxxxxx',
                                 icon: Icons.phone_outlined,
                                 keyboardType: TextInputType.phone,
                                 textInputAction: TextInputAction.next,
                               ),
+
+                              const SizedBox(height: Spacing.lg),
+
+                              // Divider
+                              Row(
+                                children: [
+                                  const Expanded(
+                                    child: Divider(
+                                        color: AppColors.bgCardLight,
+                                        thickness: 1),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12),
+                                    child: Text(
+                                      'Keamanan',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall,
+                                    ),
+                                  ),
+                                  const Expanded(
+                                    child: Divider(
+                                        color: AppColors.bgCardLight,
+                                        thickness: 1),
+                                  ),
+                                ],
+                              ),
+
                               const SizedBox(height: Spacing.md),
+
+                              // ─── Section: Password ──────────
+                              _SectionLabel(
+                                label: 'Buat Password',
+                                icon: Icons.lock_outline_rounded,
+                              ),
+                              const SizedBox(height: Spacing.sm),
+
                               AppTextField(
                                 controller: _passwordController,
                                 label: 'Password',
@@ -169,7 +244,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               const SizedBox(height: Spacing.md),
                               AppTextField(
                                 controller: _confirmPasswordController,
-                                label: 'Konfirmasi password',
+                                label: 'Konfirmasi Password',
                                 hint: 'Ulangi password',
                                 icon: Icons.lock_reset_rounded,
                                 obscureText: true,
@@ -183,18 +258,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 },
                               ),
                               const SizedBox(height: Spacing.lg),
+
                               AppButton(
-                                label: 'Register',
+                                label: 'Daftar Sekarang',
                                 icon: Icons.person_add_alt_rounded,
                                 isLoading: auth.isBusy,
                                 onPressed: _submit,
                               ),
                               const SizedBox(height: Spacing.sm),
                               TextButton(
-                                onPressed:
-                                    auth.isBusy
-                                        ? null
-                                        : () => Navigator.of(context).pop(),
+                                onPressed: auth.isBusy
+                                    ? null
+                                    : () => Navigator.of(context).pop(),
                                 child: const Text('Sudah punya akun? Login'),
                               ),
                             ],
@@ -220,23 +295,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   String? _validatePassword(String? value) {
-    if ((value ?? '').length < 6) {
-      return 'Password minimal 6 karakter';
-    }
+    if ((value ?? '').length < 6) return 'Password minimal 6 karakter';
     return null;
   }
 
   String? _required(String? value) {
-    if ((value?.trim() ?? '').isEmpty) {
-      return 'Wajib diisi';
-    }
+    if ((value?.trim() ?? '').isEmpty) return 'Wajib diisi';
     return null;
   }
 }
 
+// ─────────────────────── Section Label ───────────────────────
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({required this.label, required this.icon});
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppColors.safetyOrange),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: AppColors.safetyOrange,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
+              ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────── Error Alert ───────────────────────
 class _RegisterAlert extends StatelessWidget {
   const _RegisterAlert({required this.message});
-
   final String message;
 
   @override
@@ -245,15 +341,25 @@ class _RegisterAlert extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.error.withValues(alpha: .08),
+        color: AppColors.error.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.error.withValues(alpha: .20)),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.20)),
       ),
-      child: Text(
-        message,
-        style: Theme.of(
-          context,
-        ).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimaryDark),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline_rounded,
+              color: AppColors.error, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: AppColors.error),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "863084950012",
+    "project_id": "hsil-attendance",
+    "storage_bucket": "hsil-attendance.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:863084950012:android:bf3881bad6243878d90279",
+        "android_client_info": {
+          "package_name": "com.langss.hsil.hsil_attendance"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrwAY1h7cP0fRSonVC113xAlvB8Otf8sE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
