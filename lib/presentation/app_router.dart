@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/constants/route_constants.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/forgot_password_screen.dart';
+import 'screens/gps_validation_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/splash_screen.dart';
@@ -17,6 +18,7 @@ class AppRouter {
       RouteConstants.register => const RegisterScreen(),
       RouteConstants.forgotPassword => const ForgotPasswordScreen(),
       RouteConstants.dashboard => const DashboardScreen(),
+      RouteConstants.gpsValidation => const GPSValidationScreen(),
       _ => const LoginScreen(),
     };
     return _buildRoute(page, settings);

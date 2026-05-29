@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
 
+import '../../core/constants/route_constants.dart';
 import '../../core/constants/spacing_constants.dart';
 import '../../core/themes/color_palette.dart';
+import '../providers/attendance_provider.dart';
 import '../providers/auth_controller.dart';
 import '../widgets/animated_gradient_backdrop.dart';
 import '../widgets/app_button.dart';
@@ -11,8 +13,24 @@ import '../widgets/fade_slide.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/status_pill.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = context.read<AuthController>().user;
+      if (user != null) {
+        context.read<AttendanceProvider>().initialize(user.userId);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -439,29 +457,34 @@ class _ClockInCard extends StatelessWidget {
                   ),
                 ),
                 // Sleek Orange Play Button
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        AppColors.safetyOrange,
-                        Color(0xFFE85A23),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, RouteConstants.gpsValidation);
+                  },
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          AppColors.safetyOrange,
+                          Color(0xFFE85A23),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.safetyOrange.withValues(alpha: 0.35),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.safetyOrange.withValues(alpha: 0.35),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.play_arrow_rounded,
-                    color: Colors.white,
-                    size: 32,
+                    child: const Icon(
+                      Icons.play_arrow_rounded,
+                      color: Colors.white,
+                      size: 32,
+                    ),
                   ),
                 ),
               ],
@@ -506,28 +529,29 @@ class _StatsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final stats = context.watch<AttendanceProvider>().weeklyStats;
     final cards = [
       (
         'Hadir',
-        '0',
+        stats['hadir']?.toString() ?? '0',
         AppColors.success,
         Icons.check_circle_rounded,
       ),
       (
         'Telat',
-        '0',
+        stats['telat']?.toString() ?? '0',
         AppColors.warning,
         Icons.watch_later_rounded,
       ),
       (
         'Izin',
-        '0',
+        stats['izin']?.toString() ?? '0',
         AppColors.info,
         Icons.event_available_rounded,
       ),
       (
         'Alpha',
-        '0',
+        stats['alpha']?.toString() ?? '0',
         AppColors.error,
         Icons.cancel_rounded,
       ),
