@@ -11,11 +11,14 @@ import '../providers/location_provider.dart';
 import '../widgets/distance_info_card.dart';
 import '../widgets/fade_slide.dart';
 import '../widgets/location_status_widget.dart';
+import 'face_capture_screen.dart';
 
 /// Screen displaying the Google Map with office geofence and user location,
 /// GPS validation status, and clock-in/out action.
 class GPSValidationScreen extends StatefulWidget {
-  const GPSValidationScreen({super.key});
+  final bool showBackButton;
+
+  const GPSValidationScreen({super.key, this.showBackButton = false});
 
   @override
   State<GPSValidationScreen> createState() => _GPSValidationScreenState();
@@ -146,60 +149,20 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
     final user = auth.user;
     if (user == null) return;
 
-    bool success;
-    if (att.canClockIn) {
-      success = await att.clockIn(
-        employeeId: user.userId,
-        employeeName: user.name,
-        gpsResult: loc.currentResult!,
-      );
-    } else if (att.canClockOut) {
-      success = await att.clockOut(gpsResult: loc.currentResult!);
-    } else {
-      return;
-    }
+    bool isClockIn = att.canClockIn;
+    if (!isClockIn && !att.canClockOut) return;
 
     if (!mounted) return;
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle_rounded,
-                  color: Colors.white, size: 18),
-              const SizedBox(width: 8),
-              Text(att.successMessage ?? 'Berhasil!'),
-            ],
-          ),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    // Navigasi ke FaceCaptureScreen, passing gpsResult dan isClockIn
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => FaceCaptureScreen(
+          gpsResult: loc.currentResult!,
+          isClockIn: isClockIn,
         ),
-      );
-      // Refresh weekly stats
-      att.refreshWeeklyStats(user.userId);
-      // Go back to dashboard
-      if (mounted) Navigator.of(context).pop(true);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_rounded, color: Colors.white, size: 18),
-              const SizedBox(width: 8),
-              Expanded(child: Text(att.errorMessage ?? 'Gagal!')),
-            ],
-          ),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
-    }
-    att.clearMessages();
+      ),
+    );
   }
 
   @override
@@ -212,13 +175,14 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
       appBar: AppBar(
         title: const Text('Validasi GPS'),
         centerTitle: true,
-        leading: IconButton(
+        automaticallyImplyLeading: false,
+        leading: widget.showBackButton ? IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () {
             loc.stopTracking();
             Navigator.of(context).pop();
           },
-        ),
+        ) : null,
         actions: [
           if (loc.state == LocationState.ready)
             IconButton(
@@ -228,11 +192,10 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
             ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // ── Map ────────────────────────────────────────
-          Expanded(
-            flex: 5,
+          // ── Map (Full Screen) ─────────────────────────
+          Positioned.fill(
             child: Stack(
               children: [
                 GoogleMap(
@@ -246,6 +209,7 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
                   myLocationButtonEnabled: false,
                   zoomControlsEnabled: false,
                   mapToolbarEnabled: false,
+                  padding: const EdgeInsets.only(bottom: 200), // Adjust Google logo
                   onMapCreated: (controller) {
                     _mapController = controller;
                     if (isDark) {
@@ -276,102 +240,108 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
             ),
           ),
 
-          // ── Bottom Panel ───────────────────────────────
-          Expanded(
-            flex: 4,
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.deepNavy : Colors.white,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 20,
-                    offset: const Offset(0, -4),
+          // ── Bottom Panel (Draggable) ──────────────────
+          DraggableScrollableSheet(
+            initialChildSize: 0.45,
+            minChildSize: 0.15,
+            maxChildSize: 0.7,
+            builder: (context, scrollController) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.deepNavy : Colors.white,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
                   ),
-                ],
-              ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  Spacing.lg,
-                  Spacing.lg,
-                  Spacing.lg,
-                  Spacing.xl,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Drag handle
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.15)
-                              : AppColors.deepNavy.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: Spacing.md),
-
-                    // Title
-                    FadeSlide(
-                      child: Text(
-                        'Validasi Lokasi',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color:
-                                  isDark ? AppColors.white : AppColors.deepNavy,
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: Spacing.md),
-
-                    // Status indicator
-                    FadeSlide(
-                      delay: const Duration(milliseconds: 80),
-                      child: _buildStatusWidget(loc),
-                    ),
-                    const SizedBox(height: Spacing.md),
-
-                    // Distance info card
-                    if (loc.state == LocationState.ready) ...[
-                      FadeSlide(
-                        delay: const Duration(milliseconds: 160),
-                        child: DistanceInfoCard(
-                          distanceMeters: loc.distanceMeters,
-                          isInArea: loc.isInArea,
-                          accuracy: loc.accuracy,
-                          lastUpdated: loc.lastUpdated,
-                        ),
-                      ),
-                      const SizedBox(height: Spacing.lg),
-                    ],
-
-                    // Error state
-                    if (loc.state == LocationState.error)
-                      FadeSlide(
-                        delay: const Duration(milliseconds: 160),
-                        child: _buildErrorCard(loc),
-                      ),
-
-                    // Action button
-                    FadeSlide(
-                      delay: const Duration(milliseconds: 240),
-                      child: _buildActionButton(loc, att),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, -4),
                     ),
                   ],
                 ),
-              ),
-            ),
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Drag handle
+                        Center(
+                          child: Container(
+                            width: 40,
+                            height: 4,
+                            margin: const EdgeInsets.only(bottom: 20),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.15)
+                                  : AppColors.deepNavy.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ),
+
+                        // Title
+                        FadeSlide(
+                          child: Text(
+                            'Status Validasi',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color:
+                                      isDark ? AppColors.white : AppColors.deepNavy,
+                                ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Status indicator & Distance Info
+                        FadeSlide(
+                          delay: const Duration(milliseconds: 80),
+                          child: _buildStatusWidget(loc),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Distance info card
+                        if (loc.state == LocationState.ready) ...[
+                          FadeSlide(
+                            delay: const Duration(milliseconds: 160),
+                            child: DistanceInfoCard(
+                              distanceMeters: loc.distanceMeters,
+                              isInArea: loc.isInArea,
+                              accuracy: loc.accuracy,
+                              lastUpdated: loc.lastUpdated,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+
+                        // Error state
+                        if (loc.state == LocationState.error)
+                          FadeSlide(
+                            delay: const Duration(milliseconds: 160),
+                            child: _buildErrorCard(loc),
+                          ),
+
+                        // Action button
+                        FadeSlide(
+                          delay: const Duration(milliseconds: 240),
+                          child: _buildActionButton(loc, att),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

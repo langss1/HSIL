@@ -9,12 +9,14 @@ abstract interface class AttendanceRepository {
     required String employeeId,
     required String employeeName,
     required GPSValidationResult gpsResult,
+    required String imageUrl,
   });
 
   /// Records a clock-out event for an existing attendance record.
   Future<AppResult<AttendanceRecord>> clockOut({
     required String attendanceId,
     required GPSValidationResult gpsResult,
+    required String imageUrl,
   });
 
   /// Retrieves today's attendance record for the given employee.

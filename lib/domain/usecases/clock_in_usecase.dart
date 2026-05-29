@@ -15,6 +15,7 @@ class ClockInUseCase {
     required String employeeId,
     required String employeeName,
     required GPSValidationResult gpsResult,
+    required String imageUrl,
   }) async {
     // 1. Validate GPS — must be in area
     if (!gpsResult.isInArea) {
@@ -49,6 +50,7 @@ class ClockInUseCase {
       employeeId: employeeId,
       employeeName: employeeName,
       gpsResult: gpsResult,
+      imageUrl: imageUrl,
     );
   }
 }

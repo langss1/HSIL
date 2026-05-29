@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../core/utils/app_result.dart';
@@ -102,19 +103,31 @@ class AttendanceProvider extends ChangeNotifier {
     required String employeeId,
     required String employeeName,
     required GPSValidationResult gpsResult,
+    required Uint8List imageBytes,
   }) async {
     _actionState = AttendanceActionState.loading;
     _errorMessage = null;
     _successMessage = null;
     notifyListeners();
 
-    final result = await _clockInUseCase.call(
-      employeeId: employeeId,
-      employeeName: employeeName,
-      gpsResult: gpsResult,
-    );
+    try {
+      final now = DateTime.now();
+      final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final imageUrl = await uploadSelfie(
+        userId: employeeId,
+        imageBytes: imageBytes,
+        date: dateStr,
+        type: 'clock_in',
+      );
 
-    return result.when(
+      final result = await _clockInUseCase.call(
+        employeeId: employeeId,
+        employeeName: employeeName,
+        gpsResult: gpsResult,
+        imageUrl: imageUrl,
+      );
+
+      return result.when(
       success: (record) {
         _todayRecord = record;
         _actionState = AttendanceActionState.success;
@@ -129,11 +142,18 @@ class AttendanceProvider extends ChangeNotifier {
         return false;
       },
     );
+    } catch (e) {
+      _errorMessage = 'Gagal mengupload foto: $e';
+      _actionState = AttendanceActionState.error;
+      notifyListeners();
+      return false;
+    }
   }
 
   /// Performs a clock-out with GPS validation.
   Future<bool> clockOut({
     required GPSValidationResult gpsResult,
+    required Uint8List imageBytes,
   }) async {
     if (_todayRecord == null) {
       _errorMessage = 'Belum ada record clock-in hari ini.';
@@ -147,12 +167,23 @@ class AttendanceProvider extends ChangeNotifier {
     _successMessage = null;
     notifyListeners();
 
-    final result = await _clockOutUseCase.call(
-      attendanceId: _todayRecord!.id,
-      gpsResult: gpsResult,
-    );
+    try {
+      final now = DateTime.now();
+      final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final imageUrl = await uploadSelfie(
+        userId: _todayRecord!.employeeId,
+        imageBytes: imageBytes,
+        date: dateStr,
+        type: 'clock_out',
+      );
 
-    return result.when(
+      final result = await _clockOutUseCase.call(
+        attendanceId: _todayRecord!.id,
+        gpsResult: gpsResult,
+        imageUrl: imageUrl,
+      );
+
+      return result.when(
       success: (record) {
         _todayRecord = record;
         _actionState = AttendanceActionState.success;
@@ -167,6 +198,33 @@ class AttendanceProvider extends ChangeNotifier {
         return false;
       },
     );
+    } catch (e) {
+      _errorMessage = 'Gagal mengupload foto: $e';
+      _actionState = AttendanceActionState.error;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<String> uploadSelfie({
+    required String userId,
+    required Uint8List imageBytes,
+    required String date,
+    required String type,
+  }) async {
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('attendance')
+        .child(userId)
+        .child('${date}_$type.jpg');
+
+    final uploadTask = ref.putData(
+      imageBytes,
+      SettableMetadata(contentType: 'image/jpeg'),
+    );
+
+    final snapshot = await uploadTask;
+    return await snapshot.ref.getDownloadURL();
   }
 
   /// Refreshes weekly stats from the repository.

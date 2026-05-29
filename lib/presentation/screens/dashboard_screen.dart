@@ -37,11 +37,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final auth = context.watch<AuthController>();
     final user = auth.user;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      body: AnimatedGradientBackdrop(
-        child: SafeArea(
+      backgroundColor: isDark ? AppColors.deepNavy : const Color(0xFFFCFCFD),
+      body: SafeArea(
           child: SingleChildScrollView(
-            padding: Spacing.screenPadding,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 980),
@@ -56,14 +59,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         role: user?.role.value ?? '',
                       ),
                     ),
-                    const SizedBox(height: Spacing.lg),
+                    const SizedBox(height: 16),
 
                     // ── Quick Clock-In Card ─────────────────────
                     FadeSlide(
                       delay: const Duration(milliseconds: 80),
                       child: _ClockInCard(userName: user?.name),
                     ),
-                    const SizedBox(height: Spacing.lg),
+                    const SizedBox(height: 16),
 
                     // ── Horizontal Employee Barcode Card (Lanyard style) ──
                     FadeSlide(
@@ -222,7 +225,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: Spacing.lg),
+                    const SizedBox(height: 16),
 
                     // ── Stats Grid ─────────────────────────────
                     FadeSlide(
@@ -247,36 +250,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: Spacing.lg),
-
-                    // ── Skeleton Content ───────────────────────
-                    FadeSlide(
-                      delay: const Duration(milliseconds: 240),
-                      child: user?.isAdmin == true
-                          ? const _AdminSkeleton()
-                          : const _EmployeeSkeleton(),
-                    ),
-                    const SizedBox(height: Spacing.xl),
-
-                    // ── Logout ────────────────────────────────
-                    FadeSlide(
-                      delay: const Duration(milliseconds: 300),
-                      child: AppButton(
-                        label: 'Keluar',
-                        icon: Icons.logout_rounded,
-                        isOutlined: true,
-                        onPressed: () =>
-                            context.read<AuthController>().signOut(),
-                      ),
-                    ),
-                    const SizedBox(height: Spacing.md),
                   ],
                 ),
               ),
             ),
           ),
         ),
-      ),
     );
   }
 }
@@ -399,7 +378,7 @@ class _ClockInCard extends StatelessWidget {
           ),
           // Content
           Padding(
-            padding: const EdgeInsets.all(22),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
             child: Row(
               children: [
                 Expanded(
@@ -423,34 +402,6 @@ class _ClockInCard extends StatelessWidget {
                           color: Colors.white.withValues(alpha: 0.75),
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: Spacing.md),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.15),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.fingerprint_rounded,
-                                color: AppColors.safetyOrange, size: 15),
-                            const SizedBox(width: 6),
-                            Text(
-                              'GPS + Face ID Siap',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.90),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                     ],
@@ -677,157 +628,7 @@ class _StatsGrid extends StatelessWidget {
   }
 }
 
-// ─────────────────────── Skeletons ───────────────────────
-class _EmployeeSkeleton extends StatelessWidget {
-  const _EmployeeSkeleton();
 
-  @override
-  Widget build(BuildContext context) {
-    return GlassCard(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const StatusPill(
-                label: 'Riwayat Absensi',
-                icon: Icons.history_rounded,
-                color: AppColors.info,
-              ),
-              const Spacer(),
-              Text(
-                'Lihat semua',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.safetyOrange,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ],
-          ),
-          const SizedBox(height: Spacing.lg),
-          // Beautiful Empty State Container instead of buggy skeleton loaders
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: AppColors.safetyOrange.withValues(alpha: 0.10),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.history_toggle_off_rounded,
-                      color: AppColors.safetyOrange,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(height: Spacing.md),
-                  Text(
-                    'Belum Ada Riwayat Absensi',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? AppColors.white
-                              : AppColors.deepNavy,
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Mulai kehadiran Anda dengan mengetuk tombol di atas.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AdminSkeleton extends StatelessWidget {
-  const _AdminSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return GlassCard(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const StatusPill(
-                label: 'Admin Monitoring',
-                icon: Icons.monitor_heart_rounded,
-                color: AppColors.safetyOrange,
-              ),
-              const Spacer(),
-              Text(
-                'Detail KPI',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.safetyOrange,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ],
-          ),
-          const SizedBox(height: Spacing.lg),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: AppColors.info.withValues(alpha: 0.10),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.analytics_rounded,
-                      color: AppColors.info,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(height: Spacing.md),
-                  Text(
-                    'Belum Ada Aktivitas Monitoring',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? AppColors.white
-                              : AppColors.deepNavy,
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Seluruh log absensi masuk karyawan akan terpantau di sini.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // ─────────────────────── Animated Celestial Background ───────────────────────
 class _AnimatedCelestialBackground extends StatefulWidget {

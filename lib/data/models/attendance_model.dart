@@ -22,6 +22,8 @@ class AttendanceModel extends AttendanceRecord {
     super.clockOutLng,
     super.clockInDistance,
     super.clockOutDistance,
+    super.clockInImageUrl,
+    super.clockOutImageUrl,
     super.createdAt,
     super.updatedAt,
   });
@@ -55,6 +57,8 @@ class AttendanceModel extends AttendanceRecord {
       clockOutLng: (json['clockOutLng'] as num?)?.toDouble(),
       clockInDistance: (json['clockInDistance'] as num?)?.toDouble(),
       clockOutDistance: (json['clockOutDistance'] as num?)?.toDouble(),
+      clockInImageUrl: json['clockInImageUrl'] as String?,
+      clockOutImageUrl: json['clockOutImageUrl'] as String?,
       status: (json['status'] as String?) ?? 'alpha',
       gpsStatus: (json['gpsStatus'] as String?) ?? 'unknown',
       createdAt: _dateFromJson(json['createdAt']),
@@ -75,6 +79,7 @@ class AttendanceModel extends AttendanceRecord {
     required double longitude,
     required double distanceMeters,
     required bool isInArea,
+    required String imageUrl,
     required String shiftStart,
   }) {
     final id = _generateId(employeeId, date);
@@ -90,6 +95,7 @@ class AttendanceModel extends AttendanceRecord {
       clockInLat: latitude,
       clockInLng: longitude,
       clockInDistance: distanceMeters,
+      clockInImageUrl: imageUrl,
       status: status,
       gpsStatus: gpsStatus,
       createdAt: clockIn,
@@ -116,6 +122,8 @@ class AttendanceModel extends AttendanceRecord {
       'clockOutLng': clockOutLng,
       'clockInDistance': clockInDistance,
       'clockOutDistance': clockOutDistance,
+      'clockInImageUrl': clockInImageUrl,
+      'clockOutImageUrl': clockOutImageUrl,
       'status': status,
       'gpsStatus': gpsStatus,
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),

@@ -13,6 +13,8 @@ class AttendanceRecord {
     this.clockOutLng,
     this.clockInDistance,
     this.clockOutDistance,
+    this.clockInImageUrl,
+    this.clockOutImageUrl,
     required this.status,
     required this.gpsStatus,
     this.createdAt,
@@ -50,6 +52,12 @@ class AttendanceRecord {
 
   /// Distance from office at clock-out (meters).
   final double? clockOutDistance;
+
+  /// Selfie image URL at clock-in.
+  final String? clockInImageUrl;
+
+  /// Selfie image URL at clock-out.
+  final String? clockOutImageUrl;
 
   /// Attendance status: 'hadir', 'telat', 'izin', 'alpha'.
   final String status;

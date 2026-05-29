@@ -13,6 +13,7 @@ class ClockOutUseCase {
   Future<AppResult<AttendanceRecord>> call({
     required String attendanceId,
     required GPSValidationResult gpsResult,
+    required String imageUrl,
   }) async {
     // 1. Validate GPS — must be in area
     if (!gpsResult.isInArea) {
@@ -30,6 +31,7 @@ class ClockOutUseCase {
     return _repository.clockOut(
       attendanceId: attendanceId,
       gpsResult: gpsResult,
+      imageUrl: imageUrl,
     );
   }
 }

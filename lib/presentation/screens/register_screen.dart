@@ -121,11 +121,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                      const SizedBox(height: Spacing.lg),
+                      const SizedBox(height: Spacing.md),
 
                       // Form card
                       GlassCard(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(16),
                         borderRadius: 24,
                         child: Form(
                           key: _formKey,
@@ -204,7 +204,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 textInputAction: TextInputAction.next,
                               ),
 
-                              const SizedBox(height: Spacing.lg),
+                              const SizedBox(height: Spacing.md),
 
                               // ─── Section: Password ──────────
                               _SectionLabel(
@@ -238,7 +238,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              const SizedBox(height: Spacing.lg),
+                              const SizedBox(height: Spacing.md),
 
                               AppButton(
                                 label: 'Daftar Sekarang',

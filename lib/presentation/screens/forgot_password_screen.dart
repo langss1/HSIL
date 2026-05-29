@@ -163,13 +163,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    const SizedBox(height: Spacing.xl),
+                    const SizedBox(height: Spacing.lg),
 
                     // Form card
                     FadeSlide(
                       delay: const Duration(milliseconds: 180),
                       child: GlassCard(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(16),
                         borderRadius: 24,
                         child: Form(
                           key: _formKey,
@@ -184,7 +184,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                               ),
-                              const SizedBox(height: Spacing.lg),
+                              const SizedBox(height: Spacing.md),
 
                               if (auth.errorMessage != null) ...[
                                 Container(
@@ -242,7 +242,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                                   return null;
                                 },
                               ),
-                              const SizedBox(height: Spacing.lg),
+                              const SizedBox(height: Spacing.md),
 
                               AppButton(
                                 label: 'Kirim Link Reset',

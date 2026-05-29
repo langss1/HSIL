@@ -8,7 +8,7 @@ import 'presentation/app_router.dart';
 import 'presentation/providers/attendance_provider.dart';
 import 'presentation/providers/auth_controller.dart';
 import 'presentation/providers/location_provider.dart';
-import 'presentation/screens/dashboard_screen.dart';
+import 'presentation/screens/main_screen.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/splash_screen.dart';
 
@@ -74,8 +74,8 @@ class _AuthGate extends StatelessWidget {
       switchOutCurve: Curves.easeInCubic,
       child: switch (status) {
         AuthStatus.bootstrapping => const SplashScreen(key: ValueKey('splash')),
-        AuthStatus.authenticated => const DashboardScreen(
-          key: ValueKey('dashboard'),
+        AuthStatus.authenticated => const MainScreen(
+          key: ValueKey('main'),
         ),
         AuthStatus.unauthenticated ||
         AuthStatus.authenticating => const LoginScreen(key: ValueKey('login')),

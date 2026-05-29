@@ -119,14 +119,13 @@ class _MobileHeader extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(
-            width: 220,
+            width: double.infinity,
+            height: 140,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Image.asset(
-                  'assets/login.png',
-                  fit: BoxFit.cover,
+              child: Image.asset(
+                'assets/login.png',
+                fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: AppColors.safetyOrange.withValues(alpha: 0.1),
@@ -140,7 +139,6 @@ class _MobileHeader extends StatelessWidget {
                 ),
               ),
             ),
-          ),
           const SizedBox(height: Spacing.md),
           Text(
             'Absen!',
@@ -290,7 +288,7 @@ class _LoginFormCard extends StatelessWidget {
     return FadeSlide(
       delay: const Duration(milliseconds: 100),
       child: GlassCard(
-        padding: const EdgeInsets.all(28),
+        padding: const EdgeInsets.all(20),
         borderRadius: 24,
         child: Form(
           key: formKey,
