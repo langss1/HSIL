@@ -5,7 +5,9 @@ import 'core/constants/app_constants.dart';
 import 'core/di/app_dependencies.dart';
 import 'core/themes/app_theme.dart';
 import 'presentation/app_router.dart';
+import 'presentation/providers/attendance_provider.dart';
 import 'presentation/providers/auth_controller.dart';
+import 'presentation/providers/location_provider.dart';
 import 'presentation/screens/dashboard_screen.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/splash_screen.dart';
@@ -28,6 +30,20 @@ class FactoryAttendanceApp extends StatelessWidget {
         Provider<AppDependencies>.value(value: dependencies),
         ChangeNotifierProvider(
           create: (_) => AuthController(dependencies)..initialize(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LocationProvider(
+            locationRepository: dependencies.locationRepository,
+            validateGPSUseCase: dependencies.validateGPS,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AttendanceProvider(
+            clockInUseCase: dependencies.clockIn,
+            clockOutUseCase: dependencies.clockOut,
+            getWeeklyStatsUseCase: dependencies.getWeeklyStats,
+            attendanceRepository: dependencies.attendanceRepository,
+          ),
         ),
       ],
       child: MaterialApp(

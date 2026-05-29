@@ -24,3 +24,33 @@ class UserNotFoundException extends AppException {
 class NetworkUnavailableException extends AppException {
   const NetworkUnavailableException(super.message, {super.code});
 }
+
+class LocationPermissionDeniedException extends AppException {
+  const LocationPermissionDeniedException([
+    String message = 'Izin lokasi ditolak. Aplikasi membutuhkan akses GPS.',
+  ]) : super(message);
+}
+
+class LocationServiceDisabledException extends AppException {
+  const LocationServiceDisabledException([
+    String message = 'Layanan lokasi tidak aktif. Nyalakan GPS di pengaturan.',
+  ]) : super(message);
+}
+
+class AlreadyClockedInException extends AppException {
+  const AlreadyClockedInException([
+    String message = 'Anda sudah melakukan clock-in hari ini.',
+  ]) : super(message);
+}
+
+class NotClockedInException extends AppException {
+  const NotClockedInException([
+    String message = 'Anda belum melakukan clock-in hari ini.',
+  ]) : super(message);
+}
+
+class OutsideRadiusException extends AppException {
+  const OutsideRadiusException([
+    String message = 'Anda berada di luar radius kantor.',
+  ]) : super(message);
+}

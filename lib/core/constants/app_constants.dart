@@ -23,6 +23,11 @@ class AppConstants {
   static const Duration authRetryDelay   = Duration(milliseconds: 450);
   static const int      maxRetryAttempts = 3;
 
+  // Attendance timing
+  static const String defaultShiftStart = '08:00';
+  static const int lateThresholdMinutes = 15; // telat jika > 15 menit dari shift start
+  static const int gpsDistanceFilter    = 10; // meters — geofence stream update interval
+
   /// Firebase is now configured with real credentials — always true.
   static const bool hasFirebaseDartDefines = true;
 

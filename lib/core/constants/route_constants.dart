@@ -7,4 +7,5 @@ class RouteConstants {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String dashboard = '/dashboard';
+  static const String gpsValidation = '/gps-validation';
 }

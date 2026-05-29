@@ -21,3 +21,11 @@ class NetworkFailure extends Failure {
 class UnknownFailure extends Failure {
   const UnknownFailure(super.message, {super.code});
 }
+
+class GPSFailure extends Failure {
+  const GPSFailure(super.message, {super.code});
+}
+
+class AttendanceFailure extends Failure {
+  const AttendanceFailure(super.message, {super.code});
+}

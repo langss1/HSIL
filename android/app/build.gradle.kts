@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -6,6 +9,13 @@ plugins {
     // Firebase — Google Services
     id("com.google.gms.google-services")
 }
+
+val envFile = rootProject.file("../.env")
+val envProps = Properties()
+if (envFile.exists()) {
+    envProps.load(FileInputStream(envFile))
+}
+val mapsApiKey = envProps.getProperty("MAPS_API_KEY") ?: "YOUR_GOOGLE_MAPS_API_KEY"
 
 android {
     namespace = "com.langss.hsil.hsil_attendance"
@@ -26,10 +36,12 @@ android {
         applicationId = "com.langss.hsil.hsil_attendance"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        manifestPlaceholders["mapsApiKey"] = mapsApiKey
     }
 
     buildTypes {
