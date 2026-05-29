@@ -35,6 +35,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
     required String employeeId,
     required String employeeName,
     required GPSValidationResult gpsResult,
+    required String imageUrl,
   }) async {
     try {
       final now = DateTime.now();
@@ -49,6 +50,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         longitude: gpsResult.longitude,
         distanceMeters: gpsResult.distanceMeters,
         isInArea: gpsResult.isInArea,
+        imageUrl: imageUrl,
         shiftStart: _shiftStart,
       );
 
@@ -67,6 +69,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   Future<AppResult<AttendanceRecord>> clockOut({
     required String attendanceId,
     required GPSValidationResult gpsResult,
+    required String imageUrl,
   }) async {
     try {
       final now = DateTime.now();
@@ -76,6 +79,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         'clockOutLat': gpsResult.latitude,
         'clockOutLng': gpsResult.longitude,
         'clockOutDistance': gpsResult.distanceMeters,
+        'clockOutImageUrl': imageUrl,
         'updatedAt': FieldValue.serverTimestamp(),
       };
 

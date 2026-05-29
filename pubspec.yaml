@@ -37,7 +37,7 @@ dependencies:
   firebase_core: ^4.9.0
   firebase_auth: ^6.5.1
   cloud_firestore: ^6.4.1
-  # firebase_storage: disabled — requires Blaze plan upgrade
+  firebase_storage: any
   firebase_messaging: ^16.2.2
   firebase_analytics: ^12.4.1
   firebase_crashlytics: ^5.2.2
@@ -50,7 +50,10 @@ dependencies:
   crypto: ^3.0.7
   google_fonts: ^6.3.2
   geolocator: ^14.0.1
-  google_maps_flutter: ^2.17.1
+  google_maps_flutter: any
+  camera: any
+  google_mlkit_face_detection: any
+  image: any
 
 dev_dependencies:
   flutter_test:
