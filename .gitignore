@@ -53,3 +53,4 @@ shared/
 skills/
 [{]agents/
 *.md
+.env
