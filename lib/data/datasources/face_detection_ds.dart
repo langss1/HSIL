@@ -1,9 +1,13 @@
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as img;
 
 import '../../domain/entities/face_validation_result.dart';
+
+import 'dart:io';
 
 class FaceDetectionDataSource {
   CameraController? _cameraController;
@@ -21,9 +25,9 @@ class FaceDetectionDataSource {
 
     _cameraController = CameraController(
       frontCamera,
-      ResolutionPreset.high,
+      ResolutionPreset.low, // LOWEST resolution for best performance on slow devices
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg, // For ML Kit processing
+      imageFormatGroup: Platform.isAndroid ? ImageFormatGroup.nv21 : ImageFormatGroup.bgra8888, 
     );
 
     await _cameraController!.initialize();
@@ -40,127 +44,153 @@ class FaceDetectionDataSource {
     );
   }
 
-  Future<FaceValidationResult> validateFace(XFile imageFile) async {
-    if (_faceDetector == null) {
-      return const FaceValidationResult(
-        isValid: false,
-        errorMessage: 'Face detector tidak diinisialisasi',
-      );
+  bool _isProcessingFrame = false;
+  Function(FaceValidationResult)? _onFrameAnalyzed;
+
+  Future<void> startLiveValidation(Function(FaceValidationResult) onResult) async {
+    _onFrameAnalyzed = onResult;
+    if (_cameraController != null && !_cameraController!.value.isStreamingImages) {
+      await _cameraController!.startImageStream(_processCameraFrame);
     }
-
-    final inputImage = InputImage.fromFilePath(imageFile.path);
-    final faces = await _faceDetector!.processImage(inputImage);
-
-    // 1. Cek jumlah wajah
-    if (faces.isEmpty) {
-      return const FaceValidationResult(
-        isValid: false,
-        faceDetected: false,
-        errorMessage: 'Tidak ada wajah terdeteksi. Pastikan wajah terlihat jelas.',
-      );
-    }
-
-    if (faces.length > 1) {
-      return const FaceValidationResult(
-        isValid: false,
-        faceDetected: true,
-        isSingleFace: false,
-        errorMessage: 'Terdeteksi lebih dari 1 wajah. Pastikan hanya ada 1 wajah.',
-      );
-    }
-
-    // 2. Blur detection
-    final imageBytes = await imageFile.readAsBytes();
-    final isNotBlurry = await _checkSharpness(imageBytes);
-    if (!isNotBlurry) {
-      return const FaceValidationResult(
-        isValid: false,
-        faceDetected: true,
-        isSingleFace: true,
-        isNotBlurry: false,
-        errorMessage: 'Foto terlalu blur. Pegang kamera dengan lebih stabil.',
-      );
-    }
-
-    // 3. Lighting check (menggunakan brightness rata-rata)
-    final hasGoodLighting = await _checkLighting(imageBytes);
-    if (!hasGoodLighting) {
-      return const FaceValidationResult(
-        isValid: false,
-        faceDetected: true,
-        isSingleFace: true,
-        isNotBlurry: true,
-        hasGoodLighting: false,
-        errorMessage: 'Pencahayaan terlalu gelap. Cari tempat yang lebih terang.',
-      );
-    }
-
-    return FaceValidationResult(
-      isValid: true,
-      faceDetected: true,
-      isSingleFace: true,
-      isNotBlurry: true,
-      hasGoodLighting: true,
-      capturedImage: imageBytes,
-    );
   }
 
-  /// Blur detection: Hitung variance dari grayscale pixels
-  Future<bool> _checkSharpness(Uint8List imageBytes) async {
-    final image = img.decodeImage(imageBytes);
-    if (image == null) return false;
-
-    // Resize untuk performa
-    final resized = img.copyResize(image, width: 100);
-
-    double variance = 0;
-    double mean = 0;
-    int count = resized.width * resized.height;
-
-    // Hitung rata-rata luminance
-    for (int y = 0; y < resized.height; y++) {
-      for (int x = 0; x < resized.width; x++) {
-        final pixel = resized.getPixel(x, y);
-        mean += (pixel.r + pixel.g + pixel.b) / 3;
-      }
+  Future<void> stopLiveValidation() async {
+    if (_cameraController != null && _cameraController!.value.isStreamingImages) {
+      await _cameraController!.stopImageStream();
     }
-    mean /= count;
-
-    // Hitung variance
-    for (int y = 0; y < resized.height; y++) {
-      for (int x = 0; x < resized.width; x++) {
-        final pixel = resized.getPixel(x, y);
-        final lum = (pixel.r + pixel.g + pixel.b) / 3;
-        variance += (lum - mean) * (lum - mean);
-      }
-    }
-    variance /= count;
-
-    const sharpnessThreshold = 100.0;
-    return variance >= sharpnessThreshold;
   }
 
-  /// Lighting check: Hitung rata-rata brightness
-  Future<bool> _checkLighting(Uint8List imageBytes) async {
-    final image = img.decodeImage(imageBytes);
-    if (image == null) return false;
+  Future<void> _processCameraFrame(CameraImage image) async {
+    if (_isProcessingFrame || _faceDetector == null) return;
+    _isProcessingFrame = true;
 
-    final resized = img.copyResize(image, width: 100);
-    double totalBrightness = 0;
-    int count = resized.width * resized.height;
-
-    for (int y = 0; y < resized.height; y++) {
-      for (int x = 0; x < resized.width; x++) {
-        final pixel = resized.getPixel(x, y);
-        totalBrightness += (pixel.r + pixel.g + pixel.b) / 3;
+    try {
+      final inputImage = _buildInputImage(image);
+      if (inputImage == null) {
+        _isProcessingFrame = false;
+        return;
       }
+
+      final faces = await _faceDetector!.processImage(inputImage);
+
+      // Check face count
+      final faceDetected = faces.isNotEmpty;
+      final isSingleFace = faces.length == 1;
+
+      // Check Lighting & Sharpness (optimized for low-end devices, stride=8)
+      final isNotBlurry = _checkSharpnessYUV(image);
+      final hasGoodLighting = _checkLightingYUV(image);
+
+      final isValid = faceDetected && isSingleFace && isNotBlurry && hasGoodLighting;
+
+      String? errorMsg;
+      if (!faceDetected) errorMsg = 'Arahkan wajah ke kamera';
+      else if (!isSingleFace) errorMsg = 'Hanya boleh 1 wajah';
+      else if (!hasGoodLighting) errorMsg = 'Cari tempat lebih terang';
+      else if (!isNotBlurry) errorMsg = 'Jangan goyang (Blur)';
+
+      _onFrameAnalyzed?.call(FaceValidationResult(
+        isValid: isValid,
+        faceDetected: faceDetected,
+        isSingleFace: isSingleFace,
+        isNotBlurry: isNotBlurry,
+        hasGoodLighting: hasGoodLighting,
+        errorMessage: errorMsg,
+      ));
+
+    } catch (e, stack) {
+      print('ML_KIT_ERROR: $e\n$stack');
     }
 
-    final avgBrightness = totalBrightness / count;
-    return avgBrightness >= 60; // 0-255 scale
+    // Throttle 500ms for low-end devices
+    await Future.delayed(const Duration(milliseconds: 500));
+    _isProcessingFrame = false;
+  }
+
+  InputImage? _buildInputImage(CameraImage image) {
+    try {
+      final WriteBuffer allBytes = WriteBuffer();
+      for (final Plane plane in image.planes) {
+        allBytes.putUint8List(plane.bytes);
+      }
+      final bytes = allBytes.done().buffer.asUint8List();
+
+      final Size imageSize = Size(image.width.toDouble(), image.height.toDouble());
+      final camera = _cameraController!.description;
+      final imageRotation = InputImageRotationValue.fromRawValue(camera.sensorOrientation) ?? InputImageRotation.rotation0deg;
+      
+      final inputImageFormat = Platform.isAndroid 
+          ? InputImageFormat.nv21 
+          : InputImageFormatValue.fromRawValue(image.format.raw) ?? InputImageFormat.bgra8888;
+
+      final metadata = InputImageMetadata(
+        size: imageSize,
+        rotation: imageRotation,
+        format: inputImageFormat,
+        bytesPerRow: image.planes[0].bytesPerRow,
+      );
+
+      return InputImage.fromBytes(bytes: bytes, metadata: metadata);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  bool _checkSharpnessYUV(CameraImage image) {
+    if (image.planes.isEmpty) return false;
+    final bytes = image.planes[0].bytes;
+    final width = image.planes[0].bytesPerRow;
+    final height = bytes.length ~/ width;
+
+    int diffSum = 0;
+    int count = 0;
+    // Sample a grid for speed (stride=8 for low end devices)
+    for (int y = 0; y < height - 1; y += 8) {
+      for (int x = 0; x < width - 1; x += 8) {
+        final idx = y * width + x;
+        final curr = bytes[idx];
+        final right = bytes[idx + 1];
+        diffSum += (curr - right).abs();
+        count++;
+      }
+    }
+    
+    if (count == 0) return false;
+    final avgDiff = diffSum / count;
+    // Tweak threshold: blurry image has low gradient. 
+    // Sangat rendah untuk mentoleransi kamera buram pada HP kentang
+    return avgDiff >= 1.2;
+  }
+
+  bool _checkLightingYUV(CameraImage image) {
+    if (image.planes.isEmpty) return false;
+    final bytes = image.planes[0].bytes;
+    int sum = 0;
+    int count = 0;
+    // Sample every 8th pixel for speed
+    for (int i = 0; i < bytes.length; i += 8) {
+      sum += bytes[i];
+      count++;
+    }
+    if (count == 0) return false;
+    final avg = sum / count;
+    return avg >= 50; 
+  }
+
+  Future<XFile?> takeFinalPicture() async {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) return null;
+    try {
+      // Don't stop before takePicture!
+      final imageFile = await _cameraController!.takePicture();
+      await stopLiveValidation(); 
+      return imageFile;
+    } catch (e) {
+      return null;
+    }
   }
 
   void dispose() {
+    stopLiveValidation();
     _cameraController?.dispose();
     _faceDetector?.close();
   }

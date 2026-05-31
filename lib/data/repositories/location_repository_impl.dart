@@ -61,6 +61,8 @@ class LocationRepositoryImpl implements LocationRepository {
       toLongitude: AppConstants.officeLongitude,
     );
 
+    print("USER_LOCATION_DEBUG: $latitude, $longitude");
+
     final isInArea = distance <= AppConstants.officeRadiusMeters;
 
     return GPSValidationResult(

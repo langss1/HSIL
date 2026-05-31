@@ -418,6 +418,20 @@ class AppTheme {
         fontWeight: FontWeight.w500,
         color: hintColor,
       ),
+      floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+        if (states.contains(WidgetState.focused)) {
+          return GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.safetyOrange,
+          );
+        }
+        return GoogleFonts.inter(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: hintColor,
+        );
+      }),
       hintStyle: GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w400,

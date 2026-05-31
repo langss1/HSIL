@@ -26,6 +26,7 @@ class GPSValidationScreen extends StatefulWidget {
 
 class _GPSValidationScreenState extends State<GPSValidationScreen> {
   GoogleMapController? _mapController;
+  final ValueNotifier<double> _sheetExtent = ValueNotifier<double>(0.48);
 
   static const _officePosition = LatLng(
     AppConstants.officeLatitude,
@@ -47,6 +48,7 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
   @override
   void dispose() {
     _mapController?.dispose();
+    _sheetExtent.dispose();
     super.dispose();
   }
 
@@ -192,30 +194,45 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
             ),
         ],
       ),
-      body: Stack(
-        children: [
-          // ── Map (Full Screen) ─────────────────────────
-          Positioned.fill(
-            child: Stack(
+      body: NotificationListener<DraggableScrollableNotification>(
+        onNotification: (notification) {
+          if (_sheetExtent.value != notification.extent) {
+            _sheetExtent.value = notification.extent;
+          }
+          return false;
+        },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
               children: [
-                GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: _officePosition,
-                    zoom: 15.5,
+                // ── Map (Full Screen) ─────────────────────────
+                Positioned.fill(
+                  child: ValueListenableBuilder<double>(
+                    valueListenable: _sheetExtent,
+                    builder: (context, extent, child) {
+                      return GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                          target: _officePosition,
+                          zoom: 15.5,
+                        ),
+                        markers: _buildMarkers(loc),
+                        circles: _buildCircles(),
+                        myLocationEnabled: false,
+                        myLocationButtonEnabled: false,
+                        zoomControlsEnabled: false,
+                        mapToolbarEnabled: false,
+                        padding: EdgeInsets.only(
+                          bottom: constraints.maxHeight * extent,
+                        ), // Dynamically adjust Google logo
+                        onMapCreated: (controller) {
+                          _mapController = controller;
+                          if (isDark) {
+                            controller.setMapStyle(_darkMapStyle);
+                          }
+                        },
+                      );
+                    },
                   ),
-                  markers: _buildMarkers(loc),
-                  circles: _buildCircles(),
-                  myLocationEnabled: false,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  mapToolbarEnabled: false,
-                  padding: const EdgeInsets.only(bottom: 200), // Adjust Google logo
-                  onMapCreated: (controller) {
-                    _mapController = controller;
-                    if (isDark) {
-                      controller.setMapStyle(_darkMapStyle);
-                    }
-                  },
                 ),
                 // GPS accuracy overlay
                 if (loc.state == LocationState.loading)
@@ -236,53 +253,50 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
                       ),
                     ),
                   ),
-              ],
-            ),
-          ),
 
-          // ── Bottom Panel (Draggable) ──────────────────
+          // ── Bottom Panel (Premium Glassmorphism) ──────────────────
           DraggableScrollableSheet(
-            initialChildSize: 0.45,
-            minChildSize: 0.15,
+            initialChildSize: 0.48,
+            minChildSize: 0.20,
             maxChildSize: 0.7,
             builder: (context, scrollController) {
               return Container(
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.deepNavy : Colors.white,
                   borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(24),
+                    top: Radius.circular(32),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 20,
-                      offset: const Offset(0, -4),
+                      color: isDark ? Colors.black54 : Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 30,
+                      offset: const Offset(0, -10),
                     ),
                   ],
                 ),
                 child: SingleChildScrollView(
                   controller: scrollController,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
+                    horizontal: 24,
                     vertical: 16,
                   ),
                   child: SafeArea(
                     top: false,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Drag handle
                         Center(
                           child: Container(
-                            width: 40,
-                            height: 4,
-                            margin: const EdgeInsets.only(bottom: 20),
+                            width: 48,
+                            height: 5,
+                            margin: const EdgeInsets.only(bottom: 24),
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? Colors.white.withValues(alpha: 0.15)
-                                  : AppColors.deepNavy.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(2),
+                                  ? Colors.white.withValues(alpha: 0.2)
+                                  : AppColors.deepNavy.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(3),
                             ),
                           ),
                         ),
@@ -290,39 +304,33 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
                         // Title
                         FadeSlide(
                           child: Text(
-                            'Status Validasi',
+                            'Lokasi & Validasi',
+                            textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge
                                 ?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color:
-                                      isDark ? AppColors.white : AppColors.deepNavy,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -0.5,
+                                  color: isDark ? AppColors.white : AppColors.deepNavy,
                                 ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 24),
 
-                        // Status indicator & Distance Info
-                        FadeSlide(
-                          delay: const Duration(milliseconds: 80),
-                          child: _buildStatusWidget(loc),
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Distance info card
-                        if (loc.state == LocationState.ready) ...[
+                        // Premium Info Card (Combines Status and Distance)
+                        if (loc.state == LocationState.ready || loc.state == LocationState.loading)
                           FadeSlide(
-                            delay: const Duration(milliseconds: 160),
+                            delay: const Duration(milliseconds: 80),
                             child: DistanceInfoCard(
                               distanceMeters: loc.distanceMeters,
                               isInArea: loc.isInArea,
                               accuracy: loc.accuracy,
                               lastUpdated: loc.lastUpdated,
+                              isLoading: loc.state == LocationState.loading,
                             ),
                           ),
-                          const SizedBox(height: 20),
-                        ],
+                        const SizedBox(height: 24),
 
                         // Error state
                         if (loc.state == LocationState.error)
@@ -343,7 +351,10 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
               );
             },
           ),
-        ],
+              ],
+            );
+          },
+        ),
       ),
     );
   }

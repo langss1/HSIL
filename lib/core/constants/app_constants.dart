@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 class AppConstants {
   const AppConstants._();
 
-  static const String appName    = 'HSIL Attendance';
+  static const String appName    = 'Absen!';
   static const String appTagline = 'Factory attendance, safer and smarter.';
 
   // Firebase project
@@ -14,8 +14,8 @@ class AppConstants {
 
   // Office / GPS
   static const String officeName          = 'HSIL Main Plant';
-  static const double officeLatitude      = -6.2088;
-  static const double officeLongitude     = 106.8456;
+  static const double officeLatitude      = -6.967426;
+  static const double officeLongitude     = 107.635609;
   static const double officeRadiusMeters  = 500;
 
   // Timing

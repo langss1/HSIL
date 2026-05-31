@@ -7,6 +7,7 @@ import '../../core/themes/color_palette.dart';
 import '../providers/auth_controller.dart';
 import '../widgets/animated_gradient_backdrop.dart';
 import '../widgets/app_button.dart';
+import '../widgets/app_logo_mark.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/fade_slide.dart';
 import '../widgets/glass_card.dart';
@@ -118,69 +119,13 @@ class _MobileHeader extends StatelessWidget {
     return FadeSlide(
       child: Column(
         children: [
-          SizedBox(
-            width: double.infinity,
-            height: 140,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
-                'assets/login.png',
-                fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: AppColors.safetyOrange.withValues(alpha: 0.1),
-                      child: const Icon(
-                        Icons.image_outlined,
-                        color: AppColors.safetyOrange,
-                        size: 64,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          const SizedBox(height: Spacing.md),
-          Text(
-            'Absen!',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? AppColors.white
-                      : AppColors.deepNavy,
-                  letterSpacing: -0.3,
-                ),
-          ),
-          const SizedBox(height: Spacing.xs),
-          Text(
-            'Sistem Absensi Terintegrasi',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.safetyOrange,
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────── Desktop Hero ───────────────────────
-class _DesktopHeroPanel extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return FadeSlide(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 240,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: SizedBox(
+              width: double.infinity,
+              height: 120,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
                 child: Image.asset(
                   'assets/login.png',
                   fit: BoxFit.cover,
@@ -198,23 +143,62 @@ class _DesktopHeroPanel extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: Spacing.xl),
+          const SizedBox(height: Spacing.md),
           Text(
             'Absen!',
-            style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  fontWeight: FontWeight.w900,
                   color: Theme.of(context).brightness == Brightness.dark
                       ? AppColors.white
                       : AppColors.deepNavy,
-                  letterSpacing: -0.5,
+                  letterSpacing: -1.0,
                 ),
           ),
+          const SizedBox(height: 2),
+          Text(
+            'Sistem Absensi Terintegrasi',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.safetyOrange,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+          ),
+          const SizedBox(height: Spacing.sm),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────── Desktop Hero ───────────────────────
+class _DesktopHeroPanel extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FadeSlide(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const AppLogoMark(size: 80),
           const SizedBox(height: Spacing.md),
           Text(
-            'Platform HRIS modern untuk\nmanajemen absensi pabrik.',
+            'Absen!',
+            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.white
+                      : AppColors.deepNavy,
+                  letterSpacing: -1.0,
+                ),
+          ),
+          const SizedBox(height: Spacing.sm),
+          Text(
+            'Portal HRIS modern untuk\nmanajemen absensi cerdas.',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppColors.textSecondary,
-                  height: 1.7,
+                  height: 1.5,
                 ),
           ),
           const SizedBox(height: Spacing.xl),
@@ -297,32 +281,25 @@ class _LoginFormCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Header
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Selamat Datang',
-                        style:
-                            Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: Theme.of(context).brightness == Brightness.dark
-                                      ? AppColors.white
-                                      : AppColors.deepNavy,
-                                ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Masuk ke akun karyawan Anda',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ],
+              Text(
+                'Selamat Datang 👋',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 20,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.white
+                          : AppColors.deepNavy,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Masuk ke akun Anda',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
               ),
 
-              const SizedBox(height: Spacing.lg),
+              const SizedBox(height: Spacing.md),
 
               // Error message
               if (auth.errorMessage != null)
@@ -334,8 +311,8 @@ class _LoginFormCard extends StatelessWidget {
               // NIK field
               AppTextField(
                 controller: nikController,
-                label: 'NIK Karyawan',
-                hint: '10 digit nomor induk',
+                label: 'NIK',
+                hint: '10 digit NIK',
                 icon: Icons.badge_rounded,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
@@ -429,31 +406,33 @@ class _LoginFormCard extends StatelessWidget {
 
               // Links
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextButton.icon(
+                  TextButton(
                     onPressed: auth.isBusy
                         ? null
                         : () => Navigator.of(context)
                             .pushNamed(RouteConstants.register),
-                    icon: const Icon(Icons.person_add_outlined, size: 15),
-                    label: const Text('Buat akun'),
                     style: TextButton.styleFrom(
                       foregroundColor: AppColors.safetyOrange,
-                      padding: EdgeInsets.zero,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                     ),
+                    child: const Text('Buat akun baru', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
                   ),
-                  TextButton.icon(
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4),
+                    child: Text('|', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w300)),
+                  ),
+                  TextButton(
                     onPressed: auth.isBusy
                         ? null
                         : () => Navigator.of(context)
                             .pushNamed(RouteConstants.forgotPassword),
-                    icon: const Icon(Icons.help_outline_rounded, size: 15),
-                    label: const Text('Lupa password?'),
                     style: TextButton.styleFrom(
                       foregroundColor: AppColors.textSecondary,
-                      padding: EdgeInsets.zero,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                     ),
+                    child: const Text('Lupa password?', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
