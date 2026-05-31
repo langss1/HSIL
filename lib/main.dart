@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/di/app_dependencies.dart';
@@ -7,13 +8,17 @@ import 'core/themes/app_theme.dart';
 import 'presentation/app_router.dart';
 import 'presentation/providers/attendance_provider.dart';
 import 'presentation/providers/auth_controller.dart';
+import 'presentation/providers/history_provider.dart';
 import 'presentation/providers/location_provider.dart';
+import 'presentation/providers/notification_provider.dart';
+import 'presentation/providers/profile_provider.dart';
 import 'presentation/screens/main_screen.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID', null);
   final dependencies = await AppDependencies.create();
   runApp(FactoryAttendanceApp(dependencies: dependencies));
 }
@@ -43,6 +48,22 @@ class FactoryAttendanceApp extends StatelessWidget {
             clockOutUseCase: dependencies.clockOut,
             getWeeklyStatsUseCase: dependencies.getWeeklyStats,
             attendanceRepository: dependencies.attendanceRepository,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => HistoryProvider(
+            getHistory: dependencies.getAttendanceHistory,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ProfileProvider(
+            updateProfile: dependencies.updateProfile,
+            changePassword: dependencies.changePassword,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => NotificationProvider(
+            repository: dependencies.notificationRepository,
           ),
         ),
       ],

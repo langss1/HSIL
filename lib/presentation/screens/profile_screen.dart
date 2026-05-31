@@ -87,7 +87,7 @@ class ProfileScreen extends StatelessWidget {
           const Divider(height: 24),
           _buildInfoRow('Email', user.email, Icons.email_rounded),
           const Divider(height: 24),
-          _buildInfoRow('No. HP', user.phone.isNotEmpty ? user.phone : 'Belum diisi', Icons.phone_rounded),
+          _buildInfoRow('No. HP', (user.phone?.isNotEmpty == true) ? user.phone! : 'Belum diisi', Icons.phone_rounded),
           const Divider(height: 24),
           _buildInfoRow('Shift', '${user.shiftStart} - ${user.shiftEnd}', Icons.schedule_rounded),
         ],

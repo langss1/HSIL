@@ -56,6 +56,30 @@ class FirebaseAuthDataSource {
     return '${nik.trim()}@${AppConstants.nikEmailDomain}';
   }
 
+  /// Re-authenticates the user and updates their password.
+  Future<void> changePassword({
+    required String email,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw AuthException('Sesi tidak ditemukan. Silakan login kembali.');
+      }
+      // Re-authenticate
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: oldPassword,
+      );
+      await user.reauthenticateWithCredential(credential);
+      // Update password
+      await user.updatePassword(newPassword);
+    } on FirebaseAuthException catch (error) {
+      throw AuthException(_mapAuthMessage(error), code: error.code);
+    }
+  }
+
   String _mapAuthMessage(FirebaseAuthException error) {
     return switch (error.code) {
       'invalid-email' => 'Format NIK tidak valid.',

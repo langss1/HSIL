@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -118,30 +120,63 @@ class AttendanceDetailScreen extends StatelessWidget {
   }
 
   Widget _buildSelfieCard(BuildContext context) {
+    final imageUrl = record.clockInImageUrl ?? record.clockOutImageUrl;
+
     return GlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Bukti Foto', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: Spacing.md),
-          Container(
-            height: 150,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey.withValues(alpha: 0.1),
+          if (imageUrl != null && imageUrl.isNotEmpty)
+            ClipRRect(
               borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.no_photography_rounded, size: 48, color: Colors.grey),
-                SizedBox(height: 8),
-                Text('Foto tidak tersedia', style: TextStyle(color: Colors.grey)),
-              ],
-            ),
-          ),
+              child: imageUrl.startsWith('data:image')
+                  ? Image.memory(
+                      _decodeBase64(imageUrl),
+                      width: double.infinity,
+                      height: 300,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.network(
+                      imageUrl,
+                      width: double.infinity,
+                      height: 300,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _buildNoPhotoFallback(),
+                    ),
+            )
+          else
+            _buildNoPhotoFallback(),
         ],
       ),
     );
+  }
+
+  Widget _buildNoPhotoFallback() {
+    return Container(
+      height: 150,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.grey.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.no_photography_rounded, size: 48, color: Colors.grey),
+          SizedBox(height: 8),
+          Text('Foto tidak tersedia', style: TextStyle(color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+
+  Uint8List _decodeBase64(String dataUri) {
+    final parts = dataUri.split(',');
+    if (parts.length > 1) {
+      return base64Decode(parts[1]);
+    }
+    return base64Decode(dataUri);
   }
 }

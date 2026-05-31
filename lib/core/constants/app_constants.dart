@@ -13,10 +13,10 @@ class AppConstants {
   static const String nikEmailDomain     = 'hsil.factory'; // NIK@hsil.factory
 
   // Office / GPS
-  static const String officeName          = 'HSIL Main Plant';
-  static const double officeLatitude      = -6.967426;
-  static const double officeLongitude     = 107.635609;
-  static const double officeRadiusMeters  = 500;
+  static const String officeName          = 'Telkom University Bandung';
+  static const double officeLatitude      = -6.97328;
+  static const double officeLongitude     = 107.63034;
+  static const double officeRadiusMeters  = 1500;
 
   // Timing
   static const Duration splashDuration   = Duration(milliseconds: 1500);
