@@ -38,10 +38,16 @@ class AuthController extends ChangeNotifier {
   String? get firebaseMessage => _dependencies.firebase.message;
 
   Future<void> initialize() async {
+    // Tahan splash screen selama minimal 2.5 detik agar animasinya terlihat bagus
+    final splashTimer = Future.delayed(const Duration(milliseconds: 2500));
+
     _rememberMe = await _dependencies.authRepository.getRememberMe();
     _rememberedNik = await _dependencies.authRepository.getRememberedNik();
     _infoMessage = _dependencies.firebase.message;
     notifyListeners();
+
+    // Tunggu animasi splash screen selesai sebelum menampilkan layar login/utama
+    await splashTimer;
 
     _authSubscription = _dependencies.observeAuthState().listen(
       (user) {

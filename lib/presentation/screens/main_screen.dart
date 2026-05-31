@@ -14,6 +14,19 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   List<Widget> get _pages => [
     const DashboardScreen(),
@@ -22,21 +35,35 @@ class _MainScreenState extends State<MainScreen> {
     const ProfileScreen(),
   ];
 
+  void _onTabTapped(int index) {
+    setState(() => _currentIndex = index);
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
+      body: PageView(
+        controller: _pageController,
+        physics: const BouncingScrollPhysics(),
+        onPageChanged: (index) {
+          setState(() => _currentIndex = index);
+        },
         children: _pages,
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: isDark ? AppColors.bgCard : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
-              color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
+              color: isDark ? Colors.black.withValues(alpha: 0.3) : AppColors.deepNavy.withValues(alpha: 0.06),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),
@@ -44,10 +71,10 @@ class _MainScreenState extends State<MainScreen> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: BottomNavigationBar(
               currentIndex: _currentIndex,
-              onTap: (index) => setState(() => _currentIndex = index),
+              onTap: _onTabTapped,
               backgroundColor: Colors.transparent,
               elevation: 0,
               selectedItemColor: AppColors.safetyOrange,
@@ -55,34 +82,50 @@ class _MainScreenState extends State<MainScreen> {
               showSelectedLabels: true,
               showUnselectedLabels: true,
               type: BottomNavigationBarType.fixed,
-              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
               items: const [
                 BottomNavigationBarItem(
                   icon: Padding(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: Icon(Icons.home_rounded),
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(Icons.home_rounded, size: 26),
+                  ),
+                  activeIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(Icons.home_rounded, size: 28),
                   ),
                   label: 'Beranda',
                 ),
                 BottomNavigationBarItem(
                   icon: Padding(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: Icon(Icons.fingerprint_rounded),
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(Icons.photo_camera_rounded, size: 26),
+                  ),
+                  activeIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(Icons.photo_camera_rounded, size: 28),
                   ),
                   label: 'Absen',
                 ),
                 BottomNavigationBarItem(
                   icon: Padding(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: Icon(Icons.history_rounded),
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(Icons.history_rounded, size: 26),
+                  ),
+                  activeIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(Icons.history_rounded, size: 28),
                   ),
                   label: 'Riwayat',
                 ),
                 BottomNavigationBarItem(
                   icon: Padding(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: Icon(Icons.person_rounded),
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(Icons.person_rounded, size: 26),
+                  ),
+                  activeIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(Icons.person_rounded, size: 28),
                   ),
                   label: 'Profil',
                 ),

@@ -12,74 +12,90 @@ class DistanceInfoCard extends StatelessWidget {
     this.accuracy,
     this.lastUpdated,
     this.officeName = 'HSIL Main Plant',
+    this.isLoading = false,
   });
 
-  /// Distance from office in meters.
   final double distanceMeters;
-
-  /// Whether the user is within geofence.
   final bool isInArea;
-
-  /// GPS accuracy in meters.
   final double? accuracy;
-
-  /// Timestamp of the last GPS update.
   final DateTime? lastUpdated;
-
-  /// Display name of the office.
   final String officeName;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    if (isLoading) {
+      return Container(
+        padding: const EdgeInsets.all(Spacing.lg),
+        decoration: BoxDecoration(
+          color: AppColors.info.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.info.withValues(alpha: 0.2)),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: AppColors.info),
+              SizedBox(height: 16),
+              Text('Mendeteksi lokasi GPS...'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final statusColor = isInArea ? AppColors.success : AppColors.error;
+    final statusIcon = isInArea ? Icons.check_circle_rounded : Icons.cancel_rounded;
+    final statusText = isInArea ? 'Dalam Area' : 'Di Luar Area';
+
     return Container(
-      padding: const EdgeInsets.all(Spacing.md),
+      padding: const EdgeInsets.all(Spacing.lg),
       decoration: BoxDecoration(
         color: isDark ? AppColors.bgCard : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.06)
-              : AppColors.deepNavy.withValues(alpha: 0.08),
+          color: statusColor.withValues(alpha: 0.3),
+          width: 1.5,
         ),
         boxShadow: [
-          if (!isDark)
-            BoxShadow(
-              color: AppColors.deepNavy.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
+          BoxShadow(
+            color: statusColor.withValues(alpha: 0.08),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row
+          // Header row (Office & Status Badge)
           Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
                   color: AppColors.safetyOrange.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
-                  Icons.location_on_rounded,
+                  Icons.business_rounded,
                   color: AppColors.safetyOrange,
-                  size: 18,
+                  size: 20,
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       officeName,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
                             color: isDark ? AppColors.white : AppColors.deepNavy,
                           ),
                     ),
@@ -87,14 +103,38 @@ class DistanceInfoCard extends StatelessWidget {
                       'Radius: 500m',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
                           ),
+                    ),
+                  ],
+                ),
+              ),
+              // Status Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(statusIcon, color: statusColor, size: 14),
+                    const SizedBox(width: 4),
+                    Text(
+                      statusText,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: Spacing.md),
+          const SizedBox(height: 20),
 
           // Divider
           Container(
@@ -103,50 +143,42 @@ class DistanceInfoCard extends StatelessWidget {
                 ? Colors.white.withValues(alpha: 0.06)
                 : AppColors.deepNavy.withValues(alpha: 0.06),
           ),
-          const SizedBox(height: Spacing.md),
+          const SizedBox(height: 20),
 
-          // Info rows
-          _InfoRow(
-            icon: Icons.straighten_rounded,
-            label: 'Jarak',
-            value: '${distanceMeters.toStringAsFixed(1)}m',
-            valueColor: isInArea ? AppColors.success : AppColors.error,
+          // Info Grid
+          Row(
+            children: [
+              Expanded(
+                child: _InfoBox(
+                  icon: Icons.straighten_rounded,
+                  label: 'Jarak GPS',
+                  value: '${distanceMeters.toStringAsFixed(1)}m',
+                  valueColor: statusColor,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _InfoBox(
+                  icon: Icons.gps_fixed_rounded,
+                  label: 'Akurasi',
+                  value: accuracy != null ? '±${accuracy!.toStringAsFixed(0)}m' : '-',
+                  valueColor: (accuracy ?? 100) <= 20
+                      ? AppColors.success
+                      : (accuracy ?? 100) <= 50
+                          ? AppColors.warning
+                          : AppColors.error,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: Spacing.sm),
-          if (accuracy != null) ...[
-            _InfoRow(
-              icon: Icons.gps_fixed_rounded,
-              label: 'Akurasi GPS',
-              value: '±${accuracy!.toStringAsFixed(0)}m',
-              valueColor: accuracy! <= 20
-                  ? AppColors.success
-                  : accuracy! <= 50
-                      ? AppColors.warning
-                      : AppColors.error,
-            ),
-            const SizedBox(height: Spacing.sm),
-          ],
-          if (lastUpdated != null)
-            _InfoRow(
-              icon: Icons.access_time_rounded,
-              label: 'Update terakhir',
-              value: _formatTime(lastUpdated!),
-              valueColor: AppColors.textSecondary,
-            ),
         ],
       ),
     );
   }
-
-  String _formatTime(DateTime dt) {
-    return '${dt.hour.toString().padLeft(2, '0')}:'
-        '${dt.minute.toString().padLeft(2, '0')}:'
-        '${dt.second.toString().padLeft(2, '0')}';
-  }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
+class _InfoBox extends StatelessWidget {
+  const _InfoBox({
     required this.icon,
     required this.label,
     required this.value,
@@ -160,26 +192,40 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: AppColors.textSecondary),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w500,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white.withValues(alpha: 0.03) : AppColors.deepNavy.withValues(alpha: 0.02),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14, color: AppColors.textSecondary),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
-        ),
-        const Spacer(),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: valueColor,
-                fontWeight: FontWeight.w700,
-              ),
-        ),
-      ],
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: valueColor ?? (isDark ? Colors.white : AppColors.deepNavy),
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
+                ),
+          ),
+        ],
+      ),
     );
   }
 }

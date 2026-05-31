@@ -139,11 +139,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ],
 
                                // ─── Section: Data Diri ───────────
-                              _SectionLabel(
-                                label: 'Data Karyawan',
-                                icon: Icons.person_rounded,
-                              ),
-                              const SizedBox(height: Spacing.sm),
+                                _SectionLabel(
+                                  label: 'Data Karyawan',
+                                  icon: Icons.person_rounded,
+                                ),
+                                const SizedBox(height: Spacing.md),
 
                               AppTextField(
                                 controller: _nikController,
@@ -154,7 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 textInputAction: TextInputAction.next,
                                 validator: _validateNik,
                               ),
-                              const SizedBox(height: Spacing.md),
+                              const SizedBox(height: Spacing.lg),
                               AppTextField(
                                 controller: _nameController,
                                 label: 'Nama Lengkap',
@@ -168,7 +168,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              const SizedBox(height: Spacing.md),
+                              const SizedBox(height: Spacing.lg),
                               Row(
                                 children: [
                                   Expanded(
@@ -194,7 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: Spacing.md),
+                              const SizedBox(height: Spacing.lg),
                               AppTextField(
                                 controller: _phoneController,
                                 label: 'No. HP (Opsional)',
@@ -204,14 +204,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 textInputAction: TextInputAction.next,
                               ),
 
-                              const SizedBox(height: Spacing.md),
+                              const SizedBox(height: Spacing.xl),
 
                               // ─── Section: Password ──────────
                               _SectionLabel(
                                 label: 'Buat Password',
                                 icon: Icons.lock_rounded,
                               ),
-                              const SizedBox(height: Spacing.sm),
+                              const SizedBox(height: Spacing.md),
 
                               AppTextField(
                                 controller: _passwordController,
@@ -222,7 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 textInputAction: TextInputAction.next,
                                 validator: _validatePassword,
                               ),
-                              const SizedBox(height: Spacing.md),
+                              const SizedBox(height: Spacing.lg),
                               AppTextField(
                                 controller: _confirmPasswordController,
                                 label: 'Konfirmasi Password',
@@ -238,7 +238,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              const SizedBox(height: Spacing.md),
+                              const SizedBox(height: Spacing.xl),
 
                               AppButton(
                                 label: 'Daftar Sekarang',
@@ -247,11 +247,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 onPressed: _submit,
                               ),
                               const SizedBox(height: Spacing.sm),
-                              TextButton(
-                                onPressed: auth.isBusy
-                                    ? null
-                                    : () => Navigator.of(context).pop(),
-                                child: const Text('Sudah punya akun? Login'),
+                              Center(
+                                child: TextButton(
+                                  onPressed: auth.isBusy
+                                      ? null
+                                      : () => Navigator.of(context).pop(),
+                                  child: const Text('Sudah punya akun? Login'),
+                                ),
                               ),
                             ],
                           ),

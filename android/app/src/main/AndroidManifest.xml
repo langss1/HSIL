@@ -8,12 +8,12 @@
     <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
-        android:label="HSIL Attendance"
+        android:label="Absen"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${mapsApiKey}"/>
+            android:value="AIzaSyBHssyBLSBRJMrF1qaIsFd-1J5eR5QEUdc"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

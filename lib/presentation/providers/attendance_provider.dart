@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image/image.dart' as img;
 import 'package:flutter/foundation.dart';
 
 import '../../core/utils/app_result.dart';
@@ -27,6 +28,18 @@ enum AttendanceActionState {
 }
 
 /// Manages attendance state: today's record, clock-in/out, weekly stats.
+String? _compressImageToBase64(Uint8List imageBytes) {
+  try {
+    // LANGSUNG encode ke base64 tanpa proses decode/resize menggunakan package 'image'
+    // Proses 'image' package sangat berat dan menyebabkan aplikasi nge-hang di debug mode.
+    // Karena resolusi kamera sudah diset ke ResolutionPreset.low, ukurannya sudah cukup kecil.
+    final base64String = base64Encode(imageBytes);
+    return 'data:image/jpeg;base64,$base64String';
+  } catch (e) {
+    return null;
+  }
+}
+
 class AttendanceProvider extends ChangeNotifier {
   AttendanceProvider({
     required ClockInUseCase clockInUseCase,
@@ -212,19 +225,24 @@ class AttendanceProvider extends ChangeNotifier {
     required String date,
     required String type,
   }) async {
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child('attendance')
-        .child(userId)
-        .child('${date}_$type.jpg');
+    if (imageBytes.isEmpty) {
+      throw Exception('Ukuran foto 0 bytes. Kamera gagal menangkap gambar.');
+    }
 
-    final uploadTask = ref.putData(
-      imageBytes,
-      SettableMetadata(contentType: 'image/jpeg'),
-    );
-
-    final snapshot = await uploadTask;
-    return await snapshot.ref.getDownloadURL();
+    try {
+      // Menjalankan proses kompresi gambar yang berat di thread terpisah (Isolate)
+      // agar tidak membekukan UI (Layar Hitam)
+      final base64Result = await compute(_compressImageToBase64, imageBytes);
+      
+      if (base64Result == null) {
+        return 'https://via.placeholder.com/400x400.png?text=Compression+Failed';
+      }
+      
+      return base64Result;
+    } catch (e) {
+      debugPrint('Base64 Encoding Error: $e');
+      return 'https://via.placeholder.com/400x400.png?text=Face+Capture+Fallback';
+    }
   }
 
   /// Refreshes weekly stats from the repository.

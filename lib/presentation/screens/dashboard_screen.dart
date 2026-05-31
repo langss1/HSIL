@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math' as math;
 
 import '../../core/constants/route_constants.dart';
@@ -24,7 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final user = context.read<AuthController>().user;
       if (user != null) {
         context.read<AttendanceProvider>().initialize(user.userId);
@@ -44,7 +45,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: SafeArea(
           child: SingleChildScrollView(
             physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 40),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 980),
@@ -71,27 +72,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     // ── Horizontal Employee Barcode Card (Lanyard style) ──
                     FadeSlide(
                       delay: const Duration(milliseconds: 120),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? AppColors.bgCard.withValues(alpha: 0.8)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: AppColors.safetyOrange.withValues(alpha: 0.18),
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.deepNavy.withValues(alpha: 0.05),
-                              blurRadius: 18,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Stack(
+                          clipBehavior: Clip.none,
                           children: [
+                            // Tumpukan Card di Bawah
+                            Positioned(
+                              top: 16,
+                              left: 12,
+                              right: 12,
+                              bottom: -10,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.white.withValues(alpha: 0.1)
+                                      : const Color(0xFFE2E8F0), // Lebih terlihat
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                              ),
+                            ),
+                            // Main Card
+                            Container(
+                              decoration: BoxDecoration(
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? AppColors.bgCard.withValues(alpha: 0.8)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: AppColors.safetyOrange.withValues(alpha: 0.18),
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.deepNavy.withValues(alpha: 0.05),
+                                  blurRadius: 18,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                             // 1. Lanyard woven strap bar at the top with glowing linear animation
                             const _AnimatedLanyardStrap(),
                             // Inner card content with padding
@@ -209,7 +231,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ),
                                       Text(
                                         user != null ? 'ID: ${user.nik}' : 'ID: ----------',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           color: AppColors.textSecondary,
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
@@ -224,7 +246,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ],
                         ),
                       ),
-                    ),
+                    ],
+                  ),
+                ),
+              ),
                     const SizedBox(height: 16),
 
                     // ── Stats Grid ─────────────────────────────
@@ -237,9 +262,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'Rekap Bulan Ini',
                             style: Theme.of(context)
                                 .textTheme
-                                .titleMedium
+                                .titleLarge
                                 ?.copyWith(
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w800,
                                   color: Theme.of(context).brightness == Brightness.dark
                                       ? AppColors.white
                                       : AppColors.deepNavy,
@@ -432,9 +457,9 @@ class _ClockInCard extends StatelessWidget {
                       ],
                     ),
                     child: const Icon(
-                      Icons.play_arrow_rounded,
+                      Icons.photo_camera_rounded,
                       color: Colors.white,
-                      size: 32,
+                      size: 28,
                     ),
                   ),
                 ),
@@ -525,51 +550,75 @@ class _StatsGrid extends StatelessWidget {
             final (label, value, color, icon) = cards[index];
             final isDark = Theme.of(context).brightness == Brightness.dark;
 
-            return Container(
-              decoration: BoxDecoration(
-                color: isDark
-                    ? color.withValues(alpha: 0.08)
-                    : Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark 
-                        ? Colors.transparent 
-                        : AppColors.deepNavy.withValues(alpha: 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
+            return FadeSlide(
+              delay: Duration(milliseconds: 150 * index),
+              offset: const Offset(0, 0.1),
+              child: Stack(
+                clipBehavior: Clip.none,
+                fit: StackFit.expand,
+              children: [
+                // Tumpukan Card di Samping Kanan (Right only, no bottom offset)
+                Positioned(
+                  top: 0,
+                  bottom: 0,
+                  left: 6,
+                  right: -6,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : const Color(0xFFE2E8F0), // Grey color
+                      borderRadius: BorderRadius.circular(18),
+                    ),
                   ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: Stack(
-                  children: [
-                    // Large watermark overlay icon in the background
-                    Positioned(
-                      bottom: -16,
-                      right: -16,
-                      child: Icon(
-                        icon,
-                        color: color.withValues(
-                          alpha: isDark ? 0.08 : 0.06,
-                        ),
-                        size: 76,
-                      ),
+                ),
+                // Main Card
+                Container(
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.bgCard
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: isDark 
+                          ? Colors.white.withValues(alpha: 0.05) 
+                          : AppColors.deepNavy.withValues(alpha: 0.05),
                     ),
-                    // Accent Line (Left strip)
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      bottom: 0,
-                      width: 5,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: color,
-                        ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark 
+                            ? Colors.transparent 
+                            : AppColors.deepNavy.withValues(alpha: 0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
                       ),
-                    ),
-                    // Content
+                    ],
+                  ),
+                  child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: Stack(
+                    children: [
+                      // Colored strip on the left edge
+                      Positioned(
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        width: 4,
+                        child: Container(color: color),
+                      ),
+                      // Large watermark overlay icon in the background
+                      Positioned(
+                          bottom: -16,
+                          right: -16,
+                          child: Icon(
+                            icon,
+                            color: color.withValues(
+                              alpha: isDark ? 0.08 : 0.06,
+                            ),
+                            size: 76,
+                          ),
+                        ),
+                        // Content
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
                       child: Column(
@@ -620,8 +669,11 @@ class _StatsGrid extends StatelessWidget {
                   ],
                 ),
               ),
-            );
-          },
+            ),
+          ],
+        ),
+      );
+    },
         );
       },
     );
@@ -662,7 +714,7 @@ class __AnimatedCelestialBackgroundState
   @override
   Widget build(BuildContext context) {
     final hour = DateTime.now().hour;
-    final isDay = hour >= 5 && hour < 18.5;
+    final isDay = hour >= 5 && hour < 18;
 
     return SizedBox(
       width: 180,
@@ -733,7 +785,7 @@ class __AnimatedCelestialBackgroundState
                     scale: moonPulse,
                     child: Icon(
                       Icons.nights_stay_rounded,
-                      color: const Color(0xFFC5CAE9).withValues(alpha: 0.12),
+                      color: Colors.amber.withValues(alpha: 0.12),
                       size: 90,
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/themes/color_palette.dart';
 
 class FaceOverlayWidget extends StatelessWidget {
   final bool isValid;
@@ -20,49 +21,41 @@ class FaceFramePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = isValid ? const Color(0xFF4CAF50) : const Color(0xFFFF6B35)
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke;
-
-    // Oval frame untuk wajah
-    final oval = Rect.fromCenter(
-      center: Offset(size.width / 2, size.height * 0.45),
-      width: size.width * 0.65,
-      height: size.height * 0.5,
-    );
-    canvas.drawOval(oval, paint);
-
+    // Geser titik tengah oval agak ke atas agar tidak menabrak UI di bawahnya
+    final center = Offset(size.width / 2, size.height * 0.38);
+    
+    // Bentuk oval portrait (lebih cocok untuk wajah manusia daripada lingkaran penuh)
+    final ovalWidth = size.width * 0.65;
+    final ovalHeight = size.height * 0.45;
+    final rect = Rect.fromCenter(center: center, width: ovalWidth, height: ovalHeight);
+    
     // Darken outside the oval
     final path = Path()
       ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
-      ..addOval(oval)
+      ..addOval(rect)
       ..fillType = PathFillType.evenOdd;
 
-    final bgPaint = Paint()..color = Colors.black.withValues(alpha: 0.5);
+    // Background lebih terang sedikit agar tidak terlalu gloomy
+    final bgPaint = Paint()..color = Colors.black.withValues(alpha: 0.6);
     canvas.drawPath(path, bgPaint);
     
-    _drawCorners(canvas, oval, paint);
-  }
-
-  void _drawCorners(Canvas canvas, Rect oval, Paint paint) {
-    const cornerLength = 20.0;
+    // Warna neon modern (Ubah ke warna Orange HSIL)
+    final color = isValid ? AppColors.safetyOrange : Colors.white;
     
-    // Top-left
-    canvas.drawLine(Offset(oval.left, oval.top + cornerLength), Offset(oval.left, oval.top), paint);
-    canvas.drawLine(Offset(oval.left, oval.top), Offset(oval.left + cornerLength, oval.top), paint);
+    // Efek Glow bayangan
+    final glowPaint = Paint()
+      ..color = color.withValues(alpha: 0.4)
+      ..strokeWidth = 10
+      ..style = PaintingStyle.stroke
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
+    canvas.drawOval(rect, glowPaint);
 
-    // Top-right
-    canvas.drawLine(Offset(oval.right - cornerLength, oval.top), Offset(oval.right, oval.top), paint);
-    canvas.drawLine(Offset(oval.right, oval.top), Offset(oval.right, oval.top + cornerLength), paint);
-
-    // Bottom-left
-    canvas.drawLine(Offset(oval.left, oval.bottom - cornerLength), Offset(oval.left, oval.bottom), paint);
-    canvas.drawLine(Offset(oval.left, oval.bottom), Offset(oval.left + cornerLength, oval.bottom), paint);
-
-    // Bottom-right
-    canvas.drawLine(Offset(oval.right - cornerLength, oval.bottom), Offset(oval.right, oval.bottom), paint);
-    canvas.drawLine(Offset(oval.right, oval.bottom), Offset(oval.right, oval.bottom - cornerLength), paint);
+    // Garis frame utama
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke;
+    canvas.drawOval(rect, paint);
   }
 
   @override
