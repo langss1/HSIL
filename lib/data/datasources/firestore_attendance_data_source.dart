@@ -120,4 +120,18 @@ class FirestoreAttendanceDataSource {
       );
     }
   }
+
+  /// Fetches a single attendance record by document ID.
+  Future<AttendanceModel?> getRecordById(String recordId) async {
+    try {
+      final doc = await _collection.doc(recordId).get();
+      if (!doc.exists) return null;
+      return AttendanceModel.fromFirestore(doc);
+    } on FirebaseException catch (error) {
+      throw FirebaseDataException(
+        error.message ?? 'Gagal membaca detail kehadiran.',
+        code: error.code,
+      );
+    }
+  }
 }

@@ -79,4 +79,34 @@ class FirestoreUserDataSource {
       );
     }
   }
+
+  /// Updates partial fields on a user profile document.
+  Future<UserModel> updateUserProfile(
+    String userId,
+    Map<String, dynamic> fields,
+  ) async {
+    try {
+      fields['updatedAt'] = FieldValue.serverTimestamp();
+      await _firestore.collection('users').doc(userId).update(fields);
+      // Re-fetch to get the updated data
+      return getUserById(userId);
+    } on FirebaseException catch (error) {
+      throw FirebaseDataException(
+        error.message ?? 'Gagal memperbarui profil.',
+        code: error.code,
+      );
+    }
+  }
+
+  /// Streams real-time updates for a user document.
+  Stream<UserModel?> watchUser(String userId) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .snapshots()
+        .map((doc) {
+      if (!doc.exists) return null;
+      return UserModel.fromFirestore(doc);
+    });
+  }
 }

@@ -8,4 +8,8 @@ class RouteConstants {
   static const String forgotPassword = '/forgot-password';
   static const String dashboard = '/dashboard';
   static const String gpsValidation = '/gps-validation';
+  static const String attendanceDetail = '/attendance-detail';
+  static const String editProfile = '/edit-profile';
+  static const String changePassword = '/change-password';
+  static const String notifications = '/notifications';
 }

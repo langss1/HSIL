@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../core/constants/route_constants.dart';
-import 'screens/dashboard_screen.dart';
+import '../domain/entities/attendance_record.dart';
+import 'screens/attendance_detail_screen.dart';
+import 'screens/change_password_screen.dart';
+import 'screens/edit_profile_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/gps_validation_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/notification_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/splash_screen.dart';
 
@@ -20,6 +24,12 @@ class AppRouter {
       RouteConstants.forgotPassword => const ForgotPasswordScreen(),
       RouteConstants.dashboard => const MainScreen(),
       RouteConstants.gpsValidation => const GPSValidationScreen(),
+      RouteConstants.attendanceDetail => AttendanceDetailScreen(
+          record: settings.arguments! as AttendanceRecord,
+        ),
+      RouteConstants.editProfile => const EditProfileScreen(),
+      RouteConstants.changePassword => const ChangePasswordScreen(),
+      RouteConstants.notifications => const NotificationScreen(),
       _ => const LoginScreen(),
     };
     return _buildRoute(page, settings);

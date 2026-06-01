@@ -8,6 +8,7 @@ import '../../core/constants/spacing_constants.dart';
 import '../../core/themes/color_palette.dart';
 import '../providers/attendance_provider.dart';
 import '../providers/auth_controller.dart';
+import '../providers/notification_provider.dart';
 import '../widgets/animated_gradient_backdrop.dart';
 import '../widgets/app_button.dart';
 import '../widgets/fade_slide.dart';
@@ -307,6 +308,8 @@ class _DashboardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final notifProvider = context.watch<NotificationProvider>();
+    
     return Row(
       children: [
         Expanded(
@@ -331,29 +334,56 @@ class _DashboardHeader extends StatelessWidget {
           ),
         ),
         // Bell Notification Button
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF1E293B)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              if (Theme.of(context).brightness != Brightness.dark)
-                BoxShadow(
-                  color: AppColors.deepNavy.withValues(alpha: 0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+        GestureDetector(
+          onTap: () => Navigator.pushNamed(context, RouteConstants.notifications),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E293B)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                if (Theme.of(context).brightness != Brightness.dark)
+                  BoxShadow(
+                    color: AppColors.deepNavy.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+              ],
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  Icons.notifications_outlined,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : AppColors.deepNavy,
+                  size: 22,
                 ),
-            ],
-          ),
-          child: Icon(
-            Icons.notifications_outlined,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white
-                : AppColors.deepNavy,
-            size: 22,
+                if (notifProvider.hasUnread)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: AppColors.safetyOrange,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Theme.of(context).brightness == Brightness.dark 
+                              ? const Color(0xFF1E293B) 
+                              : Colors.white,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ],
