@@ -12,6 +12,8 @@ import 'screens/login_screen.dart';
 import 'screens/notification_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/admin/admin_dashboard_screen.dart';
+import 'screens/admin/employee_list_screen.dart';
 
 class AppRouter {
   const AppRouter._();
@@ -30,6 +32,9 @@ class AppRouter {
       RouteConstants.editProfile => const EditProfileScreen(),
       RouteConstants.changePassword => const ChangePasswordScreen(),
       RouteConstants.notifications => const NotificationScreen(),
+      // Admin Routes
+      RouteConstants.adminDashboard => const AdminDashboardScreen(),
+      RouteConstants.employeeList => const EmployeeListScreen(),
       _ => const LoginScreen(),
     };
     return _buildRoute(page, settings);

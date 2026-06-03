@@ -12,4 +12,8 @@ class RouteConstants {
   static const String editProfile = '/edit-profile';
   static const String changePassword = '/change-password';
   static const String notifications = '/notifications';
+  
+  // Admin Routes
+  static const String adminDashboard = '/admin-dashboard';
+  static const String employeeList = '/admin-employee-list';
 }

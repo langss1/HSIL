@@ -19,6 +19,9 @@ import '../../data/repositories/auth_repository_impl.dart';
 import '../../data/repositories/location_repository_impl.dart';
 import '../../data/repositories/notification_repository_impl.dart';
 import '../../data/repositories/user_repository_impl.dart';
+import '../../data/datasources/firestore_admin_data_source.dart';
+import '../../data/repositories/admin_repository_impl.dart';
+import '../../domain/repositories/admin_repository.dart';
 import '../../domain/repositories/attendance_repository.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/location_repository.dart';
@@ -62,6 +65,7 @@ class AppDependencies {
     required this.updateProfile,
     required this.changePassword,
     required this.notificationService,
+    required this.adminRepository,
   });
 
   final FirebaseBootstrapResult firebase;
@@ -83,6 +87,7 @@ class AppDependencies {
   final UpdateProfileUseCase updateProfile;
   final ChangePasswordUseCase changePassword;
   final NotificationService notificationService;
+  final AdminRepository adminRepository;
 
   static Future<AppDependencies> create() async {
     final preferences = await SharedPreferences.getInstance();
@@ -135,6 +140,9 @@ class AppDependencies {
       notificationDataSource: firebase.isReady ? notificationDataSource : null,
     );
 
+    final adminDataSource = FirestoreAdminDataSource(firestore);
+    final adminRepository = AdminRepositoryImpl(adminDataSource: adminDataSource);
+
     return AppDependencies(
       firebase: firebase,
       authRepository: authRepository,
@@ -155,6 +163,7 @@ class AppDependencies {
       updateProfile: UpdateProfileUseCase(userRepository ?? _DummyUserRepository()),
       changePassword: ChangePasswordUseCase(userRepository ?? _DummyUserRepository()),
       notificationService: notificationService,
+      adminRepository: adminRepository,
     );
   }
 }

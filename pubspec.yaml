@@ -54,6 +54,10 @@ dependencies:
   camera: any
   google_mlkit_face_detection: any
   image: any
+  fl_chart: ^1.2.0
+  csv: ^8.0.0
+  path_provider: ^2.1.5
+  share_plus: ^13.1.0
 
 dev_dependencies:
   flutter_test:
