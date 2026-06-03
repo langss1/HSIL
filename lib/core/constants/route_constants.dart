@@ -16,4 +16,6 @@ class RouteConstants {
   // Admin Routes
   static const String adminDashboard = '/admin-dashboard';
   static const String employeeList = '/admin-employee-list';
+  static const String adminMap = '/admin-map';
+  static const String kpiDashboard = '/admin-kpi-dashboard';
 }

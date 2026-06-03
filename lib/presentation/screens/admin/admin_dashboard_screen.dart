@@ -150,14 +150,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             subtitle: 'Live Tracking',
             icon: Icons.map_outlined,
             color: AppColors.safetyOrange,
-            onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Halaman Peta (Hari 11) belum diimplementasi'))),
+            onTap: () => Navigator.pushNamed(context, RouteConstants.adminMap),
           ),
           _MenuCard(
             title: 'Grafik KPI',
             subtitle: 'Analisis Performa',
             icon: Icons.bar_chart_outlined,
             color: AppColors.success,
-            onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Halaman Grafik KPI (Hari 11) belum diimplementasi'))),
+            onTap: () => Navigator.pushNamed(context, RouteConstants.kpiDashboard),
           ),
           _MenuCard(
             title: 'Log Kehadiran',

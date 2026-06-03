@@ -14,6 +14,8 @@ import 'screens/register_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/admin/employee_list_screen.dart';
+import 'screens/admin/admin_map_screen.dart';
+import 'screens/admin/kpi_dashboard_screen.dart';
 
 class AppRouter {
   const AppRouter._();
@@ -35,6 +37,8 @@ class AppRouter {
       // Admin Routes
       RouteConstants.adminDashboard => const AdminDashboardScreen(),
       RouteConstants.employeeList => const EmployeeListScreen(),
+      RouteConstants.adminMap => const AdminMapScreen(),
+      RouteConstants.kpiDashboard => const KpiDashboardScreen(),
       _ => const LoginScreen(),
     };
     return _buildRoute(page, settings);
