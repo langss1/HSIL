@@ -30,23 +30,21 @@ class _AdminMapScreenState extends State<AdminMapScreen> {
 
     Set<Marker> mapMarkers = {
       // Office marker
-      const Marker(
-        markerId: MarkerId('office'),
-        position: LatLng(AppConstants.officeLatitude, AppConstants.officeLongitude),
-        infoWindow: InfoWindow(title: 'Kantor Pusat'),
+      Marker(
+        markerId: const MarkerId('office'),
+        position: const LatLng(AppConstants.officeLatitude, AppConstants.officeLongitude),
+        infoWindow: const InfoWindow(title: 'Kantor Pusat'),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
       ),
     };
 
     // Add employee markers
     for (var record in attendanceList) {
-      if (record.clockIn != null && 
-          record.clockIn!.latitude != null && 
-          record.clockIn!.longitude != null) {
+      if (record.clockInLat != null && record.clockInLng != null) {
         mapMarkers.add(
           Marker(
-            markerId: MarkerId(record.attendanceId),
-            position: LatLng(record.clockIn!.latitude!, record.clockIn!.longitude!),
+            markerId: MarkerId(record.id),
+            position: LatLng(record.clockInLat!, record.clockInLng!),
             infoWindow: InfoWindow(
               title: record.employeeName,
               snippet: 'Status: ${record.status}',
