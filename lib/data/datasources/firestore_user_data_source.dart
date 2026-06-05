@@ -39,12 +39,16 @@ class FirestoreUserDataSource {
   }) async {
     try {
       final now = FieldValue.serverTimestamp();
+      final isAdminNik = request.nik == '0123456789' || request.nik == '0000000000';
+      final roleString = isAdminNik ? 'admin' : 'employee';
+      final roleEnum = isAdminNik ? UserRole.admin : UserRole.employee;
+
       final data = <String, dynamic>{
         'userId': userId,
         'nik': request.nik,
         'name': request.name,
         'email': FirebaseAuthDataSource.nikToEmail(request.nik),
-        'role': 'employee',
+        'role': roleString,
         'department': request.department,
         'position': request.position,
         'phone': request.phone,
@@ -62,7 +66,7 @@ class FirestoreUserDataSource {
         nik: request.nik,
         name: request.name,
         email: FirebaseAuthDataSource.nikToEmail(request.nik),
-        role: UserRole.employee,
+        role: roleEnum,
         department: request.department,
         position: request.position,
         phone: request.phone,

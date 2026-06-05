@@ -9,5 +9,7 @@ abstract class AdminRepository {
   
   Future<AppResult<List<AttendanceRecord>>> getEmployeeAttendance(String employeeId, DateTime startDate, DateTime endDate);
 
+  Future<AppResult<List<AttendanceRecord>>> getAttendanceRange(DateTime startDate, DateTime endDate);
+
   Future<AppResult<void>> updateEmployeeRole(String employeeId, UserRole newRole);
 }

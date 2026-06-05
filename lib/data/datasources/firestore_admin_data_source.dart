@@ -71,6 +71,30 @@ class FirestoreAdminDataSource {
     }
   }
 
+  Future<List<AttendanceModel>> getAttendanceRange(
+      DateTime startDate, DateTime endDate) async {
+    try {
+      final start = DateUtil.toDateKey(startDate);
+      final end = DateUtil.toDateKey(endDate);
+
+      final snapshot = await _firestore
+          .collection('attendance')
+          .where('date', isGreaterThanOrEqualTo: start)
+          .where('date', isLessThanOrEqualTo: end)
+          .get();
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return AttendanceModel.fromJson(data);
+      }).toList();
+    } on FirebaseException catch (e) {
+      throw DataFailure(e.message ?? 'Failed to get attendance range');
+    } catch (e) {
+      throw DataFailure(e.toString());
+    }
+  }
+
   Future<void> updateEmployeeRole(String employeeId, UserRole newRole) async {
     try {
       await _firestore.collection('users').doc(employeeId).update({

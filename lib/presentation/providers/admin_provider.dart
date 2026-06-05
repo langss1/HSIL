@@ -23,6 +23,9 @@ class AdminProvider extends ChangeNotifier {
   List<AttendanceRecord> _employeeAttendance = [];
   List<AttendanceRecord> get employeeAttendance => _employeeAttendance;
 
+  List<AttendanceRecord> _weeklyAttendance = [];
+  List<AttendanceRecord> get weeklyAttendance => _weeklyAttendance;
+
   int get todayTotalAttendance => _todayAttendance.where((r) => r.status == 'hadir' || r.status == 'telat').length;
   int get todayLates => _todayAttendance.where((r) => r.status == 'telat').length;
   int get todayAbsents => _todayAttendance.where((r) => r.status == 'alpha').length;
@@ -39,6 +42,15 @@ class AdminProvider extends ChangeNotifier {
     final attendanceResult = await repository.getTodayAttendance();
     attendanceResult.when(
       success: (data) => _todayAttendance = data,
+      failure: (failure) => _errorMessage = failure.message,
+    );
+
+    // Fetch weekly attendance (last 7 days including today)
+    final now = DateTime.now();
+    final startDate = now.subtract(const Duration(days: 6));
+    final weeklyResult = await repository.getAttendanceRange(startDate, now);
+    weeklyResult.when(
+      success: (data) => _weeklyAttendance = data,
       failure: (failure) => _errorMessage = failure.message,
     );
 

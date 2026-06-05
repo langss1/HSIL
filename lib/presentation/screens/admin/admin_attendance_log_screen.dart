@@ -71,14 +71,26 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
       lastDate: DateTime.now().add(const Duration(days: 1)),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
               primary: AppColors.safetyOrange,
               onPrimary: AppColors.white,
-              surface: AppColors.bgCard,
-              onSurface: AppColors.white,
+              surface: AppColors.white,
+              onSurface: AppColors.deepNavy,
             ),
-            dialogBackgroundColor: AppColors.bgDark,
+            dialogBackgroundColor: AppColors.white,
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              foregroundColor: AppColors.deepNavy,
+              iconTheme: IconThemeData(color: AppColors.deepNavy),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.safetyOrange,
+                textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
           ),
           child: child!,
         );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../../core/themes/color_palette.dart';
 import '../../providers/admin_provider.dart';
 import '../../widgets/admin/kpi_chart_widget.dart';
@@ -30,6 +31,44 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
     int totalTelat = adminProv.todayLates;
     int totalAlpha = adminProv.todayAbsents;
     int totalIzin = 0; // Placeholder until Izin feature is fully built
+
+    // Calculate hourly clock-in distribution from today's real database records
+    final Map<int, int> hourlyData = {7: 0, 8: 0, 9: 0, 10: 0, 11: 0};
+    for (final record in adminProv.todayAttendance) {
+      if (record.clockIn != null) {
+        final hour = record.clockIn!.toLocal().hour;
+        if (hourlyData.containsKey(hour)) {
+          hourlyData[hour] = hourlyData[hour]! + 1;
+        } else if (hour < 7) {
+          hourlyData[7] = hourlyData[7]! + 1;
+        } else if (hour > 11) {
+          hourlyData[11] = hourlyData[11]! + 1;
+        }
+      }
+    }
+
+    // Calculate weekly attendance rates and late trends for the last 7 days
+    final now = DateTime.now();
+    final List<double> weeklyRates = [];
+    final List<double> weeklyLates = [];
+    final List<String> weekDays = [];
+    final totalEmployees = adminProv.employees.isEmpty ? 1 : adminProv.employees.length;
+
+    final dateFormat = DateFormat('yyyy-MM-dd');
+    for (int i = 6; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final dateKey = dateFormat.format(date);
+      
+      final dayRecords = adminProv.weeklyAttendance.where((r) => r.date == dateKey).toList();
+      final presentCount = dayRecords.where((r) => r.status == 'hadir' || r.status == 'telat').length;
+      final lateCount = dayRecords.where((r) => r.status == 'telat').length;
+      
+      final rate = (presentCount / totalEmployees) * 100;
+      
+      weeklyRates.add(rate);
+      weeklyLates.add(lateCount.toDouble());
+      weekDays.add(DateFormat('E', 'id_ID').format(date));
+    }
 
     return Scaffold(
       backgroundColor: AppColors.bgDarker,
@@ -81,30 +120,58 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  // Placeholder for Weekly or Monthly trends
                   Text(
-                    'Analisis Lanjutan (Coming Soon)',
+                    'Tingkat Kehadiran Mingguan (%)',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textSecondary,
+                          color: AppColors.white,
                         ),
                   ),
                   const SizedBox(height: 16),
                   Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.bgCard.withOpacity(0.5),
+                      color: AppColors.bgCard,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.bgCardLight.withOpacity(0.5)),
+                      border: Border.all(color: AppColors.bgCardLight),
                     ),
-                    child: const Center(
-                      child: Text(
-                        'Grafik Trend Mingguan/Bulanan akan muncul di sini',
-                        style: TextStyle(color: AppColors.textTertiary),
-                        textAlign: TextAlign.center,
-                      ),
+                    child: WeeklyAttendanceChart(rates: weeklyRates, days: weekDays),
+                  ),
+                  const SizedBox(height: 32),
+                  Text(
+                    'Trend Keterlambatan (Minggu Ini)',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.white,
+                        ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColors.bgCard,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.bgCardLight),
                     ),
+                    child: LateTrendChart(lates: weeklyLates, days: weekDays),
+                  ),
+                  const SizedBox(height: 32),
+                  Text(
+                    'Distribusi Jam Masuk (Hari Ini)',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.white,
+                        ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColors.bgCard,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.bgCardLight),
+                    ),
+                    child: HourlyDistributionChart(hourlyData: hourlyData),
                   ),
                 ],
               ),

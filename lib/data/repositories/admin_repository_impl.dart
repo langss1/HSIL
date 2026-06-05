@@ -51,6 +51,20 @@ class AdminRepositoryImpl implements AdminRepository {
   }
 
   @override
+  Future<AppResult<List<AttendanceRecord>>> getAttendanceRange(
+      DateTime startDate, DateTime endDate) async {
+    try {
+      final models = await adminDataSource.getAttendanceRange(
+          startDate, endDate);
+      return AppSuccess(models);
+    } on Failure catch (e) {
+      return AppFailure(e);
+    } catch (e) {
+      return AppFailure(DataFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<AppResult<void>> updateEmployeeRole(
       String employeeId, UserRole newRole) async {
     try {
