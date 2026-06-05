@@ -164,7 +164,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             subtitle: 'Export CSV',
             icon: Icons.history_outlined,
             color: Colors.purpleAccent,
-            onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Halaman Log Kehadiran (Hari 12) belum diimplementasi'))),
+            onTap: () => Navigator.pushNamed(context, RouteConstants.adminAttendanceLog),
           ),
         ],
       ),

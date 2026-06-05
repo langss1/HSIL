@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/route_constants.dart';
 import '../domain/entities/attendance_record.dart';
+import '../domain/entities/app_user.dart';
 import 'screens/attendance_detail_screen.dart';
 import 'screens/change_password_screen.dart';
 import 'screens/edit_profile_screen.dart';
@@ -16,6 +17,8 @@ import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/admin/employee_list_screen.dart';
 import 'screens/admin/admin_map_screen.dart';
 import 'screens/admin/kpi_dashboard_screen.dart';
+import 'screens/admin/employee_detail_screen.dart';
+import 'screens/admin/admin_attendance_log_screen.dart';
 
 class AppRouter {
   const AppRouter._();
@@ -39,6 +42,12 @@ class AppRouter {
       RouteConstants.employeeList => const EmployeeListScreen(),
       RouteConstants.adminMap => const AdminMapScreen(),
       RouteConstants.kpiDashboard => const KpiDashboardScreen(),
+      RouteConstants.employeeDetail => EmployeeDetailScreen(
+          employee: settings.arguments! as AppUser,
+        ),
+      RouteConstants.adminAttendanceLog => AdminAttendanceLogScreen(
+          initialEmployee: settings.arguments as AppUser?,
+        ),
       _ => const LoginScreen(),
     };
     return _buildRoute(page, settings);

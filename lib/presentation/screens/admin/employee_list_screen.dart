@@ -66,11 +66,7 @@ class _EmployeeTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: () {
-          // Navigate to employee details when implemented
-          // Navigator.pushNamed(context, RouteConstants.employeeDetail, arguments: employee);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Employee detail view not yet implemented')),
-          );
+          Navigator.pushNamed(context, RouteConstants.employeeDetail, arguments: employee);
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
