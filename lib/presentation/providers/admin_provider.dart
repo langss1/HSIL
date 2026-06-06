@@ -68,10 +68,12 @@ class AdminProvider extends ChangeNotifier {
   }
 
   Future<void> updateEmployeeRole(String employeeId, UserRole newRole) async {
+    _errorMessage = null;
     _setLoading(true);
     final result = await repository.updateEmployeeRole(employeeId, newRole);
     result.when(
       success: (_) {
+        _errorMessage = null;
         final index = _employees.indexWhere((e) => e.userId == employeeId);
         if (index != -1) {
           _employees[index] = AppUser(

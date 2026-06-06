@@ -42,9 +42,11 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     final adminProv = context.read<AdminProvider>();
     await adminProv.updateEmployeeRole(widget.employee.userId, _selectedRole);
 
-    setState(() {
-      _isSaving = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isSaving = false;
+      });
+    }
 
     if (adminProv.errorMessage == null) {
       if (mounted) {

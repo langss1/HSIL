@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/errors/failures.dart';
 import '../../core/utils/date_util.dart';
@@ -100,7 +101,12 @@ class FirestoreAdminDataSource {
       await _firestore.collection('users').doc(employeeId).update({
         'role': newRole.value,
         'updatedAt': FieldValue.serverTimestamp(),
-      });
+      }).timeout(const Duration(seconds: 10));
+    } on TimeoutException catch (_) {
+      throw const DataFailure(
+        'Koneksi timeout. Silakan periksa jaringan internet Anda atau pastikan Anda masuk menggunakan akun dengan hak akses Admin.',
+        code: 'timeout',
+      );
     } on FirebaseException catch (e) {
       throw DataFailure(e.message ?? 'Failed to update employee role');
     } catch (e) {
