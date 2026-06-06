@@ -102,6 +102,8 @@ class WeeklyAttendanceChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return AspectRatio(
       aspectRatio: 1.7,
       child: LineChart(
@@ -111,7 +113,7 @@ class WeeklyAttendanceChart extends StatelessWidget {
             drawVerticalLine: false,
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: AppColors.bgCardLight.withValues(alpha: 0.1),
+                color: isDark ? AppColors.bgCardLight.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
                 strokeWidth: 1,
               );
             },
@@ -213,6 +215,7 @@ class LateTrendChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final double maxVal = lates.fold(5, (max, val) => val > max ? val : max);
     final double backgroundMax = maxVal + 1;
 
@@ -220,13 +223,13 @@ class LateTrendChart extends StatelessWidget {
       aspectRatio: 1.7,
       child: BarChart(
         BarChartData(
-          barGroups: List.generate(lates.length, (i) => _makeGroupData(i, lates[i], backgroundMax)),
+          barGroups: List.generate(lates.length, (i) => _makeGroupData(i, lates[i], backgroundMax, isDark)),
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: AppColors.bgCardLight.withValues(alpha: 0.1),
+                color: isDark ? AppColors.bgCardLight.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
                 strokeWidth: 1,
               );
             },
@@ -284,7 +287,7 @@ class LateTrendChart extends StatelessWidget {
     );
   }
 
-  BarChartGroupData _makeGroupData(int x, double y, double backgroundMax) {
+  BarChartGroupData _makeGroupData(int x, double y, double backgroundMax, bool isDark) {
     return BarChartGroupData(
       x: x,
       barRods: [
@@ -306,7 +309,7 @@ class LateTrendChart extends StatelessWidget {
           backDrawRodData: BackgroundBarChartRodData(
             show: true,
             toY: backgroundMax,
-            color: AppColors.bgCardLight.withValues(alpha: 0.1),
+            color: isDark ? AppColors.bgCardLight.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.03),
           ),
         ),
       ],
@@ -324,6 +327,7 @@ class HourlyDistributionChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final double maxVal = hourlyData.values.fold(5, (max, val) => val > max ? val.toDouble() : max);
     final double backgroundMax = maxVal + 1;
 
@@ -332,18 +336,18 @@ class HourlyDistributionChart extends StatelessWidget {
       child: BarChart(
         BarChartData(
           barGroups: [
-            _makeGroupData(0, (hourlyData[7] ?? 0).toDouble(), backgroundMax),
-            _makeGroupData(1, (hourlyData[8] ?? 0).toDouble(), backgroundMax),
-            _makeGroupData(2, (hourlyData[9] ?? 0).toDouble(), backgroundMax),
-            _makeGroupData(3, (hourlyData[10] ?? 0).toDouble(), backgroundMax),
-            _makeGroupData(4, (hourlyData[11] ?? 0).toDouble(), backgroundMax),
+            _makeGroupData(0, (hourlyData[7] ?? 0).toDouble(), backgroundMax, isDark),
+            _makeGroupData(1, (hourlyData[8] ?? 0).toDouble(), backgroundMax, isDark),
+            _makeGroupData(2, (hourlyData[9] ?? 0).toDouble(), backgroundMax, isDark),
+            _makeGroupData(3, (hourlyData[10] ?? 0).toDouble(), backgroundMax, isDark),
+            _makeGroupData(4, (hourlyData[11] ?? 0).toDouble(), backgroundMax, isDark),
           ],
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: AppColors.bgCardLight.withValues(alpha: 0.1),
+                color: isDark ? AppColors.bgCardLight.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
                 strokeWidth: 1,
               );
             },
@@ -402,7 +406,7 @@ class HourlyDistributionChart extends StatelessWidget {
     );
   }
 
-  BarChartGroupData _makeGroupData(int x, double y, double backgroundMax) {
+  BarChartGroupData _makeGroupData(int x, double y, double backgroundMax, bool isDark) {
     return BarChartGroupData(
       x: x,
       barRods: [
@@ -424,7 +428,7 @@ class HourlyDistributionChart extends StatelessWidget {
           backDrawRodData: BackgroundBarChartRodData(
             show: true,
             toY: backgroundMax,
-            color: AppColors.bgCardLight.withValues(alpha: 0.1),
+            color: isDark ? AppColors.bgCardLight.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.03),
           ),
         ),
       ],

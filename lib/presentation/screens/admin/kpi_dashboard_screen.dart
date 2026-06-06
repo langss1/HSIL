@@ -70,12 +70,24 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
       weekDays.add(DateFormat('E', 'id_ID').format(date));
     }
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.bgDarker,
+      backgroundColor: isDark ? AppColors.bgDarker : const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('Grafik KPI Hari Ini'),
-        backgroundColor: AppColors.bgDarker,
+        title: const Text(
+          'Grafik KPI',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: AppColors.deepNavy,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(24),
+          ),
+        ),
       ),
       body: adminProv.isLoading && adminProv.todayAttendance.isEmpty
           ? const Center(child: CircularProgressIndicator(color: AppColors.safetyOrange))
@@ -88,16 +100,26 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
                     'Distribusi Kehadiran',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.white,
+                          color: isDark ? AppColors.white : AppColors.deepNavy,
                         ),
                   ),
                   const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppColors.bgCard,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.bgCardLight),
+                      color: isDark ? AppColors.bgCard : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isDark ? AppColors.bgCardLight : Colors.transparent,
+                      ),
+                      boxShadow: [
+                        if (!isDark)
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                      ],
                     ),
                     child: Column(
                       children: [
@@ -124,16 +146,26 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
                     'Tingkat Kehadiran Mingguan (%)',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.white,
+                          color: isDark ? AppColors.white : AppColors.deepNavy,
                         ),
                   ),
                   const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.bgCard,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.bgCardLight),
+                      color: isDark ? AppColors.bgCard : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isDark ? AppColors.bgCardLight : Colors.transparent,
+                      ),
+                      boxShadow: [
+                        if (!isDark)
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                      ],
                     ),
                     child: WeeklyAttendanceChart(rates: weeklyRates, days: weekDays),
                   ),
@@ -142,16 +174,26 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
                     'Trend Keterlambatan (Minggu Ini)',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.white,
+                          color: isDark ? AppColors.white : AppColors.deepNavy,
                         ),
                   ),
                   const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.bgCard,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.bgCardLight),
+                      color: isDark ? AppColors.bgCard : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isDark ? AppColors.bgCardLight : Colors.transparent,
+                      ),
+                      boxShadow: [
+                        if (!isDark)
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                      ],
                     ),
                     child: LateTrendChart(lates: weeklyLates, days: weekDays),
                   ),
@@ -160,16 +202,26 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
                     'Distribusi Jam Masuk (Hari Ini)',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.white,
+                          color: isDark ? AppColors.white : AppColors.deepNavy,
                         ),
                   ),
                   const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.bgCard,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.bgCardLight),
+                      color: isDark ? AppColors.bgCard : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isDark ? AppColors.bgCardLight : Colors.transparent,
+                      ),
+                      boxShadow: [
+                        if (!isDark)
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                      ],
                     ),
                     child: HourlyDistributionChart(hourlyData: hourlyData),
                   ),

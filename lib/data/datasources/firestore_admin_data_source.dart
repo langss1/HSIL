@@ -55,16 +55,21 @@ class FirestoreAdminDataSource {
       final snapshot = await _firestore
           .collection('attendance')
           .where('employeeId', isEqualTo: employeeId)
-          .where('date', isGreaterThanOrEqualTo: start)
-          .where('date', isLessThanOrEqualTo: end)
-          .orderBy('date', descending: true)
           .get();
 
-      return snapshot.docs.map((doc) {
+      final allRecords = snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
         return AttendanceModel.fromJson(data);
       }).toList();
+
+      final filteredRecords = allRecords.where((record) {
+        return record.date.compareTo(start) >= 0 && record.date.compareTo(end) <= 0;
+      }).toList();
+
+      filteredRecords.sort((a, b) => b.date.compareTo(a.date));
+
+      return filteredRecords;
     } on FirebaseException catch (e) {
       throw DataFailure(e.message ?? 'Failed to get employee attendance');
     } catch (e) {

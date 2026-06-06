@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -100,7 +99,13 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
     if (pickedRange != null) {
       setState(() {
         _startDate = pickedRange.start;
-        _endDate = pickedRange.end;
+        // Include the entire end day (until 23:59:59)
+        _endDate = DateTime(
+          pickedRange.end.year,
+          pickedRange.end.month,
+          pickedRange.end.day,
+          23, 59, 59,
+        );
       });
       _fetchLogs();
     }
@@ -162,7 +167,11 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
       }
 
       // Convert lists to CSV format
-      final csvString = csv.encode(rows);
+      final StringBuffer sb = StringBuffer();
+      for (final row in rows) {
+        sb.writeln(row.map((item) => '"${item.toString().replaceAll('"', '""')}"').join(','));
+      }
+      final csvString = sb.toString();
 
       // Save file in temporary storage
       final directory = await getTemporaryDirectory();
@@ -225,16 +234,21 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final adminProv = context.watch<AdminProvider>();
     final dateRangeText = '${DateFormat('d MMM yyyy', 'id_ID').format(_startDate)} - ${DateFormat('d MMM yyyy', 'id_ID').format(_endDate)}';
 
     return Scaffold(
-      backgroundColor: AppColors.bgDarker,
+      backgroundColor: isDark ? AppColors.bgDarker : const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('Log Kehadiran Karyawan'),
+        title: const Text(
+          'Log Kehadiran Karyawan',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         backgroundColor: AppColors.deepNavy,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _isExporting ? null : _exportToCSV,
@@ -254,18 +268,18 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
       body: Column(
         children: [
           // Filter Panel Card
-          _buildFilterPanel(adminProv, dateRangeText),
+          _buildFilterPanel(adminProv, dateRangeText, isDark),
           
           // Result Lists Area
           Expanded(
-            child: _buildLogsList(adminProv),
+            child: _buildLogsList(adminProv, isDark),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFilterPanel(AdminProvider provider, String dateRangeText) {
+  Widget _buildFilterPanel(AdminProvider provider, String dateRangeText, bool isDark) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20.0),
@@ -295,17 +309,17 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
               : Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: AppColors.bgCard,
+                    color: isDark ? AppColors.bgCard : Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.bgCardLight),
+                    border: Border.all(color: isDark ? AppColors.bgCardLight : Colors.black12),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<AppUser>(
                       value: _selectedEmployee,
                       isExpanded: true,
-                      dropdownColor: AppColors.bgCard,
+                      dropdownColor: isDark ? AppColors.bgCard : Colors.white,
                       icon: const Icon(Icons.arrow_drop_down, color: AppColors.safetyOrange),
-                      style: const TextStyle(color: AppColors.white, fontSize: 15),
+                      style: TextStyle(color: isDark ? AppColors.white : AppColors.deepNavy, fontSize: 15),
                       hint: const Text('Pilih Karyawan', style: TextStyle(color: AppColors.textSecondary)),
                       items: provider.employees.map((employee) {
                         return DropdownMenuItem<AppUser>(
@@ -314,14 +328,14 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
                             children: [
                               CircleAvatar(
                                 radius: 14,
-                                backgroundColor: AppColors.bgCardLight,
+                                backgroundColor: isDark ? AppColors.bgCardLight : Colors.grey[200],
                                 backgroundImage: employee.photoUrl != null
                                     ? NetworkImage(employee.photoUrl!)
                                     : null,
                                 child: employee.photoUrl == null
                                     ? Text(
                                         employee.name.substring(0, 1).toUpperCase(),
-                                        style: const TextStyle(color: AppColors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: isDark ? AppColors.white : AppColors.deepNavy, fontSize: 10, fontWeight: FontWeight.bold),
                                       )
                                     : null,
                               ),
@@ -330,6 +344,7 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
                                 child: Text(
                                   employee.name,
                                   overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: isDark ? AppColors.white : AppColors.deepNavy),
                                 ),
                               ),
                             ],
@@ -361,9 +376,9 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
-                color: AppColors.bgCard,
+                color: isDark ? AppColors.bgCard : Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.bgCardLight),
+                border: Border.all(color: isDark ? AppColors.bgCardLight : Colors.black12),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -374,7 +389,7 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
                       const SizedBox(width: 12),
                       Text(
                         dateRangeText,
-                        style: const TextStyle(color: AppColors.white, fontSize: 15, fontWeight: FontWeight.w500),
+                        style: TextStyle(color: isDark ? AppColors.white : AppColors.deepNavy, fontSize: 15, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -388,7 +403,7 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
     );
   }
 
-  Widget _buildLogsList(AdminProvider provider) {
+  Widget _buildLogsList(AdminProvider provider, bool isDark) {
     if (provider.isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.safetyOrange),
@@ -411,11 +426,11 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.history_toggle_off_outlined, color: AppColors.textSecondary.withOpacity(0.4), size: 72),
+              Icon(Icons.history_toggle_off_outlined, color: AppColors.textSecondary.withValues(alpha: 0.4), size: 72),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Tidak ada data log kehadiran',
-                style: TextStyle(color: AppColors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(color: isDark ? AppColors.white : AppColors.deepNavy, fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               const Text(
@@ -434,12 +449,12 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final log = logs[index];
-        return _buildAttendanceCard(log);
+        return _buildAttendanceCard(log, isDark);
       },
     );
   }
 
-  Widget _buildAttendanceCard(AttendanceRecord log) {
+  Widget _buildAttendanceCard(AttendanceRecord log, bool isDark) {
     final dateObj = DateTime.tryParse(log.date) ?? DateTime.now();
     final dayName = DateFormat('EEEE', 'id_ID').format(dateObj);
     final dateStr = DateFormat('dd MMM yyyy', 'id_ID').format(dateObj);
@@ -457,9 +472,17 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
+        color: isDark ? AppColors.bgCard : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.bgCardLight),
+        border: Border.all(color: isDark ? AppColors.bgCardLight : Colors.transparent),
+        boxShadow: [
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -489,7 +512,7 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
                             children: [
                               Text(
                                 dayName,
-                                style: const TextStyle(color: AppColors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                style: TextStyle(color: isDark ? AppColors.white : AppColors.deepNavy, fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               Text(
                                 dateStr,
@@ -500,7 +523,7 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: statusColor.withOpacity(0.15),
+                              color: statusColor.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: statusColor),
                             ),
@@ -526,7 +549,7 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: AppColors.success.withOpacity(0.1),
+                                    color: AppColors.success.withValues(alpha: 0.1),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(Icons.login_outlined, color: AppColors.success, size: 16),
@@ -539,7 +562,7 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
                                     const SizedBox(height: 2),
                                     Text(
                                       checkInStr,
-                                      style: const TextStyle(color: AppColors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                                      style: TextStyle(color: isDark ? AppColors.white : AppColors.deepNavy, fontWeight: FontWeight.bold, fontSize: 14),
                                     ),
                                     if (log.clockInDistance != null)
                                       Text(
@@ -560,7 +583,7 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: AppColors.error.withOpacity(0.1),
+                                    color: AppColors.error.withValues(alpha: 0.1),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(Icons.logout_outlined, color: AppColors.error, size: 16),
@@ -573,7 +596,7 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
                                     const SizedBox(height: 2),
                                     Text(
                                       checkOutStr,
-                                      style: const TextStyle(color: AppColors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                                      style: TextStyle(color: isDark ? AppColors.white : AppColors.deepNavy, fontWeight: FontWeight.bold, fontSize: 14),
                                     ),
                                     if (log.clockOutDistance != null)
                                       Text(

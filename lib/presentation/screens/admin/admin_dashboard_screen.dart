@@ -27,15 +27,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final adminProv = context.watch<AdminProvider>();
     final authProv = context.watch<AuthController>();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.bgDarker,
+      backgroundColor: isDark ? AppColors.deepNavy : const Color(0xFFFCFCFD),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => adminProv.fetchDashboardData(),
           color: AppColors.safetyOrange,
           child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
             slivers: [
-              _buildAppBar(context, authProv.user?.name ?? 'Admin'),
+              _buildAppBar(context, authProv.user?.name ?? 'Admin', isDark),
               if (adminProv.isLoading && adminProv.todayAttendance.isEmpty)
                 const SliverFillRemaining(
                   child: Center(
@@ -43,8 +46,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                 )
               else ...[
-                _buildStatsCards(context, adminProv),
-                _buildMenuGrid(context),
+                _buildStatsCards(context, adminProv, isDark),
+                _buildMenuGrid(context, isDark),
                 const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
               ]
             ],
@@ -125,37 +128,86 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, String adminName) {
+  Widget _buildAppBar(BuildContext context, String adminName, bool isDark) {
     return SliverToBoxAdapter(
       child: FadeSlide(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.deepNavy,
+                Color(0xFF1A365D),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.deepNavy.withValues(alpha: 0.25),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Admin Dashboard',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.white,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.safetyOrange.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'ADMINISTRATOR',
+                        style: TextStyle(
+                          color: AppColors.safetyOrange,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.5,
                         ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Welcome back, $adminName',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Selamat datang,',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      adminName,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: -0.5,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-              IconButton(
-                onPressed: () => _showLogoutDialog(context),
-                icon: const Icon(Icons.logout, color: AppColors.error),
-                tooltip: 'Logout',
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                ),
+                child: IconButton(
+                  onPressed: () => _showLogoutDialog(context),
+                  icon: const Icon(Icons.power_settings_new_rounded, color: Colors.white),
+                  tooltip: 'Logout',
+                ),
               ),
             ],
           ),
@@ -164,46 +216,62 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildStatsCards(BuildContext context, AdminProvider adminProv) {
+  Widget _buildStatsCards(BuildContext context, AdminProvider adminProv, bool isDark) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: FadeSlide(
-                delay: Duration.zero,
-                child: _StatCard(
-                  title: 'Hadir',
-                  value: adminProv.todayTotalAttendance.toString(),
-                  color: AppColors.statusHadir,
-                  icon: Icons.check_circle_outline,
-                ),
-              ),
+            Text(
+              'Statistik Hari Ini',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : AppColors.deepNavy,
+                  ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: FadeSlide(
-                delay: const Duration(milliseconds: 100),
-                child: _StatCard(
-                  title: 'Terlambat',
-                  value: adminProv.todayLates.toString(),
-                  color: AppColors.statusTelat,
-                  icon: Icons.timer_outlined,
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: FadeSlide(
+                    delay: Duration.zero,
+                    child: _StatCard(
+                      title: 'Hadir',
+                      value: adminProv.todayTotalAttendance.toString(),
+                      color: AppColors.statusHadir,
+                      icon: Icons.check_circle_rounded,
+                      isDark: isDark,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: FadeSlide(
-                delay: const Duration(milliseconds: 200),
-                child: _StatCard(
-                  title: 'Alpha',
-                  value: adminProv.todayAbsents.toString(),
-                  color: AppColors.statusAlpha,
-                  icon: Icons.cancel_outlined,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FadeSlide(
+                    delay: const Duration(milliseconds: 100),
+                    child: _StatCard(
+                      title: 'Telat',
+                      value: adminProv.todayLates.toString(),
+                      color: AppColors.statusTelat,
+                      icon: Icons.timer_rounded,
+                      isDark: isDark,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FadeSlide(
+                    delay: const Duration(milliseconds: 200),
+                    child: _StatCard(
+                      title: 'Alpha',
+                      value: adminProv.todayAbsents.toString(),
+                      color: AppColors.statusAlpha,
+                      icon: Icons.cancel_rounded,
+                      isDark: isDark,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -211,56 +279,77 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildMenuGrid(BuildContext context) {
+  Widget _buildMenuGrid(BuildContext context, bool isDark) {
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-      sliver: SliverGrid.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio: 0.92,
-        children: [
-          FadeSlide(
-            delay: const Duration(milliseconds: 300),
-            child: _MenuCard(
-              title: 'Karyawan',
-              subtitle: 'Data & Role',
-              icon: Icons.people_outline,
-              color: AppColors.info,
-              onTap: () => Navigator.pushNamed(context, RouteConstants.employeeList),
+      sliver: SliverToBoxAdapter(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Menu Operasional',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : AppColors.deepNavy,
+                  ),
             ),
-          ),
-          FadeSlide(
-            delay: const Duration(milliseconds: 400),
-            child: _MenuCard(
-              title: 'Peta Kehadiran',
-              subtitle: 'Live Tracking',
-              icon: Icons.map_outlined,
-              color: AppColors.safetyOrange,
-              onTap: () => Navigator.pushNamed(context, RouteConstants.adminMap),
+            const SizedBox(height: 16),
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 0.95,
+              children: [
+                FadeSlide(
+                  delay: const Duration(milliseconds: 300),
+                  child: _MenuCard(
+                    title: 'Karyawan',
+                    subtitle: 'Data & Role',
+                    icon: Icons.people_alt_rounded,
+                    color: AppColors.info,
+                    isDark: isDark,
+                    onTap: () => Navigator.pushNamed(context, RouteConstants.employeeList),
+                  ),
+                ),
+                FadeSlide(
+                  delay: const Duration(milliseconds: 400),
+                  child: _MenuCard(
+                    title: 'Peta Kehadiran',
+                    subtitle: 'Live Tracking',
+                    icon: Icons.map_rounded,
+                    color: AppColors.safetyOrange,
+                    isDark: isDark,
+                    onTap: () => Navigator.pushNamed(context, RouteConstants.adminMap),
+                  ),
+                ),
+                FadeSlide(
+                  delay: const Duration(milliseconds: 500),
+                  child: _MenuCard(
+                    title: 'Grafik KPI',
+                    subtitle: 'Analisis Performa',
+                    icon: Icons.bar_chart_rounded,
+                    color: AppColors.success,
+                    isDark: isDark,
+                    onTap: () => Navigator.pushNamed(context, RouteConstants.kpiDashboard),
+                  ),
+                ),
+                FadeSlide(
+                  delay: const Duration(milliseconds: 600),
+                  child: _MenuCard(
+                    title: 'Log Kehadiran',
+                    subtitle: 'Export CSV',
+                    icon: Icons.manage_history_rounded,
+                    color: const Color(0xFFA78BFA),
+                    isDark: isDark,
+                    onTap: () => Navigator.pushNamed(context, RouteConstants.adminAttendanceLog),
+                  ),
+                ),
+              ],
             ),
-          ),
-          FadeSlide(
-            delay: const Duration(milliseconds: 500),
-            child: _MenuCard(
-              title: 'Grafik KPI',
-              subtitle: 'Analisis Performa',
-              icon: Icons.bar_chart_outlined,
-              color: AppColors.success,
-              onTap: () => Navigator.pushNamed(context, RouteConstants.kpiDashboard),
-            ),
-          ),
-          FadeSlide(
-            delay: const Duration(milliseconds: 600),
-            child: _MenuCard(
-              title: 'Log Kehadiran',
-              subtitle: 'Export CSV',
-              icon: Icons.history_outlined,
-              color: const Color(0xFFA78BFA),
-              onTap: () => Navigator.pushNamed(context, RouteConstants.adminAttendanceLog),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -271,55 +360,63 @@ class _StatCard extends StatelessWidget {
   final String value;
   final Color color;
   final IconData icon;
+  final bool isDark;
 
   const _StatCard({
     required this.title,
     required this.value,
     required this.color,
     required this.icon,
+    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.25), width: 1.5),
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: color.withValues(alpha: 0.15),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(height: 16),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w900,
-              fontSize: 32,
-              color: AppColors.white,
-              height: 1.1,
+              fontSize: 34,
+              color: color,
+              height: 1.0,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: TextStyle(
+              color: isDark ? Colors.white70 : AppColors.deepNavy.withValues(alpha: 0.7),
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            softWrap: false,
           ),
         ],
       ),
@@ -333,6 +430,7 @@ class _MenuCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
+  final bool isDark;
 
   const _MenuCard({
     required this.title,
@@ -340,6 +438,7 @@ class _MenuCard extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.onTap,
+    required this.isDark,
   });
 
   @override
@@ -348,54 +447,76 @@ class _MenuCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
+        splashColor: color.withValues(alpha: 0.2),
+        highlightColor: color.withValues(alpha: 0.1),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.bgCard,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.bgCardLight.withValues(alpha: 0.5)),
+            color: isDark ? AppColors.bgCard : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isDark 
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : AppColors.deepNavy.withValues(alpha: 0.05),
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.12),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: isDark ? Colors.black.withValues(alpha: 0.2) : AppColors.deepNavy.withValues(alpha: 0.05),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
-                ),
-                child: Icon(icon, color: color, size: 24),
-              ),
-              const Spacer(),
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: AppColors.white,
+              // Large background icon watermark
+              Positioned(
+                right: -16,
+                bottom: -16,
+                child: Icon(
+                  icon,
+                  size: 80,
+                  color: color.withValues(alpha: isDark ? 0.05 : 0.04),
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
+              // Content
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
+                    ),
+                    child: Icon(icon, color: color, size: 28),
+                  ),
+                  const Spacer(),
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
+                      color: isDark ? AppColors.white : AppColors.deepNavy,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: isDark ? Colors.white60 : AppColors.textSecondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -72,22 +72,39 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isActive = widget.employee.isActive;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.bgDarker,
+      backgroundColor: isDark ? AppColors.deepNavy : const Color(0xFFF8FAFC), // slightly off-white like screenshot
       appBar: AppBar(
-        title: const Text('Detail Karyawan'),
+        title: const Text(
+          'Detail Karyawan',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
         centerTitle: true,
         backgroundColor: AppColors.deepNavy,
         elevation: 0,
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(24),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Profile Card (Header)
-            _buildProfileHeader(),
+            _buildProfileHeader(isDark),
             const SizedBox(height: 24),
 
             // Employee Details Info Block
@@ -95,11 +112,11 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
               'Informasi Karyawan',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.white,
+                    color: isDark ? AppColors.white : AppColors.deepNavy,
                   ),
             ),
             const SizedBox(height: 12),
-            _buildDetailSection(isActive),
+            _buildDetailSection(isActive, isDark),
             const SizedBox(height: 28),
 
             // Role Management Panel
@@ -107,50 +124,90 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
               'Manajemen Akses & Peran',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.white,
+                    color: isDark ? AppColors.white : AppColors.deepNavy,
                   ),
             ),
             const SizedBox(height: 12),
-            _buildRoleManagementSection(),
+            _buildRoleManagementSection(isDark),
             const SizedBox(height: 32),
 
             // Action Shortcuts
-            _buildActionButtons(),
+            _buildActionButtons(isDark),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader(bool isDark) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.bgCardLight),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.bgCard, AppColors.deepNavy],
+        color: isDark ? AppColors.bgCard : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.transparent,
         ),
+        boxShadow: [
+          if (!isDark)
+            BoxShadow(
+              color: AppColors.safetyOrange.withValues(alpha: 0.05),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+        ],
+        gradient: isDark 
+            ? const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppColors.bgCard, AppColors.deepNavy],
+              ) 
+            : const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFFF8FAFC), 
+                  Color(0xFFFFF0E6), 
+                ],
+              ),
       ),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 48,
-            backgroundColor: AppColors.bgCardLight,
-            backgroundImage: widget.employee.photoUrl != null
-                ? NetworkImage(widget.employee.photoUrl!)
-                : null,
+          Container(
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              image: widget.employee.photoUrl != null
+                  ? DecorationImage(
+                      image: NetworkImage(widget.employee.photoUrl!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.safetyOrange.withValues(alpha: 0.3),
+                width: 2.5,
+              ),
+              boxShadow: [
+                if (!isDark)
+                  BoxShadow(
+                    color: AppColors.safetyOrange.withValues(alpha: 0.1),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+              ],
+            ),
             child: widget.employee.photoUrl == null
-                ? Text(
-                    widget.employee.name.substring(0, 1).toUpperCase(),
-                    style: const TextStyle(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 36,
+                ? Center(
+                    child: Text(
+                      widget.employee.name.substring(0, 1).toUpperCase(),
+                      style: TextStyle(
+                        color: AppColors.deepNavy,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 36,
+                      ),
                     ),
                   )
                 : null,
@@ -158,29 +215,45 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
           const SizedBox(height: 16),
           Text(
             widget.employee.name,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: AppColors.white,
+              color: isDark ? AppColors.white : AppColors.deepNavy,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 6),
-          Text(
-            widget.employee.position,
-            style: const TextStyle(
-              fontSize: 14,
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
               color: AppColors.safetyOrange,
-              fontWeight: FontWeight.w600,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.safetyOrange.withValues(alpha: 0.4),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            textAlign: TextAlign.center,
+            child: Text(
+              widget.employee.position.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 10),
           Text(
             widget.employee.department,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: isDark ? AppColors.textSecondary : AppColors.deepNavy.withValues(alpha: 0.8),
+              fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.center,
           ),
@@ -189,36 +262,48 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     );
   }
 
-  Widget _buildDetailSection(bool isActive) {
+  Widget _buildDetailSection(bool isActive, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.bgCardLight),
+        color: isDark ? AppColors.bgCard : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.deepNavy.withValues(alpha: 0.05),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : AppColors.deepNavy.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          _buildInfoRow(Icons.badge_outlined, 'NIK / ID', widget.employee.nik),
-          const Divider(color: AppColors.bgCardLight, height: 24),
-          _buildInfoRow(Icons.email_outlined, 'Email', widget.employee.email),
-          const Divider(color: AppColors.bgCardLight, height: 24),
+          _buildInfoRow(Icons.badge_outlined, 'NIK / ID', widget.employee.nik, isDark),
+          Divider(color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.deepNavy.withValues(alpha: 0.05), height: 24),
+          _buildInfoRow(Icons.email_outlined, 'Email', widget.employee.email, isDark),
+          Divider(color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.deepNavy.withValues(alpha: 0.05), height: 24),
           _buildInfoRow(
             Icons.phone_outlined,
             'No. Telepon',
             widget.employee.phone ?? 'Tidak ada nomor telepon',
+            isDark,
           ),
-          const Divider(color: AppColors.bgCardLight, height: 24),
+          Divider(color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.deepNavy.withValues(alpha: 0.05), height: 24),
           _buildInfoRow(
             Icons.schedule_outlined,
             'Jam Kerja (Shift)',
             '${widget.employee.shiftStart} - ${widget.employee.shiftEnd}',
+            isDark,
           ),
-          const Divider(color: AppColors.bgCardLight, height: 24),
+          Divider(color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.deepNavy.withValues(alpha: 0.05), height: 24),
           _buildInfoRow(
             Icons.toggle_on_outlined,
             'Status Akun',
             isActive ? 'Aktif' : 'Nonaktif',
+            isDark,
             valueColor: isActive ? AppColors.success : AppColors.error,
           ),
         ],
@@ -226,11 +311,18 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, {Color? valueColor}) {
+  Widget _buildInfoRow(IconData icon, String label, String value, bool isDark, {Color? valueColor}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: AppColors.textSecondary, size: 22),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFE8F0FE), // Light blue background
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: isDark ? AppColors.textSecondary : const Color(0xFF6B8BCC), size: 20), // Light blue icon
+        ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
@@ -238,18 +330,19 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: isDark ? AppColors.textSecondary : AppColors.deepNavy.withValues(alpha: 0.6),
                   fontSize: 12,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
                 value,
                 style: TextStyle(
-                  color: valueColor ?? AppColors.white,
+                  color: valueColor ?? (isDark ? AppColors.white : AppColors.deepNavy),
                   fontSize: 15,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -259,40 +352,56 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     );
   }
 
-  Widget _buildRoleManagementSection() {
+  Widget _buildRoleManagementSection(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.bgCardLight),
+        color: isDark ? AppColors.bgCard : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.deepNavy.withValues(alpha: 0.05),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : AppColors.deepNavy.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
+          Text(
             'Peran Pengguna (User Role)',
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: isDark ? AppColors.textSecondary : AppColors.deepNavy.withValues(alpha: 0.6),
               fontSize: 12,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<UserRole>(
             value: _selectedRole,
-            dropdownColor: AppColors.bgCard,
-            style: const TextStyle(color: AppColors.white, fontSize: 16),
+            dropdownColor: isDark ? AppColors.bgCard : Colors.white,
+            style: TextStyle(
+              color: isDark ? AppColors.white : AppColors.deepNavy, 
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
             decoration: InputDecoration(
               filled: true,
-              fillColor: AppColors.bgDarker,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              fillColor: isDark ? AppColors.bgDarker : const Color(0xFFF8FAFC),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.bgCardLight),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.deepNavy.withValues(alpha: 0.1),
+                ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.safetyOrange),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AppColors.safetyOrange, width: 2),
               ),
             ),
             items: const [
@@ -313,15 +422,16 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
               }
             },
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           ElevatedButton(
             onPressed: _isSaving ? null : _updateRole,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.safetyOrange,
               foregroundColor: AppColors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
               disabledBackgroundColor: AppColors.safetyOrange.withOpacity(0.4),
             ),
@@ -336,7 +446,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                   )
                 : const Text(
                     'Simpan Perubahan Peran',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                   ),
           ),
         ],
@@ -344,10 +454,10 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(bool isDark) {
     return SizedBox(
       width: double.infinity,
-      child: OutlinedButton.icon(
+      child: ElevatedButton.icon(
         onPressed: () {
           Navigator.pushNamed(
             context,
@@ -355,18 +465,20 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
             arguments: widget.employee,
           );
         },
-        icon: const Icon(Icons.history_outlined, size: 20),
+        icon: const Icon(Icons.history_rounded, size: 22),
         label: const Text(
           'Lihat Riwayat Kehadiran',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
         ),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.safetyOrange,
-          side: const BorderSide(color: AppColors.safetyOrange, width: 1.5),
-          padding: const EdgeInsets.symmetric(vertical: 14),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.deepNavy,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
+          shadowColor: AppColors.deepNavy.withValues(alpha: 0.3),
         ),
       ),
     );
