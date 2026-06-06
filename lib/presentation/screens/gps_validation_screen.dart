@@ -454,7 +454,7 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
     String label;
     IconData icon;
     if (att.isComplete) {
-      label = 'Absensi Hari Ini Selesai ✅';
+      label = 'Absensi Hari Ini Selesai';
       icon = Icons.check_circle_rounded;
     } else if (att.canClockOut) {
       label = 'Clock Out';
