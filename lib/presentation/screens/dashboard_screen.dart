@@ -41,7 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: isDark ? AppColors.deepNavy : const Color(0xFFFCFCFD),
       body: SafeArea(
           child: SingleChildScrollView(
-            physics: const NeverScrollableScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 40),
             child: Center(
               child: ConstrainedBox(
