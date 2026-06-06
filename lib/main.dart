@@ -18,8 +18,11 @@ import 'presentation/screens/main_screen.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/splash_screen.dart';
 
+import 'core/services/local_notification_service.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LocalNotificationService.initialize();
   await initializeDateFormatting('id_ID', null);
   final dependencies = await AppDependencies.create();
   runApp(FactoryAttendanceApp(dependencies: dependencies));

@@ -12,6 +12,10 @@ import '../widgets/distance_info_card.dart';
 import '../widgets/fade_slide.dart';
 import '../widgets/location_status_widget.dart';
 import 'face_capture_screen.dart';
+import '../../core/services/local_notification_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_controller.dart';
+import '../../core/services/local_notification_service.dart';
 
 /// Screen displaying the Google Map with office geofence and user location,
 /// GPS validation status, and clock-in/out action.
@@ -72,6 +76,17 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
 
   void _onExitGeofence() {
     if (!mounted) return;
+    
+    final userId = Provider.of<AuthController>(context, listen: false).user?.userId;
+
+    LocalNotificationService.showNotification(
+      id: 5,
+      title: 'Keluar Area Kantor',
+      body: 'Anda telah keluar dari radius validasi GPS.',
+      userId: userId,
+      type: 'failure',
+    );
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Row(
