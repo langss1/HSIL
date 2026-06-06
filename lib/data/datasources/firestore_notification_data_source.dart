@@ -3,26 +3,33 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/errors/exceptions.dart';
 import '../models/notification_model.dart';
 
-/// Remote data source for the user's notification sub-collection.
+/// Remote data source for the user's notification collection.
 class FirestoreNotificationDataSource {
   FirestoreNotificationDataSource(this._firestore);
 
   final FirebaseFirestore _firestore;
 
-  /// Reference to a user's notifications sub-collection.
-  CollectionReference<Map<String, dynamic>> _collection(String userId) =>
-      _firestore.collection('users').doc(userId).collection('notifications');
+  /// Reference to a user's notifications collection.
+  Query<Map<String, dynamic>> _collection(String userId) =>
+      _firestore.collection('notifications').where('userId', isEqualTo: userId);
 
-  /// Fetches all notifications, ordered by timestamp descending.
+  /// Fetches all notifications, sorted locally.
   Future<List<NotificationModel>> getNotifications(String userId) async {
     try {
-      final snapshot = await _collection(userId)
-          .orderBy('timestamp', descending: true)
-          .limit(50)
-          .get();
-      return snapshot.docs
+      // Fetch without orderBy to avoid Composite Index errors
+      final snapshot = await _collection(userId).get();
+      
+      final docs = snapshot.docs
           .map(NotificationModel.fromFirestore)
           .toList(growable: false);
+          
+      // Sort locally descending by time
+      docs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      
+      if (docs.length > 50) {
+        return docs.sublist(0, 50);
+      }
+      return docs;
     } on FirebaseException catch (error) {
       throw FirebaseDataException(
         error.message ?? 'Gagal memuat notifikasi.',
@@ -37,7 +44,10 @@ class FirestoreNotificationDataSource {
     NotificationModel model,
   ) async {
     try {
-      await _collection(userId).doc(model.id).set(model.toJson());
+      await _firestore.collection('notifications').doc(model.id).set({
+        ...model.toJson(),
+        'userId': userId,
+      });
     } on FirebaseException catch (error) {
       throw FirebaseDataException(
         error.message ?? 'Gagal menyimpan notifikasi.',
@@ -49,7 +59,7 @@ class FirestoreNotificationDataSource {
   /// Marks a notification as read.
   Future<void> markAsRead(String userId, String notificationId) async {
     try {
-      await _collection(userId).doc(notificationId).update({'isRead': true});
+      await _firestore.collection('notifications').doc(notificationId).update({'isRead': true});
     } on FirebaseException catch (error) {
       throw FirebaseDataException(
         error.message ?? 'Gagal memperbarui notifikasi.',

@@ -21,7 +21,7 @@ class NotificationModel extends NotificationEntity {
       title: data['title'] as String? ?? '',
       body: data['body'] as String? ?? '',
       type: data['type'] as String? ?? 'info',
-      timestamp: _dateFromJson(data['timestamp']) ?? DateTime.now(),
+      timestamp: _dateFromJson(data['timestamp']) ?? _dateFromJson(data['createdAt']) ?? DateTime.now(),
       isRead: data['isRead'] as bool? ?? false,
       data: (data['data'] as Map<String, dynamic>?) ?? const {},
     );
@@ -50,7 +50,7 @@ class NotificationModel extends NotificationEntity {
       'title': title,
       'body': body,
       'type': type,
-      'timestamp': Timestamp.fromDate(timestamp),
+      'createdAt': Timestamp.fromDate(timestamp),
       'isRead': isRead,
       'data': data,
     };
