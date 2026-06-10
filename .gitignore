@@ -54,3 +54,4 @@ skills/
 [{]agents/
 *.md
 .env
+keystore_base64.txt
