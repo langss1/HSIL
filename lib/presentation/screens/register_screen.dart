@@ -46,7 +46,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
     
     final auth = context.read<AuthController>();
-    
     await auth.registerEmployee(
       RegistrationRequest(
         nik: _nikController.text,
@@ -60,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     if (mounted && auth.isAuthenticated) {
-      Navigator.of(context).pop();
+      Navigator.of(context).popUntil((route) => route.isFirst);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Row(
