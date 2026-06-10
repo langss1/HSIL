@@ -25,6 +25,7 @@ class ProfileProvider extends ChangeNotifier {
   Future<AppUser?> updateProfile({
     required String userId,
     String? name,
+    String? email,
     String? phone,
   }) async {
     _isSaving = true;
@@ -35,6 +36,7 @@ class ProfileProvider extends ChangeNotifier {
     final result = await _updateProfile(
       userId: userId,
       name: name,
+      email: email,
       phone: phone,
     );
 

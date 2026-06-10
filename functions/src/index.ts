@@ -105,14 +105,23 @@ export const createClockInNotification = onDocumentCreated("attendance/{attendan
 // ----------------------------------------------------------------------
 
 export const requestPasswordReset = onCall<{nik: string}>(async (request) => {
-  const nik = request.data.nik?.trim();
-  if (!nik || nik.length !== 10) {
-    throw new HttpsError("invalid-argument", "NIK tidak valid.");
+  const identity = request.data.nik?.trim();
+  if (!identity) {
+    throw new HttpsError("invalid-argument", "Data tidak valid.");
   }
 
-  const snapshot = await db.collection("users").where("nik", "==", nik).limit(1).get();
+  let snapshot;
+  if (identity.includes("@")) {
+    snapshot = await db.collection("users").where("email", "==", identity).limit(1).get();
+  } else {
+    if (identity.length !== 10) {
+      throw new HttpsError("invalid-argument", "NIK tidak valid.");
+    }
+    snapshot = await db.collection("users").where("nik", "==", identity).limit(1).get();
+  }
+
   if (snapshot.empty) {
-    throw new HttpsError("not-found", "Karyawan dengan NIK tersebut tidak ditemukan.");
+    throw new HttpsError("not-found", "Karyawan tidak ditemukan.");
   }
 
   const userDoc = snapshot.docs[0];
@@ -129,7 +138,9 @@ export const requestPasswordReset = onCall<{nik: string}>(async (request) => {
   const expiresAt = new Date();
   expiresAt.setMinutes(expiresAt.getMinutes() + 15);
   
-  await db.collection("passwordResets").doc(nik).set({
+  const userNik = userData.nik;
+  
+  await db.collection("passwordResets").doc(userNik).set({
     otp,
     expiresAt: Timestamp.fromDate(expiresAt),
     attempts: 0
@@ -146,7 +157,7 @@ export const requestPasswordReset = onCall<{nik: string}>(async (request) => {
     // Return email hint
     const [namePart, domain] = email.split("@");
     const hint = namePart.substring(0, 2) + "*".repeat(namePart.length - 2) + "@" + domain;
-    return { ok: true, emailHint: hint };
+    return { ok: true, emailHint: hint, resolvedNik: userNik };
   } catch (error) {
     console.error("Error sending email:", error);
     throw new HttpsError("internal", "Gagal mengirim email OTP.");

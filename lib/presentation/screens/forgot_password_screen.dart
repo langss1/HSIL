@@ -58,6 +58,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
       final result = await functions.httpsCallable('requestPasswordReset').call({'nik': nik});
       
       final hint = result.data['emailHint'] as String? ?? 'email Anda';
+      final resolvedNik = result.data['resolvedNik'] as String? ?? nik;
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -69,7 +70,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
         );
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => OtpScreen(nik: nik),
+            builder: (_) => OtpScreen(nik: resolvedNik),
           ),
         );
       }

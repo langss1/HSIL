@@ -17,6 +17,7 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
+  late TextEditingController _emailController;
   late TextEditingController _phoneController;
 
   @override
@@ -24,6 +25,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     final user = context.read<AuthController>().user;
     _nameController = TextEditingController(text: user?.name);
+    _emailController = TextEditingController(text: user?.email);
     _phoneController = TextEditingController(text: user?.phone);
     context.read<ProfileProvider>().clearMessages();
   }
@@ -31,6 +33,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
@@ -45,6 +48,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final updatedUser = await provider.updateProfile(
       userId: userId,
       name: _nameController.text,
+      email: _emailController.text,
       phone: _phoneController.text,
     );
 
@@ -79,6 +83,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 hint: 'Masukkan nama Anda',
                 icon: Icons.person_rounded,
                 validator: (val) => val == null || val.length < 3 ? 'Nama minimal 3 karakter' : null,
+              ),
+              const SizedBox(height: Spacing.md),
+              AppTextField(
+                controller: _emailController,
+                label: 'Email Aktif',
+                hint: 'nama@domain.com',
+                icon: Icons.email_rounded,
+                keyboardType: TextInputType.emailAddress,
+                validator: (val) {
+                  if (val != null && val.trim().isNotEmpty && !val.contains('@')) {
+                    return 'Email tidak valid';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: Spacing.md),
               AppTextField(

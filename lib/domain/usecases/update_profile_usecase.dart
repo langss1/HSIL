@@ -12,11 +12,15 @@ class UpdateProfileUseCase {
   Future<AppResult<AppUser>> call({
     required String userId,
     String? name,
+    String? email,
     String? phone,
   }) async {
     // Validate inputs
     if (name != null && name.trim().length < 3) {
       return const AppFailure(DataFailure('Nama minimal 3 karakter.'));
+    }
+    if (email != null && email.trim().isNotEmpty && !email.contains('@')) {
+      return const AppFailure(DataFailure('Format email tidak valid.'));
     }
     if (phone != null && phone.trim().isNotEmpty) {
       final phoneRegex = RegExp(r'^(\+62|08)[0-9]{8,13}$');
@@ -27,6 +31,7 @@ class UpdateProfileUseCase {
 
     final fields = <String, dynamic>{};
     if (name != null) fields['name'] = name.trim();
+    if (email != null && email.trim().isNotEmpty) fields['email'] = email.trim();
     if (phone != null) fields['phone'] = phone.trim();
 
     if (fields.isEmpty) {
