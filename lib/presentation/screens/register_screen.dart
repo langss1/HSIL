@@ -44,7 +44,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    await context.read<AuthController>().registerEmployee(
+    
+    final auth = context.read<AuthController>();
+    await auth.registerEmployee(
           RegistrationRequest(
             nik: _nikController.text,
             name: _nameController.text,
@@ -55,6 +57,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             password: _passwordController.text,
           ),
         );
+        
+    if (auth.isAuthenticated && mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 
   @override
