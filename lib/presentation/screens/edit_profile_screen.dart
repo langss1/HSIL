@@ -42,13 +42,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (userId == null) return;
 
     final provider = context.read<ProfileProvider>();
-    final success = await provider.updateProfile(
+    final updatedUser = await provider.updateProfile(
       userId: userId,
       name: _nameController.text,
       phone: _phoneController.text,
     );
 
-    if (mounted && success) {
+    if (mounted && updatedUser != null) {
+      context.read<AuthController>().updateUser(updatedUser);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(provider.successMessage ?? 'Sukses'), backgroundColor: Colors.green),
       );

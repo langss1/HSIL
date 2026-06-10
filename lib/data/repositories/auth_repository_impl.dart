@@ -244,6 +244,11 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  Future<void> updateCachedUser(AppUser user) async {
+    await _localSessionDataSource.cacheUser(user as UserModel);
+  }
+
   Future<UserModel> _loadUserProfile(String userId) async {
     final userDataSource = _userDataSource;
     if (userDataSource == null) {

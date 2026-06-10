@@ -44,17 +44,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    await context.read<AuthController>().registerEmployee(
-          RegistrationRequest(
-            nik: _nikController.text,
-            name: _nameController.text,
-            email: _emailController.text,
-            department: _departmentController.text,
-            position: _positionController.text,
-            phone: _phoneController.text,
-            password: _passwordController.text,
+    
+    final auth = context.read<AuthController>();
+    
+    await auth.registerEmployee(
+      RegistrationRequest(
+        nik: _nikController.text,
+        name: _nameController.text,
+        email: _emailController.text,
+        department: _departmentController.text,
+        position: _positionController.text,
+        phone: _phoneController.text,
+        password: _passwordController.text,
+      ),
+    );
+
+    if (mounted && auth.isAuthenticated) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+              SizedBox(width: 8),
+              Text('Pendaftaran berhasil!'),
+            ],
           ),
-        );
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    }
   }
 
   @override
