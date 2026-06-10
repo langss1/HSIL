@@ -164,6 +164,24 @@ class _EmployeeHistory extends StatelessWidget {
               ? provider.filterStatus == null 
               : provider.filterStatus?.toLowerCase() == filter.toLowerCase();
           
+          Color chipColor;
+          switch (filter) {
+            case 'Hadir':
+              chipColor = AppColors.statusHadir;
+              break;
+            case 'Telat':
+              chipColor = AppColors.statusTelat;
+              break;
+            case 'Izin':
+              chipColor = AppColors.statusIzin;
+              break;
+            case 'Alpha':
+              chipColor = AppColors.statusAlpha;
+              break;
+            default:
+              chipColor = AppColors.safetyOrange;
+          }
+          
           return Padding(
             padding: const EdgeInsets.only(right: Spacing.sm),
             child: ChoiceChip(
@@ -174,13 +192,13 @@ class _EmployeeHistory extends StatelessWidget {
                   provider.setFilter(filter == 'Semua' ? null : filter);
                 }
               },
-              selectedColor: AppColors.safetyOrange.withValues(alpha: 0.2),
+              selectedColor: chipColor.withValues(alpha: 0.2),
               labelStyle: TextStyle(
-                color: isSelected ? AppColors.safetyOrange : AppColors.textSecondary,
+                color: isSelected ? chipColor : AppColors.textSecondary,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
               side: BorderSide(
-                color: isSelected ? AppColors.safetyOrange : Colors.grey.withValues(alpha: 0.3),
+                color: isSelected ? chipColor : Colors.grey.withValues(alpha: 0.3),
               ),
             ),
           );
@@ -230,15 +248,21 @@ class _StatBox extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
+          color: color,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.3),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Column(
           children: [
-            Text(count.toString(), style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color)),
+            Text(count.toString(), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 4),
-            Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600)),
+            Text(label, style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w700)),
           ],
         ),
       ),

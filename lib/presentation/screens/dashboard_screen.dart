@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math' as math;
 
 import '../../core/constants/route_constants.dart';
@@ -9,10 +8,7 @@ import '../../core/themes/color_palette.dart';
 import '../providers/attendance_provider.dart';
 import '../providers/auth_controller.dart';
 import '../providers/notification_provider.dart';
-import '../widgets/animated_gradient_backdrop.dart';
-import '../widgets/app_button.dart';
 import '../widgets/fade_slide.dart';
-import '../widgets/glass_card.dart';
 import '../widgets/status_pill.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -45,7 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: isDark ? AppColors.deepNavy : const Color(0xFFFCFCFD),
       body: SafeArea(
           child: SingleChildScrollView(
-            physics: const NeverScrollableScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 40),
             child: Center(
               child: ConstrainedBox(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/spacing_constants.dart';
 import '../../core/themes/color_palette.dart';
+import '../../core/constants/app_constants.dart';
 
 /// Card displaying GPS distance information, accuracy, and last update time.
 class DistanceInfoCard extends StatelessWidget {
@@ -11,7 +12,7 @@ class DistanceInfoCard extends StatelessWidget {
     required this.isInArea,
     this.accuracy,
     this.lastUpdated,
-    this.officeName = 'HSIL Main Plant',
+    this.officeName = 'Telkom University',
     this.isLoading = false,
   });
 

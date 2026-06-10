@@ -11,6 +11,7 @@ import '../../domain/repositories/attendance_repository.dart';
 import '../../domain/usecases/clock_in_usecase.dart';
 import '../../domain/usecases/clock_out_usecase.dart';
 import '../../domain/usecases/get_weekly_stats_usecase.dart';
+import '../../core/services/local_notification_service.dart';
 
 /// State for clock-in/out operations.
 enum AttendanceActionState {
@@ -145,12 +146,26 @@ class AttendanceProvider extends ChangeNotifier {
         _todayRecord = record;
         _actionState = AttendanceActionState.success;
         _successMessage = 'Clock-in berhasil! Status: ${record.status}';
+        LocalNotificationService.showNotification(
+          id: 1,
+          title: 'Clock-in Berhasil',
+          body: 'Absensi Anda untuk hari ini telah tercatat (${record.status}).',
+          userId: record.employeeId,
+          type: 'success',
+        );
         notifyListeners();
         return true;
       },
       failure: (failure) {
         _errorMessage = failure.message;
         _actionState = AttendanceActionState.error;
+        LocalNotificationService.showNotification(
+          id: 2,
+          title: 'Clock-in Gagal',
+          body: failure.message,
+          userId: _todayRecord?.employeeId,
+          type: 'failure',
+        );
         notifyListeners();
         return false;
       },
@@ -201,12 +216,26 @@ class AttendanceProvider extends ChangeNotifier {
         _todayRecord = record;
         _actionState = AttendanceActionState.success;
         _successMessage = 'Clock-out berhasil!';
+        LocalNotificationService.showNotification(
+          id: 3,
+          title: 'Clock-out Berhasil',
+          body: 'Terima kasih atas kerja keras Anda hari ini.',
+          userId: record.employeeId,
+          type: 'success',
+        );
         notifyListeners();
         return true;
       },
       failure: (failure) {
         _errorMessage = failure.message;
         _actionState = AttendanceActionState.error;
+        LocalNotificationService.showNotification(
+          id: 4,
+          title: 'Clock-out Gagal',
+          body: failure.message,
+          userId: _todayRecord?.employeeId,
+          type: 'failure',
+        );
         notifyListeners();
         return false;
       },

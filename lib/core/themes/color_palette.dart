@@ -33,9 +33,9 @@ class AppColors {
 
   // Attendance status
   static const Color statusHadir = Color(0xFF10B981);
-  static const Color statusTelat = Color(0xFFF59E0B);
+  static const Color statusTelat = Color(0xFFFF6B35); // Orange
   static const Color statusIzin = Color(0xFF3B82F6);
-  static const Color statusAlpha = Color(0xFFEF4444);
+  static const Color statusAlpha = Color(0xFFE50000); // Merah menyala
 
   // Gradient helpers
   static const LinearGradient primaryGradient = LinearGradient(

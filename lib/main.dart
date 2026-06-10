@@ -12,12 +12,17 @@ import 'presentation/providers/history_provider.dart';
 import 'presentation/providers/location_provider.dart';
 import 'presentation/providers/notification_provider.dart';
 import 'presentation/providers/profile_provider.dart';
+import 'presentation/providers/admin_provider.dart';
+import 'presentation/screens/admin/admin_dashboard_screen.dart';
 import 'presentation/screens/main_screen.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/splash_screen.dart';
 
+import 'core/services/local_notification_service.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LocalNotificationService.initialize();
   await initializeDateFormatting('id_ID', null);
   final dependencies = await AppDependencies.create();
   runApp(FactoryAttendanceApp(dependencies: dependencies));
@@ -66,6 +71,11 @@ class FactoryAttendanceApp extends StatelessWidget {
             repository: dependencies.notificationRepository,
           ),
         ),
+        ChangeNotifierProvider(
+          create: (_) => AdminProvider(
+            repository: dependencies.adminRepository,
+          ),
+        ),
       ],
       child: MaterialApp(
         title: AppConstants.appName,
@@ -85,9 +95,8 @@ class _AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final status = context.select<AuthController, AuthStatus>(
-      (auth) => auth.status,
-    );
+    final auth = context.watch<AuthController>();
+    final status = auth.status;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 380),
@@ -95,9 +104,9 @@ class _AuthGate extends StatelessWidget {
       switchOutCurve: Curves.easeInCubic,
       child: switch (status) {
         AuthStatus.bootstrapping => const SplashScreen(key: ValueKey('splash')),
-        AuthStatus.authenticated => const MainScreen(
-          key: ValueKey('main'),
-        ),
+        AuthStatus.authenticated => auth.user?.role.value == 'admin'
+            ? const AdminDashboardScreen(key: ValueKey('admin_main'))
+            : const MainScreen(key: ValueKey('main')),
         AuthStatus.unauthenticated ||
         AuthStatus.authenticating => const LoginScreen(key: ValueKey('login')),
       },

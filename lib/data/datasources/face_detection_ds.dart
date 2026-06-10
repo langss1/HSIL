@@ -38,7 +38,7 @@ class FaceDetectionDataSource {
         enableContours: false,
         enableClassification: true, // Untuk deteksi mata terbuka jika diperlukan
         enableTracking: false,
-        minFaceSize: 0.15, // minimal 15% dari frame
+        minFaceSize: 0.35, // Ditingkatkan agar wajah harus memenuhi frame (35%)
         performanceMode: FaceDetectorMode.accurate,
       ),
     );
@@ -157,9 +157,8 @@ class FaceDetectionDataSource {
     
     if (count == 0) return false;
     final avgDiff = diffSum / count;
-    // Tweak threshold: blurry image has low gradient. 
-    // Sangat rendah untuk mentoleransi kamera buram pada HP kentang
-    return avgDiff >= 1.2;
+    // Ditingkatkan dari 1.2 ke 3.5 agar sensor lebih ketat menolak foto blur
+    return avgDiff >= 3.5;
   }
 
   bool _checkLightingYUV(CameraImage image) {
