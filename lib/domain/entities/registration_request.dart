@@ -2,6 +2,7 @@ class RegistrationRequest {
   const RegistrationRequest({
     required this.nik,
     required this.name,
+    required this.email,
     required this.password,
     required this.department,
     required this.position,
@@ -10,6 +11,7 @@ class RegistrationRequest {
 
   final String nik;
   final String name;
+  final String email;
   final String password;
   final String department;
   final String position;

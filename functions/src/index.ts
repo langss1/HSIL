@@ -1,11 +1,22 @@
 import {initializeApp} from "firebase-admin/app";
-import {FieldValue, getFirestore} from "firebase-admin/firestore";
+import {FieldValue, Timestamp, getFirestore} from "firebase-admin/firestore";
+import {getAuth} from "firebase-admin/auth";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {onDocumentCreated} from "firebase-functions/v2/firestore";
+import * as nodemailer from "nodemailer";
 
 initializeApp();
 
 const db = getFirestore();
+
+// Konfigurasi Nodemailer dengan App Password
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "gilangwasis2@gmail.com",
+    pass: "sujg zwoe bhyw tmxb",
+  },
+});
 
 type UserRole = "employee" | "admin";
 
@@ -87,4 +98,107 @@ export const createClockInNotification = onDocumentCreated("attendance/{attendan
     },
     createdAt: FieldValue.serverTimestamp(),
   });
+});
+
+// ----------------------------------------------------------------------
+// NEW ENDPOINTS: OTP & Forgot Password Flow
+// ----------------------------------------------------------------------
+
+export const requestPasswordReset = onCall<{nik: string}>(async (request) => {
+  const nik = request.data.nik?.trim();
+  if (!nik || nik.length !== 10) {
+    throw new HttpsError("invalid-argument", "NIK tidak valid.");
+  }
+
+  const snapshot = await db.collection("users").where("nik", "==", nik).limit(1).get();
+  if (snapshot.empty) {
+    throw new HttpsError("not-found", "Karyawan dengan NIK tersebut tidak ditemukan.");
+  }
+
+  const userDoc = snapshot.docs[0];
+  const userData = userDoc.data();
+  const email = userData.email;
+  
+  if (!email || !email.includes("@")) {
+    throw new HttpsError("failed-precondition", "Karyawan belum memiliki email aktif.");
+  }
+
+  // Generate 6 digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  const expiresAt = new Date();
+  expiresAt.setMinutes(expiresAt.getMinutes() + 15);
+  
+  await db.collection("passwordResets").doc(nik).set({
+    otp,
+    expiresAt: Timestamp.fromDate(expiresAt),
+    attempts: 0
+  });
+
+  try {
+    await transporter.sendMail({
+      from: '"HSIL System" <gilangwasis2@gmail.com>',
+      to: email,
+      subject: "Reset Password - Kode OTP",
+      text: `Kode OTP Anda adalah: ${otp}\nBerlaku selama 15 menit. Jangan berikan kode ini kepada siapapun.`
+    });
+    
+    // Return email hint
+    const [namePart, domain] = email.split("@");
+    const hint = namePart.substring(0, 2) + "*".repeat(namePart.length - 2) + "@" + domain;
+    return { ok: true, emailHint: hint };
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw new HttpsError("internal", "Gagal mengirim email OTP.");
+  }
+});
+
+export const verifyOtpAndResetPassword = onCall<{nik: string, otp: string, newPassword: string}>(async (request) => {
+  const { nik, otp, newPassword } = request.data;
+  if (!nik || !otp || !newPassword) {
+    throw new HttpsError("invalid-argument", "Data tidak lengkap.");
+  }
+
+  const resetDocRef = db.collection("passwordResets").doc(nik);
+  const resetDoc = await resetDocRef.get();
+  
+  if (!resetDoc.exists) {
+    throw new HttpsError("not-found", "Kode OTP tidak valid atau sudah kadaluarsa.");
+  }
+
+  const data = resetDoc.data()!;
+  
+  if (data.attempts >= 3) {
+    await resetDocRef.delete();
+    throw new HttpsError("resource-exhausted", "Terlalu banyak percobaan yang salah. Silakan minta OTP baru.");
+  }
+
+  if (data.expiresAt.toDate() < new Date()) {
+    await resetDocRef.delete();
+    throw new HttpsError("failed-precondition", "Kode OTP sudah kadaluarsa.");
+  }
+
+  if (data.otp !== otp.trim()) {
+    await resetDocRef.update({ attempts: FieldValue.increment(1) });
+    throw new HttpsError("invalid-argument", "Kode OTP salah.");
+  }
+
+  const snapshot = await db.collection("users").where("nik", "==", nik).limit(1).get();
+  if (snapshot.empty) {
+    throw new HttpsError("not-found", "Karyawan tidak ditemukan.");
+  }
+
+  const userId = snapshot.docs[0].id;
+
+  try {
+    await getAuth().updateUser(userId, {
+      password: newPassword
+    });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    throw new HttpsError("internal", "Gagal mengubah password.");
+  }
+
+  await resetDocRef.delete();
+  return { ok: true };
 });

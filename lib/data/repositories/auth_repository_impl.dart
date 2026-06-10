@@ -131,6 +131,7 @@ class AuthRepositoryImpl implements AuthRepository {
   ) async {
     final normalizedNik = request.nik.trim();
     final normalizedName = request.name.trim();
+    final normalizedEmail = request.email.trim();
     final normalizedDepartment = request.department.trim();
     final normalizedPosition = request.position.trim();
 
@@ -142,6 +143,11 @@ class AuthRepositoryImpl implements AuthRepository {
     if (normalizedName.length < 3) {
       return const AppFailure(
         AuthFailure('Nama minimal 3 karakter.', code: 'invalid-name'),
+      );
+    }
+    if (normalizedEmail.isEmpty || !normalizedEmail.contains('@')) {
+      return const AppFailure(
+        AuthFailure('Email tidak valid.', code: 'invalid-email'),
       );
     }
     if (request.password.length < 6) {
@@ -177,6 +183,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final normalizedRequest = RegistrationRequest(
         nik: normalizedNik,
         name: normalizedName,
+        email: normalizedEmail,
         password: request.password,
         department: normalizedDepartment,
         position: normalizedPosition,

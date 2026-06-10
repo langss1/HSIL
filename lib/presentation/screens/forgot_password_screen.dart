@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 import '../../core/constants/spacing_constants.dart';
 import '../../core/themes/color_palette.dart';
@@ -9,6 +10,7 @@ import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/fade_slide.dart';
 import '../widgets/glass_card.dart';
+import 'otp_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -45,11 +47,50 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final sent = await context.read<AuthController>().sendPasswordReset(
-          _identityController.text,
+    
+    // Hide keyboard
+    FocusScope.of(context).unfocus();
+    
+    final nik = _identityController.text.trim();
+    
+    try {
+      final functions = FirebaseFunctions.instance;
+      final result = await functions.httpsCallable('requestPasswordReset').call({'nik': nik});
+      
+      final hint = result.data['emailHint'] as String? ?? 'email Anda';
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('OTP terkirim ke $hint'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
-    if (sent && mounted) {
-      Navigator.of(context).pop();
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => OtpScreen(nik: nik),
+          ),
+        );
+      }
+    } on FirebaseFunctionsException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? 'Gagal meminta OTP'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Terjadi kesalahan jaringan atau server'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 

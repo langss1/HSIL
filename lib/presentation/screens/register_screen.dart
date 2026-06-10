@@ -22,6 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nikController = TextEditingController();
   final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _departmentController = TextEditingController();
   final _positionController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -32,6 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _nikController.dispose();
     _nameController.dispose();
+    _emailController.dispose();
     _departmentController.dispose();
     _positionController.dispose();
     _phoneController.dispose();
@@ -46,6 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           RegistrationRequest(
             nik: _nikController.text,
             name: _nameController.text,
+            email: _emailController.text,
             department: _departmentController.text,
             position: _positionController.text,
             phone: _phoneController.text,
@@ -164,6 +167,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 validator: (value) {
                                   if ((value?.trim() ?? '').length < 3) {
                                     return 'Nama minimal 3 karakter';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: Spacing.lg),
+                              AppTextField(
+                                controller: _emailController,
+                                label: 'Email Aktif',
+                                hint: 'nama@domain.com',
+                                icon: Icons.email_rounded,
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
+                                validator: (value) {
+                                  if (!(value ?? '').contains('@')) {
+                                    return 'Email tidak valid';
                                   }
                                   return null;
                                 },
