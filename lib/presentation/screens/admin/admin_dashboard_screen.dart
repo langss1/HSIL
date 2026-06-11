@@ -58,6 +58,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   void _showLogoutDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -88,39 +90,57 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               fontSize: 15,
             ),
           ),
-          actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Batal',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDark ? AppColors.bgCardLight : const Color(0xFFE2E8F0),
+                      foregroundColor: isDark ? Colors.white : AppColors.deepNavy,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text(
+                      'Batal',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                context.read<AuthController>().signOut();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error,
-                foregroundColor: AppColors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      context.read<AuthController>().signOut();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.error,
+                      foregroundColor: AppColors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text(
+                      'Keluar',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              ),
-              child: const Text(
-                'Keluar',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
-              ),
+              ],
             ),
           ],
         );
@@ -205,7 +225,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
                 child: IconButton(
                   onPressed: () => _showLogoutDialog(context),
-                  icon: const Icon(Icons.power_settings_new_rounded, color: Colors.white),
+                  icon: const Icon(Icons.logout_rounded, color: Colors.white),
                   tooltip: 'Logout',
                 ),
               ),
@@ -231,58 +251,66 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
             ),
             const SizedBox(height: 16),
-            Row(
+            Column(
               children: [
-                Expanded(
-                  child: FadeSlide(
-                    delay: Duration.zero,
-                    child: _StatCard(
-                      title: 'Hadir',
-                      value: adminProv.todayTotalAttendance.toString(),
-                      color: AppColors.statusHadir,
-                      icon: Icons.check_circle_rounded,
-                      isDark: isDark,
+                Row(
+                  children: [
+                    Expanded(
+                      child: FadeSlide(
+                        delay: Duration.zero,
+                        child: _StatCard(
+                          title: 'Hadir',
+                          value: adminProv.todayTotalAttendance.toString(),
+                          color: AppColors.statusHadir,
+                          icon: Icons.check_circle_rounded,
+                          isDark: isDark,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: FadeSlide(
+                        delay: const Duration(milliseconds: 100),
+                        child: _StatCard(
+                          title: 'Telat',
+                          value: adminProv.todayLates.toString(),
+                          color: AppColors.statusTelat,
+                          icon: Icons.timer_rounded,
+                          isDark: isDark,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FadeSlide(
-                    delay: const Duration(milliseconds: 100),
-                    child: _StatCard(
-                      title: 'Telat',
-                      value: adminProv.todayLates.toString(),
-                      color: AppColors.statusTelat,
-                      icon: Icons.timer_rounded,
-                      isDark: isDark,
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FadeSlide(
+                        delay: const Duration(milliseconds: 200),
+                        child: _StatCard(
+                          title: 'Alpha',
+                          value: adminProv.todayAbsents.toString(),
+                          color: AppColors.statusAlpha,
+                          icon: Icons.cancel_rounded,
+                          isDark: isDark,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FadeSlide(
-                    delay: const Duration(milliseconds: 200),
-                    child: _StatCard(
-                      title: 'Alpha',
-                      value: adminProv.todayAbsents.toString(),
-                      color: AppColors.statusAlpha,
-                      icon: Icons.cancel_rounded,
-                      isDark: isDark,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: FadeSlide(
+                        delay: const Duration(milliseconds: 300),
+                        child: _StatCard(
+                          title: 'Izin',
+                          value: adminProv.todayLeaves.toString(),
+                          color: Colors.blue,
+                          icon: Icons.assignment_rounded,
+                          isDark: isDark,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FadeSlide(
-                    delay: const Duration(milliseconds: 300),
-                    child: _StatCard(
-                      title: 'Izin',
-                      value: adminProv.todayLeaves.toString(),
-                      color: Colors.blue,
-                      icon: Icons.assignment_rounded,
-                      isDark: isDark,
-                    ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -307,13 +335,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
             ),
             const SizedBox(height: 16),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 0.95,
+            Column(
               children: [
                 FadeSlide(
                   delay: const Duration(milliseconds: 300),
@@ -326,6 +348,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     onTap: () => Navigator.pushNamed(context, RouteConstants.employeeList),
                   ),
                 ),
+                const SizedBox(height: 12),
                 FadeSlide(
                   delay: const Duration(milliseconds: 400),
                   child: _MenuCard(
@@ -337,6 +360,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     onTap: () => Navigator.pushNamed(context, RouteConstants.adminMap),
                   ),
                 ),
+                const SizedBox(height: 12),
                 FadeSlide(
                   delay: const Duration(milliseconds: 500),
                   child: _MenuCard(
@@ -348,6 +372,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     onTap: () => Navigator.pushNamed(context, RouteConstants.kpiDashboard),
                   ),
                 ),
+                const SizedBox(height: 12),
                 FadeSlide(
                   delay: const Duration(milliseconds: 600),
                   child: _MenuCard(
@@ -359,6 +384,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     onTap: () => Navigator.pushNamed(context, RouteConstants.adminAttendanceLog),
                   ),
                 ),
+                const SizedBox(height: 12),
                 FadeSlide(
                   delay: const Duration(milliseconds: 700),
                   child: _MenuCard(
@@ -370,6 +396,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     onTap: () => Navigator.pushNamed(context, RouteConstants.leaveApproval),
                   ),
                 ),
+                const SizedBox(height: 12),
                 FadeSlide(
                   delay: const Duration(milliseconds: 800),
                   child: _MenuCard(
@@ -408,7 +435,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
@@ -507,17 +534,16 @@ class _MenuCard extends StatelessWidget {
             children: [
               // Large background icon watermark
               Positioned(
-                right: -16,
-                bottom: -16,
+                right: 16,
+                bottom: -20,
                 child: Icon(
                   icon,
-                  size: 80,
+                  size: 100,
                   color: color.withValues(alpha: isDark ? 0.05 : 0.04),
                 ),
               ),
               // Content
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -528,28 +554,41 @@ class _MenuCard extends StatelessWidget {
                     ),
                     child: Icon(icon, color: color, size: 28),
                   ),
-                  const Spacer(),
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
-                      color: isDark ? AppColors.white : AppColors.deepNavy,
-                      letterSpacing: -0.5,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                            color: isDark ? AppColors.white : AppColors.deepNavy,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isDark ? Colors.white60 : AppColors.textSecondary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: isDark ? Colors.white60 : AppColors.textSecondary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: isDark ? Colors.white24 : AppColors.deepNavy.withValues(alpha: 0.2),
+                    size: 16,
                   ),
                 ],
               ),
