@@ -241,14 +241,17 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDarker : const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Log Kehadiran Karyawan',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: isDark ? Colors.white : AppColors.deepNavy, 
+            fontWeight: FontWeight.bold
+          ),
         ),
         centerTitle: true,
-        backgroundColor: AppColors.deepNavy,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: isDark ? Colors.white : AppColors.deepNavy),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _isExporting ? null : _exportToCSV,
@@ -282,13 +285,21 @@ class _AdminAttendanceLogScreenState extends State<AdminAttendanceLogScreen> {
   Widget _buildFilterPanel(AdminProvider provider, String dateRangeText, bool isDark) {
     return Container(
       width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       padding: const EdgeInsets.all(20.0),
-      decoration: const BoxDecoration(
-        color: AppColors.deepNavy,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.bgCard : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.deepNavy.withValues(alpha: 0.05),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : AppColors.deepNavy.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

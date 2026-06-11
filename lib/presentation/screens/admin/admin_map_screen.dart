@@ -76,19 +76,17 @@ class _AdminMapScreenState extends State<AdminMapScreen> {
     return Scaffold(
       backgroundColor: isDark ? AppColors.deepNavy : const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Peta Kehadiran',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: AppColors.deepNavy,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(24),
+          style: TextStyle(
+            color: isDark ? Colors.white : AppColors.deepNavy, 
+            fontWeight: FontWeight.bold
           ),
         ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: isDark ? Colors.white : AppColors.deepNavy),
       ),
       body: adminProv.isLoading && attendanceList.isEmpty
           ? const Center(child: CircularProgressIndicator(color: AppColors.safetyOrange))
