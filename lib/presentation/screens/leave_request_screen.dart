@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../domain/entities/leave_request.dart';
 import '../providers/auth_controller.dart';
 import '../providers/leave_provider.dart';
@@ -26,9 +24,6 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now();
   LeaveType _selectedType = LeaveType.sakit;
-  
-  File? _evidenceFile;
-  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -62,44 +57,6 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
     }
   }
 
-  Future<void> _pickImage(ImageSource source) async {
-    final pickedFile = await _picker.pickImage(source: source, imageQuality: 80);
-    if (pickedFile != null) {
-      setState(() => _evidenceFile = File(pickedFile.path));
-    }
-  }
-
-  void _showImagePickerOptions() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt_rounded),
-              title: const Text('Ambil dari Kamera'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_rounded),
-              title: const Text('Pilih dari Galeri'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     
@@ -115,7 +72,6 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
       endDate: DateUtil.toDateKey(_endDate),
       type: _selectedType,
       reason: _reasonController.text,
-      evidenceFile: _evidenceFile,
     );
 
     if (success && mounted) {
@@ -123,7 +79,6 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
         SnackBar(content: Text(provider.successMessage ?? 'Berhasil')),
       );
       _reasonController.clear();
-      setState(() => _evidenceFile = null);
     } else if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(provider.errorMessage ?? 'Gagal')),
@@ -193,60 +148,6 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
                           return null;
                         },
                       ),
-                      
-                      // Bukti / Lampiran
-                      const SizedBox(height: 16),
-                      Text('Lampiran (Opsional)', style: theme.textTheme.titleMedium),
-                      const SizedBox(height: 8),
-                      if (_evidenceFile != null)
-                        Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.file(
-                                _evidenceFile!,
-                                height: 140,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: GestureDetector(
-                                onTap: () => setState(() => _evidenceFile = null),
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.black54,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(Icons.close, color: Colors.white, size: 20),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      else
-                        InkWell(
-                          onTap: _showImagePickerOptions,
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            height: 80,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.withOpacity(0.5), style: BorderStyle.solid),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.upload_file_rounded, color: Colors.grey),
-                                SizedBox(width: 8),
-                                Text('Upload Bukti / Surat Dokter', style: TextStyle(color: Colors.grey)),
-                              ],
-                            ),
-                          ),
-                        ),
                       const SizedBox(height: 24),
                       
                       // Submit

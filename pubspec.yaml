@@ -59,7 +59,6 @@ dependencies:
   path_provider: ^2.1.5
   share_plus: any
   flutter_local_notifications: any
-  image_picker: any
 
 dev_dependencies:
   flutter_test:
