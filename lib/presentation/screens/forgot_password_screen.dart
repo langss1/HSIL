@@ -54,14 +54,66 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     final success = await context.read<AuthController>().sendPasswordReset(identifier);
       
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Link reset password telah dikirim ke email Anda.'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: Theme.of(context).brightness == Brightness.dark
+              ? AppColors.bgCard
+              : AppColors.white,
+          contentPadding: const EdgeInsets.all(24),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.mark_email_unread_rounded,
+                  color: AppColors.success,
+                  size: 48,
+                ),
+              ),
+              const SizedBox(height: Spacing.lg),
+              Text(
+                'Cek Email Anda',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.white
+                          : AppColors.deepNavy,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: Spacing.md),
+              Text(
+                'Link reset password telah dikirim ke email Anda. Silakan cek kotak masuk (Inbox) atau folder Spam/Junk.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: Spacing.xl),
+              SizedBox(
+                width: double.infinity,
+                child: AppButton(
+                  label: 'Kembali ke Login',
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Tutup dialog
+                    Navigator.of(context).pop(); // Tutup halaman Forgot Password
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       );
-      Navigator.of(context).pop();
     }
   }
 

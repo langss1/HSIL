@@ -202,6 +202,22 @@ class AuthRepositoryImpl implements AuthRepository {
         );
       }
 
+      // Cross-check duplicate NIK
+      final existingUserByNik = await _userDataSource.getUserByNik(normalizedNik);
+      if (existingUserByNik != null) {
+        return const AppFailure(
+          AuthFailure('NIK sudah terdaftar.', code: 'nik-already-in-use'),
+        );
+      }
+      
+      // Cross-check duplicate Email
+      final existingUserByEmail = await _userDataSource.getUserByEmail(normalizedEmail);
+      if (existingUserByEmail != null) {
+        return const AppFailure(
+          AuthFailure('Email sudah terdaftar.', code: 'email-already-in-use'),
+        );
+      }
+
       final normalizedRequest = RegistrationRequest(
         nik: normalizedNik,
         name: normalizedName,

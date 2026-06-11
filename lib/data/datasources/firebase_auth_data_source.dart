@@ -74,6 +74,26 @@ class FirebaseAuthDataSource {
     }
   }
 
+  /// Updates the user's email address.
+  Future<void> updateEmail(String newEmail) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw AuthException('Sesi tidak ditemukan. Silakan login kembali.');
+      }
+      // ignore: deprecated_member_use
+      await user.updateEmail(newEmail);
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'requires-recent-login') {
+        throw AuthException(
+          'Demi keamanan, Anda harus logout dan login ulang sebelum dapat mengubah email.',
+          code: error.code,
+        );
+      }
+      throw AuthException(_mapAuthMessage(error), code: error.code);
+    }
+  }
+
   String _mapAuthMessage(FirebaseAuthException error) {
     return switch (error.code) {
       'invalid-email' => 'Format NIK tidak valid.',

@@ -33,6 +33,19 @@ class UserRepositoryImpl implements UserRepository {
     required Map<String, dynamic> fields,
   }) async {
     try {
+      if (fields.containsKey('email')) {
+        final newEmail = fields['email'] as String;
+        
+        // Cross-check if email is already in use by another user in Firestore
+        final existing = await _userDataSource.getUserByEmail(newEmail);
+        if (existing != null && existing.userId != userId) {
+          return const AppFailure(DataFailure('Email ini sudah digunakan oleh akun lain.'));
+        }
+        
+        // Synchronize with Firebase Auth
+        await _authDataSource.updateEmail(newEmail);
+      }
+
       final updated = await _userDataSource.updateUserProfile(userId, fields);
       return AppSuccess(updated);
     } catch (error) {
