@@ -19,6 +19,8 @@ import 'screens/admin/admin_map_screen.dart';
 import 'screens/admin/kpi_dashboard_screen.dart';
 import 'screens/admin/employee_detail_screen.dart';
 import 'screens/admin/admin_attendance_log_screen.dart';
+import 'screens/leave_request_screen.dart';
+import 'screens/admin/leave_approval_screen.dart';
 
 class AppRouter {
   const AppRouter._();
@@ -37,6 +39,7 @@ class AppRouter {
       RouteConstants.editProfile => const EditProfileScreen(),
       RouteConstants.changePassword => const ChangePasswordScreen(),
       RouteConstants.notifications => const NotificationScreen(),
+      RouteConstants.leaveRequest => const LeaveRequestScreen(),
       // Admin Routes
       RouteConstants.adminDashboard => const AdminDashboardScreen(),
       RouteConstants.employeeList => const EmployeeListScreen(),
@@ -48,6 +51,7 @@ class AppRouter {
       RouteConstants.adminAttendanceLog => AdminAttendanceLogScreen(
           initialEmployee: settings.arguments as AppUser?,
         ),
+      RouteConstants.leaveApproval => const LeaveApprovalScreen(),
       _ => const LoginScreen(),
     };
     return _buildRoute(page, settings);

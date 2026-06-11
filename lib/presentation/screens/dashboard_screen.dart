@@ -8,6 +8,7 @@ import '../../core/themes/color_palette.dart';
 import '../providers/attendance_provider.dart';
 import '../providers/auth_controller.dart';
 import '../providers/notification_provider.dart';
+import '../widgets/app_button.dart';
 import '../widgets/fade_slide.dart';
 import '../widgets/status_pill.dart';
 
@@ -189,6 +190,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ],
                                   ),
                                   const SizedBox(height: 16),
+                      // Ajukan Izin Button
+                      AppButton(
+                        label: 'Ajukan Izin',
+                        onPressed: () => Navigator.pushNamed(context, RouteConstants.leaveRequest),
+                      ),
                                   // Thin elegant divider
                                   Container(
                                     height: 1,

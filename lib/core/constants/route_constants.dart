@@ -20,4 +20,6 @@ class RouteConstants {
   static const String kpiDashboard = '/admin-kpi-dashboard';
   static const String employeeDetail = '/admin-employee-detail';
   static const String adminAttendanceLog = '/admin-attendance-log';
+  static const String leaveApproval = '/admin-leave-approval';
+  static const String leaveRequest = '/leave-request';
 }

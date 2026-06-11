@@ -13,6 +13,7 @@ import 'presentation/providers/location_provider.dart';
 import 'presentation/providers/notification_provider.dart';
 import 'presentation/providers/profile_provider.dart';
 import 'presentation/providers/admin_provider.dart';
+import 'presentation/providers/leave_provider.dart';
 import 'presentation/screens/admin/admin_dashboard_screen.dart';
 import 'presentation/screens/main_screen.dart';
 import 'presentation/screens/login_screen.dart';
@@ -74,6 +75,14 @@ class FactoryAttendanceApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AdminProvider(
             repository: dependencies.adminRepository,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LeaveProvider(
+            submitLeaveUseCase: dependencies.submitLeave,
+            getMyLeavesUseCase: dependencies.getMyLeaves,
+            getPendingLeavesUseCase: dependencies.getPendingLeaves,
+            reviewLeaveUseCase: dependencies.reviewLeave,
           ),
         ),
       ],
