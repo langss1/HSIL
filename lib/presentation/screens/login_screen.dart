@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     await context.read<AuthController>().signIn(
-          nik: _nikController.text,
+          identifier: _nikController.text,
           password: _passwordController.text,
         );
   }
@@ -311,14 +311,17 @@ class _LoginFormCard extends StatelessWidget {
               // NIK field
               AppTextField(
                 controller: nikController,
-                label: 'NIK',
-                hint: '10 digit NIK',
-                icon: Icons.badge_rounded,
-                keyboardType: TextInputType.number,
+                label: 'NIK atau Email',
+                hint: '10 digit NIK atau email',
+                icon: Icons.person_rounded,
+                keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
                 validator: (value) {
-                  if (!RegExp(r'^\d{10}$').hasMatch(value?.trim() ?? '')) {
-                    return 'NIK harus 10 digit';
+                  final raw = value?.trim() ?? '';
+                  final isNik = RegExp(r'^\d{10}$').hasMatch(raw);
+                  final isEmail = raw.contains('@') && raw.contains('.');
+                  if (!isNik && !isEmail) {
+                    return 'Isi NIK 10 digit atau email valid';
                   }
                   return null;
                 },

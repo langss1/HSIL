@@ -49,16 +49,16 @@ dependencies:
   flutter_secure_storage: ^10.3.0
   crypto: ^3.0.7
   google_fonts: ^6.3.2
-  geolocator: ^14.0.1
+  geolocator: any
   google_maps_flutter: any
   camera: any
   google_mlkit_face_detection: any
   image: any
-  fl_chart: ^1.2.0
-  csv: ^8.0.0
+  fl_chart: ^0.65.0
+  csv: any
   path_provider: ^2.1.5
-  share_plus: ^13.1.0
-  flutter_local_notifications: ^21.0.0
+  share_plus: any
+  flutter_local_notifications: any
 
 dev_dependencies:
   flutter_test:

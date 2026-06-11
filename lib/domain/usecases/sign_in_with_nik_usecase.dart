@@ -8,12 +8,12 @@ class SignInWithNikUseCase {
   final AuthRepository _repository;
 
   Future<AppResult<AppUser>> call({
-    required String nik,
+    required String identifier,
     required String password,
     required bool rememberMe,
   }) {
-    return _repository.signInWithNik(
-      nik: nik,
+    return _repository.signIn(
+      identifier: identifier,
       password: password,
       rememberMe: rememberMe,
     );

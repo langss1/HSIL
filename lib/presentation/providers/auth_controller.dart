@@ -78,14 +78,14 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signIn({required String nik, required String password}) async {
+  Future<void> signIn({required String identifier, required String password}) async {
     _status = AuthStatus.authenticating;
     _errorMessage = null;
     _infoMessage = null;
     notifyListeners();
 
     final result = await _dependencies.signInWithNik(
-      nik: nik,
+      identifier: identifier,
       password: password,
       rememberMe: _rememberMe,
     );
@@ -93,7 +93,7 @@ class AuthController extends ChangeNotifier {
     result.when(
       success: (user) {
         _user = user;
-        _rememberedNik = _rememberMe ? nik : null;
+        _rememberedNik = _rememberMe ? user.nik : null;
         _status = AuthStatus.authenticated;
       },
       failure: (failure) {

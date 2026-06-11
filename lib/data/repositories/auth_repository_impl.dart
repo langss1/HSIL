@@ -62,15 +62,18 @@ class AuthRepositoryImpl implements AuthRepository {
       _localSessionDataSource.getRememberedNik();
 
   @override
-  Future<AppResult<AppUser>> signInWithNik({
-    required String nik,
+  Future<AppResult<AppUser>> signIn({
+    required String identifier,
     required String password,
     required bool rememberMe,
   }) async {
-    final normalizedNik = nik.trim();
-    if (!_isValidNik(normalizedNik)) {
+    final normalizedId = identifier.trim();
+    final isEmail = normalizedId.contains('@') && normalizedId.contains('.');
+    final isNik = RegExp(r'^\d{10}$').hasMatch(normalizedId);
+
+    if (!isEmail && !isNik) {
       return const AppFailure(
-        AuthFailure('NIK harus berisi 10 digit angka.', code: 'invalid-nik'),
+        AuthFailure('Masukkan NIK (10 digit) atau email yang valid.', code: 'invalid-identifier'),
       );
     }
     if (password.length < 6) {
@@ -92,7 +95,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final online = await _connectivityService.isOnline;
       if (!online) {
         final cachedUser = await _localSessionDataSource.getCachedUser();
-        if (cachedUser?.nik == normalizedNik) {
+        if (cachedUser?.nik == normalizedId || cachedUser?.email == normalizedId) {
           return AppSuccess(cachedUser!);
         }
         return const AppFailure(
@@ -103,8 +106,27 @@ class AuthRepositoryImpl implements AuthRepository {
         );
       }
 
-      final credential = await _authDataSource.loginWithNik(
-        nik: normalizedNik,
+      String emailToLogin = normalizedId;
+      String nikToRemember = normalizedId;
+
+      if (isNik) {
+        final userDoc = await _userDataSource.getUserByNik(normalizedId);
+        if (userDoc == null) {
+          return const AppFailure(AuthFailure('Akun dengan NIK ini tidak ditemukan.', code: 'user-not-found'));
+        }
+        emailToLogin = userDoc.email;
+        nikToRemember = userDoc.nik;
+      } else {
+        final userDoc = await _userDataSource.getUserByEmail(normalizedId);
+        if (userDoc == null) {
+          return const AppFailure(AuthFailure('Akun dengan Email ini tidak ditemukan.', code: 'user-not-found'));
+        }
+        emailToLogin = userDoc.email;
+        nikToRemember = userDoc.nik;
+      }
+
+      final credential = await _authDataSource.login(
+        email: emailToLogin,
         password: password,
       );
       final firebaseUser = credential.user ?? _authDataSource.currentUser;
@@ -117,7 +139,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final profile = await _loadUserProfile(firebaseUser.uid);
       await _localSessionDataSource.saveRememberMe(
         rememberMe: rememberMe,
-        nik: normalizedNik,
+        nik: nikToRemember,
       );
       return AppSuccess(profile);
     } catch (error) {
@@ -192,8 +214,8 @@ class AuthRepositoryImpl implements AuthRepository {
                 ? null
                 : request.phone!.trim(),
       );
-      final credential = await _authDataSource.registerWithNik(
-        nik: normalizedNik,
+      final credential = await _authDataSource.register(
+        email: normalizedEmail,
         password: request.password,
       );
       final firebaseUser = credential.user ?? _authDataSource.currentUser;
@@ -221,12 +243,31 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<AppResult<void>> sendPasswordReset(String nikOrEmail) async {
     final authDataSource = _authDataSource;
-    if (authDataSource == null) {
+    final userDataSource = _userDataSource;
+    if (authDataSource == null || userDataSource == null) {
       return const AppFailure(NetworkFailure('Firebase belum terkonfigurasi.'));
     }
 
     try {
-      await authDataSource.sendPasswordReset(nikOrEmail.trim());
+      final normalizedId = nikOrEmail.trim();
+      final isEmail = normalizedId.contains('@');
+      String emailToReset = normalizedId;
+      
+      if (!isEmail) {
+        final userDoc = await userDataSource.getUserByNik(normalizedId);
+        if (userDoc == null) {
+           return const AppFailure(AuthFailure('Akun dengan NIK ini tidak ditemukan.', code: 'user-not-found'));
+        }
+        emailToReset = userDoc.email;
+      } else {
+        final userDoc = await userDataSource.getUserByEmail(normalizedId);
+        if (userDoc == null) {
+           return const AppFailure(AuthFailure('Akun dengan email ini tidak ditemukan.', code: 'user-not-found'));
+        }
+        emailToReset = userDoc.email;
+      }
+
+      await authDataSource.sendPasswordReset(emailToReset);
       return const AppSuccess(null);
     } catch (error) {
       return AppFailure(_mapFailure(error));

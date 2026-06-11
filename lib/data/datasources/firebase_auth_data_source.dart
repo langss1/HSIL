@@ -12,13 +12,13 @@ class FirebaseAuthDataSource {
 
   User? get currentUser => _auth.currentUser;
 
-  Future<UserCredential> loginWithNik({
-    required String nik,
+  Future<UserCredential> login({
+    required String email,
     required String password,
   }) async {
     try {
       return await _auth.signInWithEmailAndPassword(
-        email: nikToEmail(nik),
+        email: email,
         password: password,
       );
     } on FirebaseAuthException catch (error) {
@@ -26,13 +26,13 @@ class FirebaseAuthDataSource {
     }
   }
 
-  Future<UserCredential> registerWithNik({
-    required String nik,
+  Future<UserCredential> register({
+    required String email,
     required String password,
   }) async {
     try {
       return await _auth.createUserWithEmailAndPassword(
-        email: nikToEmail(nik),
+        email: email,
         password: password,
       );
     } on FirebaseAuthException catch (error) {
@@ -40,9 +40,7 @@ class FirebaseAuthDataSource {
     }
   }
 
-  Future<void> sendPasswordReset(String nikOrEmail) async {
-    final email =
-        nikOrEmail.contains('@') ? nikOrEmail : nikToEmail(nikOrEmail);
+  Future<void> sendPasswordReset(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (error) {
@@ -51,10 +49,6 @@ class FirebaseAuthDataSource {
   }
 
   Future<void> logout() async => _auth.signOut();
-
-  static String nikToEmail(String nik) {
-    return '${nik.trim()}@${AppConstants.nikEmailDomain}';
-  }
 
   /// Re-authenticates the user and updates their password.
   Future<void> changePassword({

@@ -21,7 +21,7 @@ class LocalNotificationService {
     );
 
     await _notificationsPlugin.initialize(
-      settings: initializationSettings,
+      initializationSettings,
       onDidReceiveNotificationResponse: (details) {
         // Handle notification tap here if needed
       },
@@ -54,10 +54,10 @@ class LocalNotificationService {
     );
 
     await _notificationsPlugin.show(
-      id: id,
-      title: title,
-      body: body,
-      notificationDetails: platformDetails,
+      id,
+      title,
+      body,
+      platformDetails,
     );
 
     // Auto-save to Firestore history if userId is provided

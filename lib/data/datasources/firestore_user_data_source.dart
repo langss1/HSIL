@@ -33,6 +33,40 @@ class FirestoreUserDataSource {
     }
   }
 
+  Future<UserModel?> getUserByEmail(String email) async {
+    try {
+      final query = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+      if (query.docs.isEmpty) return null;
+      return UserModel.fromFirestore(query.docs.first);
+    } on FirebaseException catch (error) {
+      throw FirebaseDataException(
+        error.message ?? 'Gagal mencari pengguna.',
+        code: error.code,
+      );
+    }
+  }
+
+  Future<UserModel?> getUserByNik(String nik) async {
+    try {
+      final query = await _firestore
+          .collection('users')
+          .where('nik', isEqualTo: nik)
+          .limit(1)
+          .get();
+      if (query.docs.isEmpty) return null;
+      return UserModel.fromFirestore(query.docs.first);
+    } on FirebaseException catch (error) {
+      throw FirebaseDataException(
+        error.message ?? 'Gagal mencari pengguna.',
+        code: error.code,
+      );
+    }
+  }
+
   Future<UserModel> createEmployeeProfile({
     required String userId,
     required RegistrationRequest request,

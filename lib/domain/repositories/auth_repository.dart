@@ -11,8 +11,8 @@ abstract interface class AuthRepository {
 
   Future<bool> getRememberMe();
 
-  Future<AppResult<AppUser>> signInWithNik({
-    required String nik,
+  Future<AppResult<AppUser>> signIn({
+    required String identifier,
     required String password,
     required bool rememberMe,
   });
