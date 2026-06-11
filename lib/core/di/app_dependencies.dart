@@ -39,6 +39,16 @@ import '../../domain/usecases/sign_in_with_nik_usecase.dart';
 import '../../domain/usecases/sign_out_usecase.dart';
 import '../../domain/usecases/update_profile_usecase.dart';
 import '../../domain/usecases/validate_gps_usecase.dart';
+import '../../data/datasources/firestore_leave_data_source.dart';
+import '../../data/repositories/leave_repository_impl.dart';
+import '../../domain/repositories/leave_repository.dart';
+import '../../domain/usecases/submit_leave_usecase.dart';
+import '../../domain/usecases/get_my_leaves_usecase.dart';
+import '../../domain/usecases/get_pending_leaves_usecase.dart';
+import '../../domain/usecases/review_leave_usecase.dart';
+import '../../domain/usecases/upload_evidence_usecase.dart';
+import '../../data/datasources/firebase_storage_service.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import '../network/connectivity_service.dart';
 import '../network/retry_policy.dart';
 import '../services/firebase_bootstrap_service.dart';
@@ -66,6 +76,12 @@ class AppDependencies {
     required this.changePassword,
     required this.notificationService,
     required this.adminRepository,
+    required this.leaveRepository,
+    required this.submitLeave,
+    required this.getMyLeaves,
+    required this.getPendingLeaves,
+    required this.reviewLeave,
+    required this.uploadEvidence,
   });
 
   final FirebaseBootstrapResult firebase;
@@ -88,6 +104,12 @@ class AppDependencies {
   final ChangePasswordUseCase changePassword;
   final NotificationService notificationService;
   final AdminRepository adminRepository;
+  final LeaveRepository leaveRepository;
+  final SubmitLeaveUseCase submitLeave;
+  final GetMyLeavesUseCase getMyLeaves;
+  final GetPendingLeavesUseCase getPendingLeaves;
+  final ReviewLeaveUseCase reviewLeave;
+  final UploadEvidenceUseCase uploadEvidence;
 
   static Future<AppDependencies> create() async {
     final preferences = await SharedPreferences.getInstance();
@@ -143,6 +165,14 @@ class AppDependencies {
     final adminDataSource = FirestoreAdminDataSource(firestore);
     final adminRepository = AdminRepositoryImpl(adminDataSource: adminDataSource);
 
+    final leaveDataSource = FirestoreLeaveDataSource(firestore);
+    final leaveRepository = LeaveRepositoryImpl(
+      leaveDataSource: leaveDataSource,
+      attendanceDataSource: attendanceDataSource,
+    );
+
+    final storageService = FirebaseStorageService(FirebaseStorage.instance);
+
     return AppDependencies(
       firebase: firebase,
       authRepository: authRepository,
@@ -164,6 +194,12 @@ class AppDependencies {
       changePassword: ChangePasswordUseCase(userRepository ?? _DummyUserRepository()),
       notificationService: notificationService,
       adminRepository: adminRepository,
+      leaveRepository: leaveRepository,
+      submitLeave: SubmitLeaveUseCase(leaveRepository),
+      getMyLeaves: GetMyLeavesUseCase(leaveRepository),
+      getPendingLeaves: GetPendingLeavesUseCase(leaveRepository),
+      reviewLeave: ReviewLeaveUseCase(leaveRepository),
+      uploadEvidence: UploadEvidenceUseCase(storageService),
     );
   }
 }
