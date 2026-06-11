@@ -30,7 +30,7 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
     int totalHadir = adminProv.todayTotalAttendance;
     int totalTelat = adminProv.todayLates;
     int totalAlpha = adminProv.todayAbsents;
-    int totalIzin = 0; // Placeholder until Izin feature is fully built
+    int totalIzin = adminProv.todayLeaves;
 
     // Calculate hourly clock-in distribution from today's real database records
     final Map<int, int> hourlyData = {7: 0, 8: 0, 9: 0, 10: 0, 11: 0};
@@ -135,6 +135,7 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
                           children: [
                             _Legend(color: AppColors.statusHadir, label: 'Hadir ($totalHadir)'),
                             _Legend(color: AppColors.statusTelat, label: 'Telat ($totalTelat)'),
+                            _Legend(color: AppColors.statusIzin, label: 'Izin ($totalIzin)'),
                             _Legend(color: AppColors.statusAlpha, label: 'Alpha ($totalAlpha)'),
                           ],
                         )

@@ -26,17 +26,25 @@ class HistoryProvider extends ChangeNotifier {
   /// Filtered records based on selected status filter.
   List<AttendanceRecord> get filteredRecords {
     if (_filterStatus == null) return _records;
+    if (_filterStatus!.toLowerCase() == 'izin') {
+      return _records.where((r) => r.status.toLowerCase() == 'izin' || r.status.toLowerCase() == 'sakit').toList();
+    }
     return _records.where((r) => r.status.toLowerCase() == _filterStatus!.toLowerCase()).toList();
   }
 
   /// Monthly summary stats.
   Map<String, int> get monthlyStats {
-    final stats = {'hadir': 0, 'telat': 0, 'izin': 0, 'alpha': 0};
+    final stats = {'hadir': 0, 'telat': 0, 'izin': 0, 'sakit': 0, 'alpha': 0};
     for (final record in _records) {
       final key = stats.containsKey(record.status.toLowerCase()) ? record.status.toLowerCase() : 'alpha';
       stats[key] = (stats[key] ?? 0) + 1;
     }
-    return stats;
+    return {
+      'hadir': stats['hadir'] ?? 0,
+      'telat': stats['telat'] ?? 0,
+      'izin': (stats['izin'] ?? 0) + (stats['sakit'] ?? 0),
+      'alpha': stats['alpha'] ?? 0,
+    };
   }
 
   /// Load records for the selected month.

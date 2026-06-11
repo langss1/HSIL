@@ -289,10 +289,18 @@ class _HistoryCard extends StatelessWidget {
     final clockOutTime = record.clockOut != null ? DateFormat('HH:mm').format(record.clockOut!) : '--:--';
 
     Color statusColor = AppColors.statusHadir;
+    IconData statusIcon = Icons.fingerprint;
     final s = record.status.toLowerCase();
-    if (s == 'telat') statusColor = AppColors.statusTelat;
-    if (s == 'izin') statusColor = AppColors.statusIzin;
-    if (s == 'alpha') statusColor = AppColors.statusAlpha;
+    
+    if (s == 'telat') {
+      statusColor = AppColors.statusTelat;
+    } else if (s == 'izin' || s == 'sakit') {
+      statusColor = AppColors.statusIzin;
+      statusIcon = s == 'sakit' ? Icons.local_hospital_rounded : Icons.assignment_rounded;
+    } else if (s == 'alpha') {
+      statusColor = AppColors.statusAlpha;
+      statusIcon = Icons.cancel_rounded;
+    }
 
     return GlassCard(
       onTap: onTap,
@@ -302,7 +310,7 @@ class _HistoryCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), shape: BoxShape.circle),
-            child: Icon(Icons.fingerprint, color: statusColor, size: 28),
+            child: Icon(statusIcon, color: statusColor, size: 28),
           ),
           const SizedBox(width: Spacing.md),
           Expanded(

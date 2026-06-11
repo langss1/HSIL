@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../../core/di/app_dependencies.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/entities/registration_request.dart';
+import '../../core/services/local_notification_service.dart';
 
 enum AuthStatus {
   bootstrapping,
@@ -101,6 +102,7 @@ class AuthController extends ChangeNotifier {
         _user = user;
         _rememberedNik = _rememberMe ? user.nik : null;
         _status = AuthStatus.authenticated;
+        LocalNotificationService.scheduleDailyReminder();
       },
       failure: (failure) {
         _status = AuthStatus.unauthenticated;

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 import 'core/constants/app_constants.dart';
 import 'core/di/app_dependencies.dart';
@@ -23,6 +25,7 @@ import 'core/services/local_notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
   await LocalNotificationService.initialize();
   await initializeDateFormatting('id_ID', null);
   final dependencies = await AppDependencies.create();

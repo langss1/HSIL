@@ -165,6 +165,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         'hadir': 0,
         'telat': 0,
         'izin': 0,
+        'sakit': 0,
         'alpha': 0,
       };
 
@@ -173,7 +174,14 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         stats[key] = (stats[key] ?? 0) + 1;
       }
 
-      return AppSuccess(stats);
+      final combinedStats = {
+        'hadir': stats['hadir'] ?? 0,
+        'telat': stats['telat'] ?? 0,
+        'izin': (stats['izin'] ?? 0) + (stats['sakit'] ?? 0),
+        'alpha': stats['alpha'] ?? 0,
+      };
+
+      return AppSuccess(combinedStats);
     } catch (error) {
       return AppFailure(_mapFailure(error));
     }

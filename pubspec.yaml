@@ -59,6 +59,7 @@ dependencies:
   path_provider: ^2.1.5
   share_plus: any
   flutter_local_notifications: any
+  timezone: ^0.11.0
 
 dev_dependencies:
   flutter_test:

@@ -105,6 +105,12 @@ class AttendanceProvider extends ChangeNotifier {
         .watchTodayAttendance(employeeId)
         .listen((record) {
       _todayRecord = record;
+      
+      // Schedule reminder based on current clock-in status
+      LocalNotificationService.scheduleDailyReminder(
+        hasClockedInToday: record?.hasClockedIn ?? false,
+      );
+      
       notifyListeners();
     });
 
@@ -146,6 +152,10 @@ class AttendanceProvider extends ChangeNotifier {
         _todayRecord = record;
         _actionState = AttendanceActionState.success;
         _successMessage = 'Clock-in berhasil! Status: ${record.status}';
+        
+        // Smart cancellation: reschedule reminder to skip today
+        LocalNotificationService.scheduleDailyReminder(hasClockedInToday: true);
+
         LocalNotificationService.showNotification(
           id: 1,
           title: 'Clock-in Berhasil',

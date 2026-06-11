@@ -262,7 +262,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Rekap Bulan Ini',
+                            'Rekap Minggu Ini',
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge
