@@ -55,8 +55,11 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
     final totalEmployees = adminProv.employees.isEmpty ? 1 : adminProv.employees.length;
 
     final dateFormat = DateFormat('yyyy-MM-dd');
-    for (int i = 6; i >= 0; i--) {
-      final date = now.subtract(Duration(days: i));
+    final int currentWeekday = now.weekday; // 1 = Monday, ..., 7 = Sunday
+    final DateTime startOfWeek = now.subtract(Duration(days: currentWeekday - 1));
+
+    for (int i = 0; i < 5; i++) { // Loop 0 to 4 (Monday to Friday)
+      final date = startOfWeek.add(Duration(days: i));
       final dateKey = dateFormat.format(date);
       
       final dayRecords = adminProv.weeklyAttendance.where((r) => r.date == dateKey).toList();
@@ -67,6 +70,7 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
       
       weeklyRates.add(rate);
       weeklyLates.add(lateCount.toDouble());
+      // Get short day name (Sen, Sel, Rab, Kam, Jum)
       weekDays.add(DateFormat('E', 'id_ID').format(date));
     }
 
@@ -75,19 +79,17 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDarker : const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Grafik KPI',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: AppColors.deepNavy,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(24),
+          style: TextStyle(
+            color: isDark ? Colors.white : AppColors.deepNavy, 
+            fontWeight: FontWeight.bold
           ),
         ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: isDark ? Colors.white : AppColors.deepNavy),
       ),
       body: adminProv.isLoading && adminProv.todayAttendance.isEmpty
           ? const Center(child: CircularProgressIndicator(color: AppColors.safetyOrange))
@@ -131,12 +133,25 @@ class _KpiDashboardScreenState extends State<KpiDashboardScreen> {
                         ),
                         const SizedBox(height: 24),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _Legend(color: AppColors.statusHadir, label: 'Hadir ($totalHadir)'),
-                            _Legend(color: AppColors.statusTelat, label: 'Telat ($totalTelat)'),
-                            _Legend(color: AppColors.statusIzin, label: 'Izin ($totalIzin)'),
-                            _Legend(color: AppColors.statusAlpha, label: 'Alpha ($totalAlpha)'),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _Legend(color: AppColors.statusHadir, label: 'Hadir ($totalHadir)'),
+                                const SizedBox(height: 12),
+                                _Legend(color: AppColors.statusTelat, label: 'Telat ($totalTelat)'),
+                              ],
+                            ),
+                            const SizedBox(width: 48), // Jarak antar kolom
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _Legend(color: AppColors.statusAlpha, label: 'Alpha ($totalAlpha)'),
+                                const SizedBox(height: 12),
+                                _Legend(color: AppColors.statusIzin, label: 'Izin ($totalIzin)'),
+                              ],
+                            ),
                           ],
                         )
                       ],

@@ -168,7 +168,7 @@ class WeeklyAttendanceChart extends StatelessWidget {
             show: false,
           ),
           minX: 0,
-          maxX: 6,
+          maxX: (rates.length > 1) ? (rates.length - 1).toDouble() : 4,
           minY: 0,
           maxY: 100,
           lineBarsData: [
