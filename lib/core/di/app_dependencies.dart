@@ -45,10 +45,8 @@ import '../../domain/repositories/leave_repository.dart';
 import '../../domain/usecases/submit_leave_usecase.dart';
 import '../../domain/usecases/get_my_leaves_usecase.dart';
 import '../../domain/usecases/get_pending_leaves_usecase.dart';
+import '../../domain/usecases/get_all_leaves_usecase.dart';
 import '../../domain/usecases/review_leave_usecase.dart';
-import '../../domain/usecases/upload_evidence_usecase.dart';
-import '../../data/datasources/firebase_storage_service.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import '../network/connectivity_service.dart';
 import '../network/retry_policy.dart';
 import '../services/firebase_bootstrap_service.dart';
@@ -80,8 +78,8 @@ class AppDependencies {
     required this.submitLeave,
     required this.getMyLeaves,
     required this.getPendingLeaves,
+    required this.getAllLeaves,
     required this.reviewLeave,
-    required this.uploadEvidence,
   });
 
   final FirebaseBootstrapResult firebase;
@@ -108,8 +106,8 @@ class AppDependencies {
   final SubmitLeaveUseCase submitLeave;
   final GetMyLeavesUseCase getMyLeaves;
   final GetPendingLeavesUseCase getPendingLeaves;
+  final GetAllLeavesUseCase getAllLeaves;
   final ReviewLeaveUseCase reviewLeave;
-  final UploadEvidenceUseCase uploadEvidence;
 
   static Future<AppDependencies> create() async {
     final preferences = await SharedPreferences.getInstance();
@@ -171,8 +169,6 @@ class AppDependencies {
       attendanceDataSource: attendanceDataSource,
     );
 
-    final storageService = FirebaseStorageService(FirebaseStorage.instance);
-
     return AppDependencies(
       firebase: firebase,
       authRepository: authRepository,
@@ -198,8 +194,8 @@ class AppDependencies {
       submitLeave: SubmitLeaveUseCase(leaveRepository),
       getMyLeaves: GetMyLeavesUseCase(leaveRepository),
       getPendingLeaves: GetPendingLeavesUseCase(leaveRepository),
+      getAllLeaves: GetAllLeavesUseCase(leaveRepository),
       reviewLeave: ReviewLeaveUseCase(leaveRepository),
-      uploadEvidence: UploadEvidenceUseCase(storageService),
     );
   }
 }

@@ -53,6 +53,16 @@ class LeaveRepositoryImpl implements LeaveRepository {
   }
 
   @override
+  Future<AppResult<List<LeaveRequest>>> getAllLeaveRequests() async {
+    try {
+      final leaves = await _leaveDataSource.getAll();
+      return AppSuccess(leaves);
+    } catch (e) {
+      return AppFailure(_mapFailure(e));
+    }
+  }
+
+  @override
   Future<AppResult<List<LeaveRequest>>> getMyLeaveRequests(String employeeId) async {
     try {
       final leaves = await _leaveDataSource.getByEmployee(employeeId);

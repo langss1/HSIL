@@ -271,6 +271,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FadeSlide(
+                    delay: const Duration(milliseconds: 300),
+                    child: _StatCard(
+                      title: 'Izin',
+                      value: adminProv.todayLeaves.toString(),
+                      color: Colors.blue,
+                      icon: Icons.assignment_rounded,
+                      isDark: isDark,
+                    ),
+                  ),
+                ),
               ],
             ),
           ],
@@ -355,6 +368,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     color: Colors.teal,
                     isDark: isDark,
                     onTap: () => Navigator.pushNamed(context, RouteConstants.leaveApproval),
+                  ),
+                ),
+                FadeSlide(
+                  delay: const Duration(milliseconds: 800),
+                  child: _MenuCard(
+                    title: 'Riwayat Perizinan',
+                    subtitle: 'Buku Log Izin',
+                    icon: Icons.history_edu_rounded,
+                    color: Colors.blueAccent,
+                    isDark: isDark,
+                    onTap: () => Navigator.pushNamed(context, RouteConstants.leaveHistory),
                   ),
                 ),
               ],

@@ -21,6 +21,7 @@ import 'screens/admin/employee_detail_screen.dart';
 import 'screens/admin/admin_attendance_log_screen.dart';
 import 'screens/leave_request_screen.dart';
 import 'screens/admin/leave_approval_screen.dart';
+import 'screens/admin/leave_history_screen.dart';
 
 class AppRouter {
   const AppRouter._();
@@ -52,6 +53,7 @@ class AppRouter {
           initialEmployee: settings.arguments as AppUser?,
         ),
       RouteConstants.leaveApproval => const LeaveApprovalScreen(),
+      RouteConstants.leaveHistory => const LeaveHistoryScreen(),
       _ => const LoginScreen(),
     };
     return _buildRoute(page, settings);

@@ -12,6 +12,8 @@ abstract interface class LeaveRepository {
     String? attachmentUrl,
   });
 
+  Future<AppResult<List<LeaveRequest>>> getAllLeaveRequests();
+
   Future<AppResult<List<LeaveRequest>>> getMyLeaveRequests(String employeeId);
 
   Future<AppResult<List<LeaveRequest>>> getPendingLeaveRequests();

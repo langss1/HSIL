@@ -82,6 +82,7 @@ class FactoryAttendanceApp extends StatelessWidget {
             submitLeaveUseCase: dependencies.submitLeave,
             getMyLeavesUseCase: dependencies.getMyLeaves,
             getPendingLeavesUseCase: dependencies.getPendingLeaves,
+            getAllLeavesUseCase: dependencies.getAllLeaves,
             reviewLeaveUseCase: dependencies.reviewLeave,
           ),
         ),

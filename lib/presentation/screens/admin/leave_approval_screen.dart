@@ -73,44 +73,6 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
     );
   }
 
-  void _showEvidenceDialog(String imageUrl) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(16),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            InteractiveViewer(
-              panEnabled: true,
-              minScale: 0.5,
-              maxScale: 4,
-              child: Image.network(
-                imageUrl,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return const Center(child: CircularProgressIndicator(color: Colors.white));
-                },
-                errorBuilder: (context, error, stackTrace) => const Center(
-                  child: Text('Gagal memuat gambar', style: TextStyle(color: Colors.white)),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 16,
-              right: 16,
-              child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white, size: 32),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<LeaveProvider>();
@@ -155,28 +117,23 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
                                 const SizedBox(height: 4),
                                 Text('Alasan: ${leave.reason}'),
                                 const SizedBox(height: 16),
-                                if (leave.attachmentUrl != null && leave.attachmentUrl!.isNotEmpty) ...[
-                                  OutlinedButton.icon(
-                                    onPressed: () => _showEvidenceDialog(leave.attachmentUrl!),
-                                    icon: const Icon(Icons.attachment),
-                                    label: const Text('Lihat Lampiran'),
-                                  ),
-                                  const SizedBox(height: 16),
-                                ],
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    OutlinedButton.icon(
-                                      onPressed: () => _showReviewDialog(leave, false),
-                                      icon: const Icon(Icons.close, color: Colors.red),
-                                      label: const Text('Tolak', style: TextStyle(color: Colors.red)),
+                                    Expanded(
+                                      child: OutlinedButton.icon(
+                                        onPressed: () => _showReviewDialog(leave, false),
+                                        icon: const Icon(Icons.close, color: Colors.red),
+                                        label: const Text('Tolak', style: TextStyle(color: Colors.red)),
+                                      ),
                                     ),
                                     const SizedBox(width: 8),
-                                    ElevatedButton.icon(
-                                      onPressed: () => _showReviewDialog(leave, true),
-                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                                      icon: const Icon(Icons.check, color: Colors.white),
-                                      label: const Text('Setuju', style: TextStyle(color: Colors.white)),
+                                    Expanded(
+                                      child: ElevatedButton.icon(
+                                        onPressed: () => _showReviewDialog(leave, true),
+                                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                                        icon: const Icon(Icons.check, color: Colors.white),
+                                        label: const Text('Setuju', style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
                                   ],
                                 ),

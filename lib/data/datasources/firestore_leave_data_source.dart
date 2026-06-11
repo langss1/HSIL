@@ -18,6 +18,17 @@ class FirestoreLeaveDataSource {
     }
   }
 
+  Future<List<LeaveRequestModel>> getAll() async {
+    try {
+      final snapshot = await _collection
+          .orderBy('createdAt', descending: true)
+          .get();
+      return snapshot.docs.map(LeaveRequestModel.fromFirestore).toList();
+    } on FirebaseException catch (e) {
+      throw FirebaseDataException(e.message ?? 'Gagal membaca semua riwayat izin', code: e.code);
+    }
+  }
+
   Future<List<LeaveRequestModel>> getByEmployee(String employeeId) async {
     try {
       final snapshot = await _collection

@@ -29,6 +29,7 @@ class AdminProvider extends ChangeNotifier {
   int get todayTotalAttendance => _todayAttendance.where((r) => r.status == 'hadir' || r.status == 'telat').length;
   int get todayLates => _todayAttendance.where((r) => r.status == 'telat').length;
   int get todayAbsents => _todayAttendance.where((r) => r.status == 'alpha').length;
+  int get todayLeaves => _todayAttendance.where((r) => r.status == 'izin' || r.status == 'sakit').length;
 
   Future<void> fetchDashboardData() async {
     _setLoading(true);

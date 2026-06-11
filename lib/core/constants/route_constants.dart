@@ -21,5 +21,6 @@ class RouteConstants {
   static const String employeeDetail = '/admin-employee-detail';
   static const String adminAttendanceLog = '/admin-attendance-log';
   static const String leaveApproval = '/admin-leave-approval';
+  static const String leaveHistory = '/admin-leave-history';
   static const String leaveRequest = '/leave-request';
 }
