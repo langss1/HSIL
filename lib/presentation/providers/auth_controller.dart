@@ -78,6 +78,12 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateUser(AppUser updatedUser) {
+    _user = updatedUser;
+    _dependencies.authRepository.updateCachedUser(updatedUser);
+    notifyListeners();
+  }
+
   Future<void> signIn({required String identifier, required String password}) async {
     _status = AuthStatus.authenticating;
     _errorMessage = null;

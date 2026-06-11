@@ -16,7 +16,7 @@ class AdminRepositoryImpl implements AdminRepository {
   Future<AppResult<List<AppUser>>> getAllEmployees() async {
     try {
       final models = await adminDataSource.getAllEmployees();
-      return AppSuccess(models);
+      return AppSuccess(<AppUser>[...models]);
     } on Failure catch (e) {
       return AppFailure(e);
     } catch (e) {
@@ -28,7 +28,7 @@ class AdminRepositoryImpl implements AdminRepository {
   Future<AppResult<List<AttendanceRecord>>> getTodayAttendance() async {
     try {
       final models = await adminDataSource.getTodayAttendance();
-      return AppSuccess(models);
+      return AppSuccess(<AttendanceRecord>[...models]);
     } on Failure catch (e) {
       return AppFailure(e);
     } catch (e) {
@@ -42,7 +42,7 @@ class AdminRepositoryImpl implements AdminRepository {
     try {
       final models = await adminDataSource.getEmployeeAttendance(
           employeeId, startDate, endDate);
-      return AppSuccess(models);
+      return AppSuccess(<AttendanceRecord>[...models]);
     } on Failure catch (e) {
       return AppFailure(e);
     } catch (e) {
@@ -56,7 +56,7 @@ class AdminRepositoryImpl implements AdminRepository {
     try {
       final models = await adminDataSource.getAttendanceRange(
           startDate, endDate);
-      return AppSuccess(models);
+      return AppSuccess(<AttendanceRecord>[...models]);
     } on Failure catch (e) {
       return AppFailure(e);
     } catch (e) {

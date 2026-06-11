@@ -22,9 +22,10 @@ class ProfileProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   String? get successMessage => _successMessage;
 
-  Future<bool> updateProfile({
+  Future<AppUser?> updateProfile({
     required String userId,
     String? name,
+    String? email,
     String? phone,
   }) async {
     _isSaving = true;
@@ -35,6 +36,7 @@ class ProfileProvider extends ChangeNotifier {
     final result = await _updateProfile(
       userId: userId,
       name: name,
+      email: email,
       phone: phone,
     );
 
@@ -43,13 +45,13 @@ class ProfileProvider extends ChangeNotifier {
         _successMessage = 'Profil berhasil diperbarui.';
         _isSaving = false;
         notifyListeners();
-        return true;
+        return user;
       },
       failure: (failure) {
         _errorMessage = failure.message;
         _isSaving = false;
         notifyListeners();
-        return false;
+        return null;
       },
     );
   }

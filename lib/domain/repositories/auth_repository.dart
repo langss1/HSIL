@@ -22,4 +22,6 @@ abstract interface class AuthRepository {
   Future<AppResult<void>> sendPasswordReset(String nikOrEmail);
 
   Future<AppResult<void>> signOut();
+
+  Future<void> updateCachedUser(AppUser user);
 }

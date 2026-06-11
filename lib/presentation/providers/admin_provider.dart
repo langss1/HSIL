@@ -35,7 +35,7 @@ class AdminProvider extends ChangeNotifier {
     
     final employeesResult = await repository.getAllEmployees();
     employeesResult.when(
-      success: (data) => _employees = data,
+      success: (data) => _employees = List<AppUser>.from(data),
       failure: (failure) => _errorMessage = failure.message,
     );
 
