@@ -81,8 +81,9 @@ class FirebaseAuthDataSource {
       if (user == null) {
         throw AuthException('Sesi tidak ditemukan. Silakan login kembali.');
       }
-      // ignore: deprecated_member_use
-      await user.updateEmail(newEmail);
+      
+      // Menggunakan verifyBeforeUpdateEmail karena updateEmail sudah dihapus di firebase_auth versi terbaru
+      await user.verifyBeforeUpdateEmail(newEmail);
     } on FirebaseAuthException catch (error) {
       if (error.code == 'requires-recent-login') {
         throw AuthException(

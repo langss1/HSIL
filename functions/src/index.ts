@@ -3,6 +3,7 @@ import {FieldValue, Timestamp, getFirestore} from "firebase-admin/firestore";
 import {getAuth} from "firebase-admin/auth";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {onDocumentCreated} from "firebase-functions/v2/firestore";
+import {onSchedule} from "firebase-functions/v2/scheduler";
 import * as nodemailer from "nodemailer";
 
 initializeApp();
@@ -213,3 +214,68 @@ export const verifyOtpAndResetPassword = onCall<{nik: string, otp: string, newPa
   await resetDocRef.delete();
   return { ok: true };
 });
+
+export const markDailyAlpha = onSchedule(
+  {
+    schedule: "50 23 * * 1-5",  // 23:50 WIB (UTC+7) Senin-Jumat
+    timeZone: "Asia/Jakarta",
+    retryCount: 1,
+  },
+  async () => {
+    const now = new Date();
+    const wibOffset = 7 * 60 * 60 * 1000;
+    const wibDate = new Date(now.getTime() + wibOffset);
+    const todayKey = wibDate.toISOString().split("T")[0]; // yyyy-MM-dd
+
+    const usersSnap = await db.collection("users").where("isActive", "==", true).get();
+    
+    const attendanceSnap = await db.collection("attendance").where("date", "==", todayKey).get();
+    const attendedIds = new Set(attendanceSnap.docs.map(doc => doc.data().employeeId));
+
+    const leavesSnap = await db.collection("leave_requests")
+      .where("status", "==", "approved")
+      .get();
+      
+    const onLeaveIds = new Set<string>();
+    for (const doc of leavesSnap.docs) {
+      const data = doc.data();
+      const start = data.startDate;
+      const end = data.endDate;
+      if (todayKey >= start && todayKey <= end) {
+        onLeaveIds.add(data.employeeId);
+      }
+    }
+
+    const batch = db.batch();
+    let alphaCount = 0;
+
+    for (const userDoc of usersSnap.docs) {
+      const userId = userDoc.id;
+      if (attendedIds.has(userId) || onLeaveIds.has(userId)) continue;
+
+      const docId = `${userId}_${todayKey}`;
+      const ref = db.collection("attendance").doc(docId);
+
+      batch.set(ref, {
+        id: docId,
+        employeeId: userId,
+        employeeName: userDoc.data().name || "Unknown",
+        date: todayKey,
+        status: "alpha",
+        gpsStatus: "N/A",
+        clockIn: null,
+        clockOut: null,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+
+      alphaCount++;
+    }
+
+    if (alphaCount > 0) {
+      await batch.commit();
+    }
+
+    console.log(`markDailyAlpha: ${todayKey} — ${alphaCount} alpha(s) created.`);
+  }
+);

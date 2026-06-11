@@ -103,6 +103,25 @@ class AttendanceModel extends AttendanceRecord {
     );
   }
 
+  /// Creates an attendance record from an approved leave request.
+  factory AttendanceModel.forLeave({
+    required String employeeId,
+    required String employeeName,
+    required String date,
+    required String status,
+  }) {
+    return AttendanceModel(
+      id: '${employeeId}_$date',
+      employeeId: employeeId,
+      employeeName: employeeName,
+      date: date,
+      status: status,
+      gpsStatus: 'N/A',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
   // ---------------------------------------------------------------------------
   // Serialisation
   // ---------------------------------------------------------------------------

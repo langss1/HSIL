@@ -31,6 +31,19 @@ class FirestoreAttendanceDataSource {
     }
   }
 
+  /// Creates an attendance record for approved leave (izin/sakit).
+  /// Used by LeaveRepository when admin approves a leave request.
+  Future<void> saveLeaveAttendance(AttendanceModel model) async {
+    try {
+      await _collection.doc(model.id).set(model.toJson(), SetOptions(merge: true));
+    } on FirebaseException catch (error) {
+      throw FirebaseDataException(
+        error.message ?? 'Gagal menyimpan data absensi izin.',
+        code: error.code,
+      );
+    }
+  }
+
   /// Updates an existing attendance record with clock-out data.
   ///
   /// [fields] should contain the clock-out timestamp, GPS coordinates,
