@@ -13,6 +13,9 @@ class EmployeeListScreen extends StatefulWidget {
 }
 
 class _EmployeeListScreenState extends State<EmployeeListScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
@@ -22,48 +25,111 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final adminProv = context.watch<AdminProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final filteredEmployees = adminProv.employees.where((e) {
+      final query = _searchQuery.toLowerCase();
+      return e.name.toLowerCase().contains(query) ||
+             e.department.toLowerCase().contains(query) ||
+             e.position.toLowerCase().contains(query);
+    }).toList();
+
     return Scaffold(
       backgroundColor: isDark ? AppColors.deepNavy : const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Daftar Karyawan',
           style: TextStyle(
-            color: Colors.white,
+            color: isDark ? Colors.white : AppColors.deepNavy,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
         ),
         centerTitle: true,
-        backgroundColor: AppColors.deepNavy,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(24),
-          ),
+        iconTheme: IconThemeData(
+          color: isDark ? Colors.white : AppColors.deepNavy,
         ),
       ),
       body: adminProv.isLoading && adminProv.employees.isEmpty
           ? const Center(child: CircularProgressIndicator(color: AppColors.safetyOrange))
-          : RefreshIndicator(
-              onRefresh: () => adminProv.fetchDashboardData(),
-              color: AppColors.safetyOrange,
-              child: ListView.separated(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                itemCount: adminProv.employees.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final employee = adminProv.employees[index];
-                  return _EmployeeTile(employee: employee, isDark: isDark);
-                },
-              ),
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) => setState(() => _searchQuery = value),
+                    style: TextStyle(color: isDark ? Colors.white : AppColors.deepNavy),
+                    decoration: InputDecoration(
+                      hintText: 'Cari nama, departemen, atau posisi...',
+                      hintStyle: TextStyle(color: isDark ? Colors.white54 : AppColors.textSecondary),
+                      prefixIcon: Icon(Icons.search_rounded, color: isDark ? Colors.white54 : AppColors.textSecondary),
+                      filled: true,
+                      fillColor: isDark ? AppColors.bgCard : Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: isDark ? Colors.transparent : AppColors.deepNavy.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: isDark ? Colors.white30 : AppColors.deepNavy.withValues(alpha: 0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () => adminProv.fetchDashboardData(),
+                    color: AppColors.safetyOrange,
+                    child: filteredEmployees.isEmpty
+                        ? ListView( // empty state needs listview for refresh indicator
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                              Center(
+                                child: Text(
+                                  'Pencarian tidak ditemukan',
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white60 : AppColors.textSecondary,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                            itemCount: filteredEmployees.length,
+                            separatorBuilder: (context, index) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final employee = filteredEmployees[index];
+                              return _EmployeeTile(employee: employee, isDark: isDark);
+                            },
+                          ),
+                  ),
+                ),
+              ],
             ),
     );
   }
