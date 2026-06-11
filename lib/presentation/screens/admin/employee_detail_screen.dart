@@ -77,24 +77,19 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     return Scaffold(
       backgroundColor: isDark ? AppColors.deepNavy : const Color(0xFFF8FAFC), // slightly off-white like screenshot
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Detail Karyawan',
           style: TextStyle(
-            color: Colors.white,
+            color: isDark ? Colors.white : AppColors.deepNavy,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
         ),
         centerTitle: true,
-        backgroundColor: AppColors.deepNavy,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(24),
-          ),
+        iconTheme: IconThemeData(
+          color: isDark ? Colors.white : AppColors.deepNavy,
         ),
       ),
       body: SingleChildScrollView(
