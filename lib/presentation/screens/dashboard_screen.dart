@@ -190,58 +190,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ],
                                   ),
                                   const SizedBox(height: 16),
-                      // Ajukan Izin Button
-                      AppButton(
-                        label: 'Ajukan Izin',
-                        onPressed: () => Navigator.pushNamed(context, RouteConstants.leaveRequest),
-                      ),
-                                  // Thin elegant divider
-                                  Container(
-                                    height: 1,
-                                    width: double.infinity,
-                                    color: Theme.of(context).brightness == Brightness.dark
-                                        ? Colors.white.withValues(alpha: 0.08)
-                                        : AppColors.deepNavy.withValues(alpha: 0.08),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  // Barcode Row
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      // Mock Barcode
-                                      Row(
-                                        children: List.generate(24, (index) {
-                                          final width = (index % 3 == 0)
-                                              ? 2.8
-                                              : (index % 5 == 0)
-                                                  ? 1.2
-                                                  : 1.8;
-                                          final visible = index != 4 && index != 12 && index != 18;
-                                          return Container(
-                                            margin: const EdgeInsets.symmetric(horizontal: 1.0),
-                                            width: width,
-                                            height: 20,
-                                            decoration: BoxDecoration(
-                                              color: visible
-                                                  ? (Theme.of(context).brightness == Brightness.dark
-                                                      ? Colors.white.withValues(alpha: 0.25)
-                                                      : AppColors.deepNavy.withValues(alpha: 0.25))
-                                                  : Colors.transparent,
-                                              borderRadius: BorderRadius.circular(0.5),
-                                            ),
-                                          );
-                                        }),
-                                      ),
-                                      Text(
-                                        user != null ? 'ID: ${user.nik}' : 'ID: ----------',
-                                        style: const TextStyle(
-                                          color: AppColors.textSecondary,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          letterSpacing: 0.8,
-                                        ),
-                                      ),
-                                    ],
+                                  // Ajukan Izin Button
+                                  AppButton(
+                                    label: 'Ajukan Izin',
+                                    onPressed: () => Navigator.pushNamed(context, RouteConstants.leaveRequest),
                                   ),
                                 ],
                               ),
