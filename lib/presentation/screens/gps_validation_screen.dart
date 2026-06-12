@@ -193,13 +193,15 @@ class _GPSValidationScreenState extends State<GPSValidationScreen> {
         title: const Text('Validasi GPS'),
         centerTitle: true,
         automaticallyImplyLeading: false,
-        leading: widget.showBackButton ? IconButton(
+        leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () {
             loc.stopTracking();
-            Navigator.of(context).pop();
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
           },
-        ) : null,
+        ),
         actions: [
           if (loc.state == LocationState.ready)
             IconButton(
