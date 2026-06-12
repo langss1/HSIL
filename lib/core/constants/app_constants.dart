@@ -13,9 +13,9 @@ class AppConstants {
   static const String nikEmailDomain     = 'hsil.factory'; // NIK@hsil.factory
 
   // Office / GPS
-  static const String officeName          = 'HSIL Main Plant';
-  static const double officeLatitude      = -6.967426;
-  static const double officeLongitude     = 107.635609;
+  static const String officeName          = 'Telkom University';
+  static const double officeLatitude      = -6.973007; // Koordinat Telkom University
+  static const double officeLongitude     = 107.630713;
   static const double officeRadiusMeters  = 500;
 
   // Timing
