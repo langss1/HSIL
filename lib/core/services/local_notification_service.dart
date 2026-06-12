@@ -74,6 +74,7 @@ class LocalNotificationService {
           'data': {},
         });
       } catch (_) {}
+    }
   }
 
   static Future<void> scheduleDailyReminder({bool hasClockedInToday = false}) async {
