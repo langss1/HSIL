@@ -2,7 +2,7 @@ import {initializeApp} from "firebase-admin/app";
 import {FieldValue, Timestamp, getFirestore} from "firebase-admin/firestore";
 import {getAuth} from "firebase-admin/auth";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
-import {onDocumentCreated} from "firebase-functions/v2/firestore";
+import {onDocumentCreated, onDocumentDeleted} from "firebase-functions/v2/firestore";
 import {onSchedule} from "firebase-functions/v2/scheduler";
 import * as nodemailer from "nodemailer";
 
@@ -279,3 +279,19 @@ export const markDailyAlpha = onSchedule(
     console.log(`markDailyAlpha: ${todayKey} — ${alphaCount} alpha(s) created.`);
   }
 );
+
+export const deleteEmployeeAuth = onDocumentDeleted("users/{userId}", async (event) => {
+  const userId = event.params.userId;
+  if (!userId) return;
+
+  try {
+    await getAuth().deleteUser(userId);
+    console.log(`Successfully deleted auth user: ${userId}`);
+  } catch (error: any) {
+    if (error.code === "auth/user-not-found") {
+      console.log(`User ${userId} already deleted or not found in Auth.`);
+    } else {
+      console.error(`Error deleting auth user ${userId}:`, error);
+    }
+  }
+});

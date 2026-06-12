@@ -12,4 +12,6 @@ abstract class AdminRepository {
   Future<AppResult<List<AttendanceRecord>>> getAttendanceRange(DateTime startDate, DateTime endDate);
 
   Future<AppResult<void>> updateEmployeeRole(String employeeId, UserRole newRole);
+
+  Future<AppResult<void>> deleteEmployee(String employeeId);
 }

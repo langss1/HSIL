@@ -118,4 +118,19 @@ class FirestoreAdminDataSource {
       throw DataFailure(e.toString());
     }
   }
+
+  Future<void> deleteEmployeeDoc(String uid) async {
+    try {
+      await _firestore.collection('users').doc(uid).delete().timeout(const Duration(seconds: 10));
+    } on TimeoutException catch (_) {
+      throw const DataFailure(
+        'Koneksi timeout saat mencoba menghapus data.',
+        code: 'timeout',
+      );
+    } on FirebaseException catch (e) {
+      throw DataFailure(e.message ?? 'Failed to delete employee');
+    } catch (e) {
+      throw DataFailure(e.toString());
+    }
+  }
 }

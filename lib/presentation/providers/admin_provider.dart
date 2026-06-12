@@ -28,7 +28,12 @@ class AdminProvider extends ChangeNotifier {
 
   int get todayTotalAttendance => _todayAttendance.where((r) => r.status == 'hadir' || r.status == 'telat').length;
   int get todayLates => _todayAttendance.where((r) => r.status == 'telat').length;
-  int get todayAbsents => _todayAttendance.where((r) => r.status == 'alpha').length;
+  int get todayAbsents {
+    int total = _employees.length;
+    if (total == 0) return _todayAttendance.where((r) => r.status == 'alpha').length;
+    int remaining = total - todayTotalAttendance - todayLeaves;
+    return remaining > 0 ? remaining : 0;
+  }
   int get todayLeaves => _todayAttendance.where((r) => r.status == 'izin' || r.status == 'sakit').length;
 
   Future<void> fetchDashboardData() async {
@@ -98,6 +103,26 @@ class AdminProvider extends ChangeNotifier {
       failure: (failure) => _errorMessage = failure.message,
     );
     _setLoading(false);
+  }
+
+  Future<bool> deleteEmployee(String employeeId) async {
+    _errorMessage = null;
+    _setLoading(true);
+    final result = await repository.deleteEmployee(employeeId);
+    bool success = false;
+    result.when(
+      success: (_) {
+        _errorMessage = null;
+        _employees.removeWhere((e) => e.userId == employeeId);
+        success = true;
+      },
+      failure: (failure) {
+        _errorMessage = failure.message;
+        success = false;
+      },
+    );
+    _setLoading(false);
+    return success;
   }
 
   void _setLoading(bool value) {

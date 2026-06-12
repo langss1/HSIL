@@ -76,4 +76,16 @@ class AdminRepositoryImpl implements AdminRepository {
       return AppFailure(DataFailure(e.toString()));
     }
   }
+
+  @override
+  Future<AppResult<void>> deleteEmployee(String employeeId) async {
+    try {
+      await adminDataSource.deleteEmployeeDoc(employeeId);
+      return const AppSuccess(null);
+    } on Failure catch (e) {
+      return AppFailure(e);
+    } catch (e) {
+      return AppFailure(DataFailure(e.toString()));
+    }
+  }
 }

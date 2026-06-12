@@ -69,6 +69,62 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     }
   }
 
+  Future<void> _deleteEmployee() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Akun Karyawan?'),
+        content: Text('Apakah Anda yakin ingin menghapus akun ${widget.employee.name}? Tindakan ini tidak dapat dibatalkan dan semua data absensi terkait akan terpengaruh.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Ya, Hapus', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      setState(() {
+        _isSaving = true;
+      });
+
+      final adminProv = context.read<AdminProvider>();
+      final success = await adminProv.deleteEmployee(widget.employee.userId);
+
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+
+      if (success) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Akun karyawan berhasil dihapus.'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          Navigator.pop(context); // Kembali ke list
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal menghapus akun: ${adminProv.errorMessage}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isActive = widget.employee.isActive;
@@ -450,32 +506,56 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
   }
 
   Widget _buildActionButtons(bool isDark) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          Navigator.pushNamed(
-            context,
-            RouteConstants.adminAttendanceLog,
-            arguments: widget.employee,
-          );
-        },
-        icon: const Icon(Icons.history_rounded, size: 22),
-        label: const Text(
-          'Lihat Riwayat Kehadiran',
-          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.deepNavy,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                RouteConstants.adminAttendanceLog,
+                arguments: widget.employee,
+              );
+            },
+            icon: const Icon(Icons.history_rounded, size: 22),
+            label: const Text(
+              'Lihat Riwayat Kehadiran',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.deepNavy,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              shadowColor: AppColors.deepNavy.withValues(alpha: 0.3),
+            ),
           ),
-          shadowColor: AppColors.deepNavy.withValues(alpha: 0.3),
         ),
-      ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _isSaving ? null : _deleteEmployee,
+            icon: const Icon(Icons.delete_outline_rounded, size: 22),
+            label: const Text(
+              'Hapus Akun Karyawan',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red, width: 2),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
