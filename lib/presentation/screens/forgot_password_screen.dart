@@ -79,6 +79,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           ),
         );
       }
+    } on FirebaseFunctionsException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengirim OTP: ${e.message ?? e.code}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
