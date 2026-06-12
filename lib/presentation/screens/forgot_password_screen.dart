@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
+import 'otp_screen.dart';
 import '../../core/constants/spacing_constants.dart';
 import '../../core/themes/color_palette.dart';
 import '../providers/auth_controller.dart';
@@ -23,6 +25,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
   final _identityController = TextEditingController();
   late AnimationController _shieldController;
   late Animation<double> _shieldBounce;
+
+  bool _isBusy = false;
 
   @override
   void initState() {
@@ -51,69 +55,45 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     
     final identifier = _identityController.text.trim();
     
-    final success = await context.read<AuthController>().sendPasswordReset(identifier);
+    setState(() {
+      _isBusy = true;
+    });
+    
+    try {
+      final functions = FirebaseFunctions.instance;
+      final result = await functions.httpsCallable('requestPasswordReset').call({'nik': identifier});
       
-    if (success && mounted) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+      final hint = result.data['emailHint'] as String? ?? 'email Anda';
+      final resolvedNik = result.data['resolvedNik'] as String? ?? identifier;
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Kode OTP berhasil dikirim ke $hint'),
+            backgroundColor: AppColors.success,
           ),
-          backgroundColor: Theme.of(context).brightness == Brightness.dark
-              ? AppColors.bgCard
-              : AppColors.white,
-          contentPadding: const EdgeInsets.all(24),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.mark_email_unread_rounded,
-                  color: AppColors.success,
-                  size: 48,
-                ),
-              ),
-              const SizedBox(height: Spacing.lg),
-              Text(
-                'Cek Email Anda',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? AppColors.white
-                          : AppColors.deepNavy,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: Spacing.md),
-              Text(
-                'Link reset password telah dikirim ke email Anda. Silakan cek kotak masuk (Inbox) atau folder Spam/Junk.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: Spacing.xl),
-              SizedBox(
-                width: double.infinity,
-                child: AppButton(
-                  label: 'Kembali ke Login',
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Tutup dialog
-                    Navigator.of(context).pop(); // Tutup halaman Forgot Password
-                  },
-                ),
-              ),
-            ],
+        );
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => OtpScreen(nik: resolvedNik),
           ),
-        ),
-      );
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengirim OTP: ${e.toString().replaceAll('Exception: ', '')}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isBusy = false;
+        });
+      }
     }
   }
 
@@ -311,7 +291,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                               AppButton(
                                 label: 'Kirim Link Reset',
                                 icon: Icons.mark_email_read_outlined,
-                                isLoading: auth.isBusy,
+                                isLoading: _isBusy,
                                 onPressed: _submit,
                               ),
                             ],
