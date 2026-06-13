@@ -47,6 +47,11 @@ class AuthRepositoryImpl implements AuthRepository {
           return _loadUserProfile(firebaseUser.uid);
         })
         .handleError((Object error) async {
+          if (error is UserNotFoundException) {
+            await authDataSource.logout();
+            await _localSessionDataSource.clearSession();
+            return null;
+          }
           return getCachedUser();
         });
   }
