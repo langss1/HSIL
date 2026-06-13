@@ -14,6 +14,7 @@ class UpdateProfileUseCase {
     String? name,
     String? email,
     String? phone,
+    String? photoUrl,
   }) async {
     // Validate inputs
     if (name != null && name.trim().length < 3) {
@@ -33,6 +34,7 @@ class UpdateProfileUseCase {
     if (name != null) fields['name'] = name.trim();
     if (email != null && email.trim().isNotEmpty) fields['email'] = email.trim();
     if (phone != null) fields['phone'] = phone.trim();
+    if (photoUrl != null) fields['photoUrl'] = photoUrl;
 
     if (fields.isEmpty) {
       return const AppFailure(DataFailure('Tidak ada perubahan.'));

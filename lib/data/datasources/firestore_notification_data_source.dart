@@ -18,10 +18,25 @@ class FirestoreNotificationDataSource {
     try {
       // Fetch without orderBy to avoid Composite Index errors
       final snapshot = await _collection(userId).get();
+      final broadcastSnapshot = await _firestore.collection('broadcast_messages').get();
       
       final docs = snapshot.docs
           .map(NotificationModel.fromFirestore)
-          .toList(growable: false);
+          .toList(growable: true);
+          
+      for (final doc in broadcastSnapshot.docs) {
+        final data = doc.data();
+        docs.add(
+          NotificationModel(
+            id: doc.id,
+            title: data['title'] as String? ?? 'Pengumuman',
+            body: data['body'] as String? ?? '',
+            timestamp: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+            type: 'broadcast',
+            isRead: false,
+          ),
+        );
+      }
           
       // Sort locally descending by time
       docs.sort((a, b) => b.timestamp.compareTo(a.timestamp));

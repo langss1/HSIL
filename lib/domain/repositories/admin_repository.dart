@@ -1,6 +1,7 @@
 import '../../core/utils/app_result.dart';
 import '../entities/app_user.dart';
 import '../entities/attendance_record.dart';
+import '../entities/registration_request.dart';
 
 abstract class AdminRepository {
   Future<AppResult<List<AppUser>>> getAllEmployees();
@@ -12,6 +13,8 @@ abstract class AdminRepository {
   Future<AppResult<List<AttendanceRecord>>> getAttendanceRange(DateTime startDate, DateTime endDate);
 
   Future<AppResult<void>> updateEmployeeRole(String employeeId, UserRole newRole);
+
+  Future<AppResult<void>> addEmployee(RegistrationRequest request);
 
   Future<AppResult<void>> deleteEmployee(String employeeId);
 }

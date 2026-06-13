@@ -14,6 +14,8 @@ class RouteConstants {
   static const String notifications = '/notifications';
   
   // Admin Routes
+  static const String adminAddEmployee = '/admin/add-employee';
+  static const String adminBroadcast = '/admin/broadcast';
   static const String adminDashboard = '/admin-dashboard';
   static const String employeeList = '/admin-employee-list';
   static const String adminMap = '/admin-map';

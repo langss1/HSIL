@@ -161,7 +161,10 @@ class AppDependencies {
     );
 
     final adminDataSource = FirestoreAdminDataSource(firestore);
-    final adminRepository = AdminRepositoryImpl(adminDataSource: adminDataSource);
+    final adminRepository = AdminRepositoryImpl(
+      adminDataSource: adminDataSource,
+      userDataSource: userDataSource,
+    );
 
     final leaveDataSource = FirestoreLeaveDataSource(firestore);
     final leaveRepository = LeaveRepositoryImpl(

@@ -17,7 +17,18 @@ class ClockInUseCase {
     required GPSValidationResult gpsResult,
     required String imageUrl,
   }) async {
-    // 1. Validate GPS — must be in area
+    // 1. Validasi hari libur (Sabtu & Minggu)
+    final todayWeekday = DateTime.now().weekday;
+    if (todayWeekday == DateTime.saturday || todayWeekday == DateTime.sunday) {
+      return const AppFailure(
+        AttendanceFailure(
+          'Tidak dapat melakukan clock-in pada hari libur (Sabtu & Minggu).',
+          code: 'WEEKEND_NOT_ALLOWED',
+        ),
+      );
+    }
+
+    // 2. Validate GPS — must be in area
     if (!gpsResult.isInArea) {
       return AppFailure(
         GPSFailure(
@@ -29,7 +40,7 @@ class ClockInUseCase {
       );
     }
 
-    // 2. Check if already clocked in today
+    // 3. Check if already clocked in today
     final todayResult = await _repository.getTodayAttendance(employeeId);
     final today = todayResult.when(
       success: (record) => record,
@@ -45,7 +56,7 @@ class ClockInUseCase {
       );
     }
 
-    // 3. Perform clock-in
+    // 4. Perform clock-in
     return _repository.clockIn(
       employeeId: employeeId,
       employeeName: employeeName,

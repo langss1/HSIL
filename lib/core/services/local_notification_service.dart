@@ -112,6 +112,17 @@ class LocalNotificationService {
     }
   }
 
+  static Future<void> triggerTestNotification(String userId) async {
+    // 1. Show immediate local OS push notification
+    await showNotification(
+      id: 999,
+      title: 'Pengingat Absensi (Tes)',
+      body: 'Waktunya Clock In! Jangan lupa absen hari ini.',
+      userId: userId,
+      type: 'reminder',
+    );
+  }
+
   static tz.TZDateTime _nextInstanceOfWorkdayAt(int weekday, int hour, int minute) {
     tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
