@@ -29,6 +29,14 @@ class AdminProvider extends ChangeNotifier {
   int get todayTotalAttendance => _todayAttendance.where((r) => r.status == 'hadir' || r.status == 'telat').length;
   int get todayLates => _todayAttendance.where((r) => r.status == 'telat').length;
   int get todayAbsents {
+    final now = DateTime.now();
+    final isWeekend = now.weekday == DateTime.saturday || now.weekday == DateTime.sunday;
+    
+    if (isWeekend) {
+      // Pada hari Sabtu/Minggu, jangan anggap karyawan yang belum absen sebagai Alpha
+      return _todayAttendance.where((r) => r.status == 'alpha').length;
+    }
+
     int total = _employees.length;
     if (total == 0) return _todayAttendance.where((r) => r.status == 'alpha').length;
     int remaining = total - todayTotalAttendance - todayLeaves;
