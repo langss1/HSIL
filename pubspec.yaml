@@ -60,6 +60,7 @@ dependencies:
   share_plus: any
   flutter_local_notifications: ^17.1.2
   timezone: ^0.9.0
+  image_picker: ^1.2.2
 
 dev_dependencies:
   flutter_test:
