@@ -1,10 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../core/constants/route_constants.dart';
 import '../../core/constants/spacing_constants.dart';
 import '../../core/themes/color_palette.dart';
+import '../../core/services/local_notification_service.dart';
 import '../providers/auth_controller.dart';
+import '../providers/profile_provider.dart';
+import '../../domain/entities/app_user.dart';
 import '../widgets/glass_card.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -32,11 +38,11 @@ class ProfileScreen extends StatelessWidget {
         padding: Spacing.screenPadding,
         child: Column(
           children: [
-            _buildHeader(context, user.name, user.position, user.department),
+            _buildHeader(context, user),
             const SizedBox(height: Spacing.lg),
             _buildInfoCard(context, user),
             const SizedBox(height: Spacing.lg),
-            _buildActionsCard(context),
+            _buildActionsCard(context, user),
             const SizedBox(height: Spacing.xl),
             const Text('v1.0.0', style: TextStyle(color: Colors.grey)),
             const SizedBox(height: Spacing.md),
@@ -46,34 +52,104 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, String name, String position, String department) {
-    final initials = name.isNotEmpty ? name.trim().substring(0, 1).toUpperCase() : '?';
+  Widget _buildHeader(BuildContext context, AppUser user) {
+    final initials = user.name.isNotEmpty ? user.name.trim().substring(0, 1).toUpperCase() : '?';
 
     return Column(
       children: [
-        Container(
-          width: 100,
-          height: 100,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [AppColors.safetyOrange, Color(0xFFFF9E45)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            initials,
-            style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
+        GestureDetector(
+          onTap: () => _pickAndSaveImage(context, user),
+          child: Stack(
+            children: [
+              Container(
+                width: 100,
+                height: 100,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [AppColors.safetyOrange, Color(0xFFFF9E45)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                alignment: Alignment.center,
+                clipBehavior: Clip.hardEdge,
+                child: (user.photoUrl != null && user.photoUrl!.isNotEmpty)
+                    ? Image.file(
+                        File(user.photoUrl!),
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Text(
+                          initials,
+                          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                      )
+                    : Text(
+                        initials,
+                        style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(
+                    color: AppColors.deepNavy,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 16),
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: Spacing.md),
-        Text(name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        Text(user.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         const SizedBox(height: Spacing.xs),
-        Text('$position • $department', style: const TextStyle(color: Colors.grey, fontSize: 16)),
+        Text('${user.position} • ${user.department}', style: const TextStyle(color: Colors.grey, fontSize: 16)),
       ],
     );
+  }
+
+  Future<void> _pickAndSaveImage(BuildContext context, AppUser user) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 500,
+        imageQuality: 80,
+      );
+
+      if (pickedFile == null) return;
+
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = 'profile_${user.userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final savedImage = await File(pickedFile.path).copy('${appDir.path}/$fileName');
+
+      if (!context.mounted) return;
+      
+      final profileProvider = context.read<ProfileProvider>();
+      final authController = context.read<AuthController>();
+      
+      final result = await profileProvider.updateProfile(
+        userId: user.userId,
+        photoUrl: savedImage.path,
+      );
+      
+      if (result != null && context.mounted) {
+        authController.updateUser(result);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Foto profil berhasil diubah!')),
+        );
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal mengubah foto: $e')),
+      );
+    }
   }
 
   Widget _buildInfoCard(BuildContext context, dynamic user) {
@@ -114,7 +190,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionsCard(BuildContext context) {
+  Widget _buildActionsCard(BuildContext context, AppUser user) {
     return Column(
       children: [
         _buildActionItem(context, 'Edit Profil', Icons.edit_rounded, RouteConstants.editProfile),
@@ -122,6 +198,19 @@ class ProfileScreen extends StatelessWidget {
         _buildActionItem(context, 'Ubah Password', Icons.lock_rounded, RouteConstants.changePassword),
         const SizedBox(height: Spacing.sm),
         _buildActionItem(context, 'Notifikasi', Icons.notifications_rounded, RouteConstants.notifications),
+        const SizedBox(height: Spacing.sm),
+        _buildActionItem(
+          context,
+          'Tes Push Notifikasi',
+          Icons.notification_add_rounded,
+          null,
+          onTap: () async {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Mengirim notifikasi tes...')),
+            );
+            await LocalNotificationService.triggerTestNotification(user.userId);
+          },
+        ),
         const SizedBox(height: Spacing.sm),
         _buildActionItem(
           context, 

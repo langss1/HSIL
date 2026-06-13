@@ -1,0 +1,378 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../core/constants/spacing_constants.dart';
+import '../../../core/themes/color_palette.dart';
+import '../../../domain/entities/registration_request.dart';
+import '../../providers/admin_provider.dart';
+import '../../widgets/animated_gradient_backdrop.dart';
+import '../../widgets/app_button.dart';
+import '../../widgets/app_text_field.dart';
+import '../../widgets/fade_slide.dart';
+import '../../widgets/glass_card.dart';
+
+class AdminAddEmployeeScreen extends StatefulWidget {
+  const AdminAddEmployeeScreen({super.key});
+
+  @override
+  State<AdminAddEmployeeScreen> createState() => _AdminAddEmployeeScreenState();
+}
+
+class _AdminAddEmployeeScreenState extends State<AdminAddEmployeeScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nikController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _departmentController = TextEditingController();
+  final _positionController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nikController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _departmentController.dispose();
+    _positionController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    
+    final adminProv = context.read<AdminProvider>();
+    final success = await adminProv.addEmployee(
+      RegistrationRequest(
+        nik: _nikController.text,
+        name: _nameController.text,
+        email: _emailController.text,
+        department: _departmentController.text,
+        position: _positionController.text,
+        phone: _phoneController.text,
+        password: _passwordController.text,
+      ),
+    );
+
+    if (mounted && success) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+              SizedBox(width: 8),
+              Text('Pendaftaran berhasil!'),
+            ],
+          ),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final adminProv = context.watch<AdminProvider>();
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E293B)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                if (Theme.of(context).brightness != Brightness.dark)
+                  BoxShadow(
+                    color: AppColors.deepNavy.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+              ],
+            ),
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 16,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : AppColors.deepNavy,
+            ),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: AnimatedGradientBackdrop(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: Spacing.screenPadding,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: FadeSlide(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Header
+                      Text(
+                        'Tambah Karyawan',
+                        textAlign: TextAlign.center,
+                        style:
+                            Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? AppColors.white
+                                      : AppColors.deepNavy,
+                                ),
+                      ),
+                      const SizedBox(height: Spacing.xs),
+                      Text(
+                        'Daftarkan akun karyawan baru secara aman.',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: Spacing.md),
+
+                      // Form card
+                      GlassCard(
+                        padding: const EdgeInsets.all(16),
+                        borderRadius: 24,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Error
+                              if (adminProv.errorMessage != null) ...[
+                                _RegisterAlert(message: adminProv.errorMessage!),
+                                const SizedBox(height: Spacing.md),
+                              ],
+
+                               // ─── Section: Data Diri ───────────
+                                _SectionLabel(
+                                  label: 'Data Karyawan',
+                                  icon: Icons.person_rounded,
+                                ),
+                                const SizedBox(height: Spacing.md),
+
+                              AppTextField(
+                                controller: _nikController,
+                                label: 'NIK',
+                                hint: '10 digit',
+                                icon: Icons.badge_rounded,
+                                keyboardType: TextInputType.number,
+                                textInputAction: TextInputAction.next,
+                                validator: _validateNik,
+                              ),
+                              const SizedBox(height: Spacing.lg),
+                              AppTextField(
+                                controller: _nameController,
+                                label: 'Nama Lengkap',
+                                hint: 'Nama karyawan',
+                                icon: Icons.person_rounded,
+                                textInputAction: TextInputAction.next,
+                                validator: (value) {
+                                  if ((value?.trim() ?? '').length < 3) {
+                                    return 'Nama minimal 3 karakter';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: Spacing.lg),
+                              AppTextField(
+                                controller: _emailController,
+                                label: 'Email Aktif',
+                                hint: 'nama@domain.com',
+                                icon: Icons.email_rounded,
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
+                                validator: (value) {
+                                  if (!(value ?? '').contains('@')) {
+                                    return 'Email tidak valid';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: Spacing.lg),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: AppTextField(
+                                      controller: _departmentController,
+                                      label: 'Departemen',
+                                      hint: 'Produksi',
+                                      icon: Icons.business_rounded,
+                                      textInputAction: TextInputAction.next,
+                                      validator: _required,
+                                    ),
+                                  ),
+                                  const SizedBox(width: Spacing.md),
+                                  Expanded(
+                                    child: AppTextField(
+                                      controller: _positionController,
+                                      label: 'Jabatan',
+                                      hint: 'Operator',
+                                      icon: Icons.work_rounded,
+                                      textInputAction: TextInputAction.next,
+                                      validator: _required,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: Spacing.lg),
+                              AppTextField(
+                                controller: _phoneController,
+                                label: 'No. HP (Opsional)',
+                                hint: '08xxxxxxxxxx',
+                                icon: Icons.phone_rounded,
+                                keyboardType: TextInputType.phone,
+                                textInputAction: TextInputAction.next,
+                              ),
+
+                              const SizedBox(height: Spacing.xl),
+
+                              // ─── Section: Password ──────────
+                              _SectionLabel(
+                                label: 'Buat Password',
+                                icon: Icons.lock_rounded,
+                              ),
+                              const SizedBox(height: Spacing.md),
+
+                              AppTextField(
+                                controller: _passwordController,
+                                label: 'Password',
+                                hint: 'Minimal 6 karakter',
+                                icon: Icons.lock_rounded,
+                                obscureText: true,
+                                textInputAction: TextInputAction.next,
+                                validator: _validatePassword,
+                              ),
+                              const SizedBox(height: Spacing.lg),
+                              AppTextField(
+                                controller: _confirmPasswordController,
+                                label: 'Konfirmasi Password',
+                                hint: 'Ulangi password',
+                                icon: Icons.lock_reset_rounded,
+                                obscureText: true,
+                                textInputAction: TextInputAction.done,
+                                onSubmitted: (_) => _submit(),
+                                validator: (value) {
+                                  if (value != _passwordController.text) {
+                                    return 'Konfirmasi password tidak sama';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: Spacing.xl),
+
+                              AppButton(
+                                label: 'Daftarkan Karyawan',
+                                icon: Icons.person_add_alt_rounded,
+                                isLoading: adminProv.isLoading,
+                                onPressed: _submit,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String? _validateNik(String? value) {
+    if (!RegExp(r'^\d{10}$').hasMatch(value?.trim() ?? '')) {
+      return 'NIK harus 10 digit angka';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if ((value ?? '').length < 6) return 'Password minimal 6 karakter';
+    return null;
+  }
+
+  String? _required(String? value) {
+    if ((value?.trim() ?? '').isEmpty) return 'Wajib diisi';
+    return null;
+  }
+}
+
+// ─────────────────────── Section Label ───────────────────────
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({required this.label, required this.icon});
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppColors.safetyOrange),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: AppColors.safetyOrange,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
+              ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────── Error Alert ───────────────────────
+class _RegisterAlert extends StatelessWidget {
+  const _RegisterAlert({required this.message});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.error.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.20)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline_rounded,
+              color: AppColors.error, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

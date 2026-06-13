@@ -408,6 +408,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     onTap: () => Navigator.pushNamed(context, RouteConstants.leaveHistory),
                   ),
                 ),
+                const SizedBox(height: 12),
+                FadeSlide(
+                  delay: const Duration(milliseconds: 900),
+                  child: _MenuCard(
+                    title: 'Pengumuman Massal',
+                    subtitle: 'Broadcast Karyawan',
+                    icon: Icons.campaign_rounded,
+                    color: Colors.redAccent,
+                    isDark: isDark,
+                    onTap: () => Navigator.pushNamed(context, RouteConstants.adminBroadcast),
+                  ),
+                ),
               ],
             ),
           ],

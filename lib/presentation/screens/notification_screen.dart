@@ -106,6 +106,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
               } else if (n.type == 'failure') {
                 icon = Icons.error_rounded;
                 color = AppColors.error;
+              } else if (n.type == 'broadcast') {
+                icon = Icons.campaign_rounded;
+                color = Colors.blueAccent;
               }
 
               return Padding(

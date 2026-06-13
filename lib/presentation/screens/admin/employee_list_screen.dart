@@ -131,6 +131,13 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
                 ),
               ],
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, RouteConstants.adminAddEmployee);
+        },
+        backgroundColor: AppColors.safetyOrange,
+        child: const Icon(Icons.person_add_alt_1_rounded, color: Colors.white),
+      ),
     );
   }
 }
