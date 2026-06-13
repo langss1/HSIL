@@ -1,6 +1,7 @@
 import {initializeApp} from "firebase-admin/app";
 import {FieldValue, Timestamp, getFirestore} from "firebase-admin/firestore";
 import {getAuth} from "firebase-admin/auth";
+import {getMessaging} from "firebase-admin/messaging";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {onDocumentCreated, onDocumentDeleted} from "firebase-functions/v2/firestore";
 import {onSchedule} from "firebase-functions/v2/scheduler";
@@ -279,6 +280,32 @@ export const markDailyAlpha = onSchedule(
     console.log(`markDailyAlpha: ${todayKey} — ${alphaCount} alpha(s) created.`);
   }
 );
+
+export const sendBroadcastNotification = onDocumentCreated("broadcast_messages/{docId}", async (event) => {
+  const snapshot = event.data;
+  if (!snapshot) {
+    return;
+  }
+
+  const data = snapshot.data();
+  const title = data.title || "Pengumuman Baru";
+  const body = data.body || "";
+
+  const payload = {
+    notification: {
+      title: title,
+      body: body,
+    },
+    topic: "all_employees",
+  };
+
+  try {
+    const response = await getMessaging().send(payload);
+    console.log("Successfully sent broadcast message:", response);
+  } catch (error) {
+    console.error("Error sending broadcast message:", error);
+  }
+});
 
 export const deleteEmployeeAuth = onDocumentDeleted("users/{userId}", async (event) => {
   const userId = event.params.userId;
