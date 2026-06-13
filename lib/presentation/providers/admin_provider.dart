@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/entities/attendance_record.dart';
+import '../../domain/entities/registration_request.dart';
 import '../../domain/repositories/admin_repository.dart';
 
 class AdminProvider extends ChangeNotifier {
@@ -130,6 +131,37 @@ class AdminProvider extends ChangeNotifier {
       },
     );
     _setLoading(false);
+    return success;
+  }
+
+  Future<bool> addEmployee(RegistrationRequest request) async {
+    _errorMessage = null;
+    _setLoading(true);
+    
+    final result = await repository.addEmployee(request);
+    bool success = false;
+    
+    result.when(
+      success: (_) async {
+        _errorMessage = null;
+        success = true;
+        // Refresh employee list after successful addition
+        await fetchDashboardData();
+      },
+      failure: (failure) {
+        _errorMessage = failure.message;
+        success = false;
+      },
+    );
+    
+    if (success) {
+      // _setLoading(false) is called inside fetchDashboardData, 
+      // but we ensure it's called just in case
+      _setLoading(false);
+    } else {
+      _setLoading(false);
+    }
+    
     return success;
   }
 

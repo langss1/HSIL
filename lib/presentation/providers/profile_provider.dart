@@ -27,6 +27,7 @@ class ProfileProvider extends ChangeNotifier {
     String? name,
     String? email,
     String? phone,
+    String? photoUrl,
   }) async {
     _isSaving = true;
     _errorMessage = null;
@@ -38,6 +39,7 @@ class ProfileProvider extends ChangeNotifier {
       name: name,
       email: email,
       phone: phone,
+      photoUrl: photoUrl,
     );
 
     return result.when(

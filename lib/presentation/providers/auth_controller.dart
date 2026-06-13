@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../../core/di/app_dependencies.dart';
 import '../../domain/entities/app_user.dart';
@@ -58,6 +59,9 @@ class AuthController extends ChangeNotifier {
                 ? AuthStatus.unauthenticated
                 : AuthStatus.authenticated;
         _errorMessage = null;
+        if (user != null) {
+          FirebaseMessaging.instance.subscribeToTopic('all_employees');
+        }
         notifyListeners();
       },
       onError: (Object error) {
@@ -164,6 +168,7 @@ class AuthController extends ChangeNotifier {
       success: (_) {
         _user = null;
         _status = AuthStatus.unauthenticated;
+        FirebaseMessaging.instance.unsubscribeFromTopic('all_employees');
       },
       failure: (failure) {
         _errorMessage = failure.message;
