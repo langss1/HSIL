@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
-import 'otp_screen.dart';
 import '../../core/constants/spacing_constants.dart';
 import '../../core/themes/color_palette.dart';
 import '../providers/auth_controller.dart';
@@ -25,8 +23,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
   final _identityController = TextEditingController();
   late AnimationController _shieldController;
   late Animation<double> _shieldBounce;
-
-  bool _isBusy = false;
 
   @override
   void initState() {
@@ -54,55 +50,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     FocusScope.of(context).unfocus();
     
     final identifier = _identityController.text.trim();
+    final auth = context.read<AuthController>();
     
-    setState(() {
-      _isBusy = true;
-    });
-    
-    try {
-      final functions = FirebaseFunctions.instance;
-      final result = await functions.httpsCallable('requestPasswordReset').call({'nik': identifier});
+    final success = await auth.sendPasswordReset(identifier);
       
-      final hint = result.data['emailHint'] as String? ?? 'email Anda';
-      final resolvedNik = result.data['resolvedNik'] as String? ?? identifier;
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Kode OTP berhasil dikirim ke $hint'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => OtpScreen(nik: resolvedNik),
-          ),
-        );
-      }
-    } on FirebaseFunctionsException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal mengirim OTP: ${e.message ?? e.code}'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal mengirim OTP: ${e.toString().replaceAll('Exception: ', '')}'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isBusy = false;
-        });
-      }
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Link reset password telah dikirim ke email terdaftar Anda'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+      Navigator.of(context).pop();
     }
   }
 
@@ -300,7 +259,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                               AppButton(
                                 label: 'Kirim Link Reset',
                                 icon: Icons.mark_email_read_outlined,
-                                isLoading: _isBusy,
+                                isLoading: auth.status == AuthStatus.authenticating,
                                 onPressed: _submit,
                               ),
                             ],
