@@ -199,19 +199,21 @@ class ProfileScreen extends StatelessWidget {
         const SizedBox(height: Spacing.sm),
         _buildActionItem(context, 'Notifikasi', Icons.notifications_rounded, RouteConstants.notifications),
         const SizedBox(height: Spacing.sm),
-        _buildActionItem(
-          context,
-          'Tes Push Notifikasi',
-          Icons.notification_add_rounded,
-          null,
-          onTap: () async {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Mengirim notifikasi tes...')),
-            );
-            await LocalNotificationService.triggerTestNotification(user.userId);
-          },
-        ),
-        const SizedBox(height: Spacing.sm),
+        if (user.isAdmin) ...[
+          _buildActionItem(
+            context,
+            'Tes Push Notifikasi',
+            Icons.notification_add_rounded,
+            null,
+            onTap: () async {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Mengirim notifikasi tes...')),
+              );
+              await LocalNotificationService.triggerTestNotification(user.userId);
+            },
+          ),
+          const SizedBox(height: Spacing.sm),
+        ],
         _buildActionItem(
           context, 
           'Tentang Aplikasi', 
