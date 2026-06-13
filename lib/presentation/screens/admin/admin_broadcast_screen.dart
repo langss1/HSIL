@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/services/local_notification_service.dart';
 import '../../../core/constants/spacing_constants.dart';
 import '../../../core/themes/color_palette.dart';
 import '../../providers/auth_controller.dart';
@@ -112,6 +113,20 @@ class _AdminBroadcastScreenState extends State<AdminBroadcastScreen> {
                 label: 'Kirim ke Semua Karyawan',
                 onPressed: _submit,
                 isLoading: _isSubmitting,
+              ),
+              const SizedBox(height: Spacing.md),
+              AppButton(
+                label: 'Tes Kirim ke HP Ini Saja',
+                isOutlined: true,
+                icon: Icons.phonelink_ring_rounded,
+                onPressed: () async {
+                  final user = context.read<AuthController>().user;
+                  if (user == null) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Mengirim notifikasi tes...')),
+                  );
+                  await LocalNotificationService.triggerTestNotification(user.userId);
+                },
               ),
             ],
           ),
